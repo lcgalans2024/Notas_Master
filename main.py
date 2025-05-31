@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
 import sidebar
 from pages import pt_resultados_individuales
 
@@ -9,23 +11,23 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded")
 
-st.title("Notas Master")
+st.title("Seguimiento Académico - Grado 7°")
 
 # Configurar sidebar y cargar datos
 sidebar.sidebar_config()
 
 # Tabs principales del Dashboard
 tabs = [
-    "Análisis Puntaje Global",
-    "Análisis Por Area",
-    "Análisis Por Grupo",
-    "Análisis Por Año",
-    "Olimpiadas Institucionales",
-    "Descarga de Datos"
+    "Notas Matemáticas",
+    "Notas Recuperación"#,
+    #"Análisis Por Grupo",
+    #"Análisis Por Año",
+    #"Olimpiadas Institucionales",
+    #"Descarga de Datos"
 ]
 
 # Crear Tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(tabs)
+tab1, tab2 = st.tabs(tabs)
 
 # Lógica de cada pantalla
 with tab1:
