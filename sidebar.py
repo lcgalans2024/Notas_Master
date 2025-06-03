@@ -20,18 +20,21 @@ def sidebar_config():
         st.session_state.selected_periodo = None
     ############################### Load Data ###############################
     file_path = "data/Notas_Master.xlsx"
+    file_path_superaciones = "data/Resultados_Sup_2025.xlsx"
 
     # Usar ExcelFile para obtener los nombres de las hojas
     excel_file = pd.ExcelFile(file_path)
+    excel_file_superaciones = pd.ExcelFile(file_path_superaciones)
 
     # Obtener los nombres de las hojas
     sheet_names = excel_file.sheet_names
+    sheet_names_superaciones = excel_file_superaciones.sheet_names
 
     # Obtener los nombres de las hojas
     periodo_number = ["",1,2,3]
 
     # Crear un selector en Streamlit con los nombres de las hojas
-    selected_sheet_grupo = st.sidebar.selectbox("Seleccione su grupo", [""] + sheet_names, index= 0)
+    selected_sheet_grupo = st.sidebar.selectbox("Seleccione su grupo", [""] + sheet_names_superaciones + sheet_names, index= 0)
 
     documento_estudiante = st.sidebar.text_input("Documento", type='password')
 
@@ -59,26 +62,44 @@ def sidebar_config():
     submitted = st.sidebar.button("Consultar")
 
     if st.session_state.documento_estudiante or st.session_state.selected_sheet_grupo or st.session_state.selected_periodo:
-        # cargar datos en session state
-        st.session_state.file_path = file_path
-        #st.session_state.selected_sheet_grupo = selected_sheet_grupo
-        #st.session_state.selected_periodo = selected_periodo
-        #st.session_state.documento_estudiante = documento_estudiante
-        # Cargar los datos
-        file_path = st.session_state.file_path
-        selected_sheet_grupo = st.session_state.selected_sheet_grupo
-        selected_periodo = st.session_state.selected_periodo
-        documento_estudiante = st.session_state.documento_estudiante
-        # Cargar los datos del archivo Excel
 
-        # Cargar los datos del archivo Excel
-        st.session_state.datos = cargar_datos_all(file_path, selected_sheet_grupo)
-        datos = st.session_state.datos
-        
+        if selected_sheet_grupo != "7":
+            # cargar datos en session state
+            st.session_state.file_path = file_path
+            #st.session_state.selected_sheet_grupo = selected_sheet_grupo
+            #st.session_state.selected_periodo = selected_periodo
+            #st.session_state.documento_estudiante = documento_estudiante
+            # Cargar los datos
+            file_path = st.session_state.file_path
+            selected_sheet_grupo = st.session_state.selected_sheet_grupo
+            selected_periodo = st.session_state.selected_periodo
+            documento_estudiante = st.session_state.documento_estudiante
+            # Cargar los datos del archivo Excel
+
+            # Cargar los datos del archivo Excel
+            st.session_state.datos = cargar_datos_all(file_path, selected_sheet_grupo)
+            datos = st.session_state.datos
+
+        else:
+            # cargar datos en session state
+            st.session_state.file_path = file_path_superaciones
+            
+            # Cargar los datos
+            file_path_superaciones = st.session_state.file_path
+            selected_sheet_grupo = st.session_state.selected_sheet_grupo
+            selected_periodo = st.session_state.selected_periodo
+            documento_estudiante = st.session_state.documento_estudiante
+            # Cargar los datos del archivo Excel
+
+            # Cargar los datos del archivo Excel
+            st.session_state.datos = cargar_datos_all(file_path_superaciones, selected_sheet_grupo)
+            datos = st.session_state.datos
+
         # Convertir las columnas 'Matricula' y 'DOCUMENTO' a string para evitar problemas de tipo
         ############### Cargar Datos ################
-        datos["Matricula"] = datos["Matricula"].astype(str)
+        datos["MATRICULA"] = datos["MATRICULA"].astype(str)
         datos["DOCUMENTO"] = datos["DOCUMENTO"].astype(str)
+
         # Redondear las columnas numéricas a 2 decimales
         ############### Redondear Datos ################
         for col in datos.select_dtypes(include=np.float64):
@@ -105,7 +126,7 @@ def sidebar_config():
         
         else:
             with st.sidebar.container(border=True):
-                est_nombre = df_usuario['Nombre_estudiante'].iloc[0]
+                est_nombre = df_usuario['NOMBRE_COMPLETO'].iloc[0]
                 st.markdown("**ESTUDIANTE:**")
                 st.markdown(f"{est_nombre}")
                 st.markdown(f"**GRUPO:** {selected_sheet_grupo}")

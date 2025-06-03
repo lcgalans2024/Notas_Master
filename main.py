@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import sidebar
-from pages import pt_resultados_individuales
+from pages import pt_resultados_individuales, pt_superaciones
 
 ############################### Page configuration ###############################
 st.set_page_config(
@@ -19,7 +19,7 @@ sidebar.sidebar_config()
 # Tabs principales del Dashboard
 tabs = [
     "Notas Matemáticas",
-    "Notas Recuperación"#,
+    "Notas Recuperaciones"#,
     #"Análisis Por Grupo",
     #"Análisis Por Año",
     #"Olimpiadas Institucionales",
@@ -39,6 +39,19 @@ with tab1:
 
         # Mostrar mensaje de error y sugerencia
         st.error("No se pudo cargar el análisis global. Por favor, verifica los datos o intenta más tarde.")
+
+        # Opción para volver a cargar la página
+        #if st.button("Recargar"):
+         #   st.experimental_rerun()
+
+with tab2:
+    try:
+        pt_superaciones.superaciones()
+    except Exception as e:
+        st.error(f"Error al cargar la pantalla de superaciones: {e}")
+
+        # Mostrar mensaje de error y sugerencia
+        st.error("No se pudo cargar la pantalla de superaciones. Por favor, verifica los datos o intenta más tarde.")
 
         # Opción para volver a cargar la página
         #if st.button("Recargar"):

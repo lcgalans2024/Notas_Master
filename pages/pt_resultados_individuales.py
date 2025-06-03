@@ -36,7 +36,7 @@ def resultado_individual():
         df_usuario1.reset_index(drop=True, inplace=True)
 
         # Mostrar los resultados del estudiante
-        st.subheader(f"Resultados del Estudiante: {df_usuario1['Nombre_estudiante'].iloc[0]}")
+        st.subheader(f"Resultados del Estudiante: {df_usuario1['NOMBRE_COMPLETO'].iloc[0]}")
         # Aplicar estilo
         styled_df = df_usuario1[["PROCESO","ACTIVIDAD","Calificación"]].style.applymap(color_calificacion, subset=['Calificación'])
         #st.dataframe(df_usuario[["PROCESO","ACTIVIDAD","Calificación"]])
