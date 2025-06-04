@@ -1,5 +1,6 @@
 import streamlit as st
-from funciones import color_calificacion
+import matplotlib.pyplot as plt
+from funciones import color_calificacion, barra_progreso, color_condicional, resaltar_aciertos, resaltar_aciertos1#, #resaltar_preguntas2
 
 def superaciones():
 
@@ -13,17 +14,32 @@ def superaciones():
         # Mostrar los resultados del estudiante
         #1023530033
         st.subheader(f"Estudiante: {df_usuario1['NOMBRE_COMPLETO'].iloc[0]}")
-        st.subheader(f"Nota general de la recuperación: {df_usuario1['PUNTAJE'].iloc[0]}")
+        #st.subheader(f"Nota general de la recuperación: {df_usuario1['PUNTAJE'].iloc[0]}")
+
+        # Mostrar la barra de progreso
+        nota_acumulada = df_usuario1['PUNTAJE'].iloc[0]
+        fig = barra_progreso(5, nota_acumulada, 3,"Nota de la recuperación")
+        st.pyplot(fig)
+
         if df_usuario1['PUNTAJE'].iloc[0] >= 3.0:
             st.success("¡Felicidades! Has recuperado el area para el primer periodo.")
         else:
             st.error("No has recuperado el área para el primer periodo. Debes prepararte para un nuevo intento.")
-        # Aplicar estilo
-        #styled_df = df_usuario1[["PREGUNTA","CATEGORIA","ACIERTOS"]].style.applymap(color_calificacion, subset=['Calificación'])
-        st.dataframe(df_usuario1[["PREGUNTA","CATEGORIA","ACIERTOS"]].reset_index(drop=True), use_container_width=True, hide_index=True)
+        
+        # Tabla de resultados detallados
+        st.subheader("Resultados Detallados de la prueba de superación")
 
-        # Mostrar en Streamlit
-        #st.dataframe(styled_df, use_container_width=True)
+        df1 = df_usuario1[["PREGUNTA","CATEGORIA"]].reset_index(drop=True).copy()
+
+        # Aplicar estilo condicional SOLO a la columna PREGUNTA
+        def resaltar_preguntas2(valores):
+            return ['background-color: lightgreen' if acierto == 1 else '' 
+                    for acierto in df_usuario1['ACIERTOS']]
+
+        #styled_df = df1.style.applymap(color_condicional, subset=['ACIERTOS'])
+        styled_df = df1.style.apply(resaltar_preguntas2, subset=['PREGUNTA'], axis=0)
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
 
     else:
         st.warning("")
