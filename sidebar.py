@@ -7,7 +7,7 @@ from funciones import cargar_datos_all,cargar_datos, filtrar_datos
 
 def sidebar_config():
 
-    st.sidebar.header("Filtros del Dashboard")
+    #st.sidebar.header("Filtros del Dashboard")
 
     st.sidebar.header("DATOS DEL USUARIO")
 
@@ -30,12 +30,13 @@ def sidebar_config():
     sheet_names = excel_file.sheet_names
     sheet_names_superaciones = excel_file_superaciones.sheet_names
 
-    # Obtener los nombres de las hojas
+    # lista para elegir periodos
     periodo_number = ["",1,2,3]
 
     # Crear un selector en Streamlit con los nombres de las hojas
     selected_sheet_grupo = st.sidebar.selectbox("Seleccione su grupo", [""] + sheet_names_superaciones + sheet_names, index= 0)
 
+    # Crear una caja de texto en Streamlit para ingresar el documento del estudiante
     documento_estudiante = st.sidebar.text_input("Documento", type='password')
 
     # Verificar si el usuario ha ingresado su documento
@@ -61,9 +62,9 @@ def sidebar_config():
 
     submitted = st.sidebar.button("Consultar")
 
-    if st.session_state.documento_estudiante or st.session_state.selected_sheet_grupo or st.session_state.selected_periodo:
+    if st.session_state.selected_sheet_grupo or st.session_state.documento_estudiante or st.session_state.selected_periodo:
 
-        if selected_sheet_grupo != "7":
+        if selected_sheet_grupo != "7°":
             # cargar datos en session state
             st.session_state.file_path = file_path
             #st.session_state.selected_sheet_grupo = selected_sheet_grupo

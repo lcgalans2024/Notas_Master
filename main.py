@@ -19,11 +19,7 @@ sidebar.sidebar_config()
 # Tabs principales del Dashboard
 tabs = [
     "Notas Matemáticas",
-    "Notas Recuperaciones"#,
-    #"Análisis Por Grupo",
-    #"Análisis Por Año",
-    #"Olimpiadas Institucionales",
-    #"Descarga de Datos"
+    "Notas Recuperaciones"
 ]
 
 # Crear Tabs
@@ -35,14 +31,13 @@ with tab1:
         pt_resultados_individuales.resultado_individual()
 
     except Exception as e:
-        st.error(f"Error al cargar la pantalla de análisis global: {e}")
+
+        st.markdown("")
+
+        #st.error(f"Error al cargar la pantalla de análisis global: {e}")
 
         # Mostrar mensaje de error y sugerencia
-        st.error("No se pudo cargar el análisis global. Por favor, verifica los datos o intenta más tarde.")
-
-        # Opción para volver a cargar la página
-        #if st.button("Recargar"):
-         #   st.experimental_rerun()
+        #st.error("No se cuenta con información aún.")
 
 with tab2:
     try:
@@ -52,7 +47,3 @@ with tab2:
 
         # Mostrar mensaje de error y sugerencia
         st.error("No se pudo cargar la pantalla de superaciones. Por favor, verifica los datos o intenta más tarde.")
-
-        # Opción para volver a cargar la página
-        #if st.button("Recargar"):
-         #   st.experimental_rerun()
