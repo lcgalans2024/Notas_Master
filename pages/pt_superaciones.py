@@ -11,8 +11,16 @@ def superaciones():
         df_usuario1 = st.session_state.df_usuario1
         df_usuario1.reset_index(drop=True, inplace=True)
 
+        # Selecbox de Intento
+        intentos = df_usuario1['INTENTO'].unique().tolist()
+        intentos = sorted(intentos, reverse=False)  # Ordenar de mayor a menor
+        selected_intento = st.selectbox("Seleccione el intento", intentos, index=0)
+
+        # Filtrar el DataFrame por el intento seleccionado
+        df_usuario1 = df_usuario1[df_usuario1['INTENTO'] == selected_intento].reset_index(drop=True)
+
         # Mostrar los resultados del estudiante
-        #1023530033
+        #1036690007
         st.subheader(f"Estudiante: {df_usuario1['NOMBRE_COMPLETO'].iloc[0]}")
         #st.subheader(f"Nota general de la recuperación: {df_usuario1['PUNTAJE'].iloc[0]}")
 
