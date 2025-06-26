@@ -54,37 +54,67 @@ def cargar_hoja_privada(sheet_name, worksheet_name, cred_path="credenciales.json
         print(f"Error cargando hoja privada: {e}")
         return pd.DataFrame()
     
-
+#https://docs.google.com/spreadsheets/d/1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS/edit?usp=sharing&ouid=105878547600010956430&rtpof=true&sd=true
 # Cargamos los datos de las hojas públicas
 
-# Configuración centralizada del libro de Google Sheets
-SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM"
-GIDS = {
-    "notas": "0",
-    "recuperaciones": "451207441",
-    "comparativos": "357866733"
-}
+## Configuración centralizada del libro de Google Sheets
+#SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
+#
+#GIDS = {
+#    "notas": "0",
+#    "recuperaciones": "451207441",
+#    "comparativos": "357866733"
+#}
+#
+## guardar en session state para evitar recargas innecesarias
+#if 'SHEET_ID' not in st.session_state:
+#    st.session_state.SHEET_ID = SHEET_ID
+#if 'GIDS' not in st.session_state:
+#    st.session_state.GIDS = GIDS
+#
+#SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
+#GIDS_PM = {
+#    "notas": "0",
+#    "notas_701_P1": "1779130150"
+#}
+#
+## guardar en session state para evitar recargas innecesarias
+#if 'SHEET_ID_PM' not in st.session_state:
+#    st.session_state.SHEET_ID_PM = SHEET_ID_PM
+#if 'GIDS_PM' not in st.session_state:
+#    st.session_state.GIDS_PM = GIDS_PM
 
-def construir_url(gid):
+def construir_url(SHEET_ID,gid):
     return f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={gid}#gid={gid}"
 
 @st.cache_data(ttl=60)
-def load_notas_google():
-    url = construir_url(GIDS["notas"])
+def load_notas_google(SHEET_ID ,GIDS):
+    url = construir_url(SHEET_ID, GIDS["notas"])
+    df = cargar_hoja_publica(url)
+    try:
+        df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
+    except:
+        print("Error al convertir la columna 'DOCUMENTO' a tipo str. Verifica que la columna exista.")
+        #df["DOCUMENTO"] = ""
+    return df
+
+#@st.cache_data(ttl=60)
+#def load_notas_google():
+#    url = construir_url(GIDS["notas"])
+#    df = cargar_hoja_publica(url)
+#    df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
+#    return df
+
+@st.cache_data(ttl=60)
+def load_recuperaciones_google(SHEET_ID, GIDS):
+    url = construir_url(SHEET_ID, GIDS["recuperaciones"])
     df = cargar_hoja_publica(url)
     df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
     return df
 
 @st.cache_data(ttl=60)
-def load_recuperaciones_google():
-    url = construir_url(GIDS["recuperaciones"])
-    df = cargar_hoja_publica(url)
-    df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
-    return df
-
-@st.cache_data(ttl=60)
-def load_comparativos_google():
-    url = construir_url(GIDS["comparativos"])
+def load_comparativos_google(SHEET_ID, GIDS):
+    url = construir_url(SHEET_ID, GIDS["comparativos"])
     df = cargar_hoja_publica(url)
     df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
     return df
@@ -92,35 +122,15 @@ def load_comparativos_google():
 ############################### Notas de grupo ##########################################
 
 # === PARÁMETROS ===
-grupo = "701"
-periodo = "1"
-ruta_notas = "O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
-ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+#grupo = "701"
+#periodo = "1"
+#ruta_notas = "O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
+#ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
-dict_orden_act = {
-  "1.1":1,
-  "1.3":2,
-  "1.5":3,
-  "1.7":4,
-  "1.9":5,
-  "1.11":6,
-  "2.1":7,
-  "2.3":8,
-  "2.5":9,
-  "2.7":10,
-  "2.9":11,
-  "3.1":12,
-  "3.2":13,
-  "4.1":14
-}
-dict_orden_proc = {
-  'HACER':1,
-  'SABER':2,
-  'AUTOEVALUACIÓN':3,
-  'PRUEBA_PERIODO':4
-}
+
 
 # === Carga de datos y limpieza inicial ===
+@st.cache_data(ttl=60)
 def cargar_datos_grupo(ruta_notas, grupo, periodo="1"):
     df = pd.read_excel(ruta_notas, sheet_name=f"G{grupo}_P{periodo}", engine='openpyxl')
     df.columns = df.columns.str.strip()
@@ -202,8 +212,6 @@ def cargar_estudiantes(ruta_estudiantes, sheet_name="All_COL"):
     df_estudiantes["MATRICULA"] = df_estudiantes.MATRICULA.astype(str)
     df_estudiantes["DOCUMENTO"] = df_estudiantes.DOCUMENTO.astype(str)
 
-
-    
     #df_estudiantes['MATRICULA'] = df_estudiantes['MATRICULA'].astype(str).str.strip()
     #df_estudiantes['DOCUMENTO'] = df_estudiantes['DOCUMENTO'].astype(str).str.strip()
     return df_estudiantes

@@ -3,7 +3,7 @@ import sidebar
 import inicio
 import login
 from components import auth, consulta_notas, materiales#, recuperaciones, comparativos
-from utils.load_data import load_notas_google, load_recuperaciones_google, load_comparativos_google, cargar_datos_grupo, obtener_diccionario_actividades, limpiar_y_seleccionar_notas, cargar_estudiantes, agregar_documento, formar_pares, comparar_y_promediar, preparar_df2, obtener_columnas_validas, transformar_melt
+from utils.load_data import construir_url,load_notas_google, load_recuperaciones_google, load_comparativos_google, cargar_datos_grupo, obtener_diccionario_actividades, limpiar_y_seleccionar_notas, cargar_estudiantes, agregar_documento, formar_pares, comparar_y_promediar, preparar_df2, obtener_columnas_validas, transformar_melt
 
 # Configuración general
 st.set_page_config(page_title="Plataforma Estudiantil", layout="wide")
@@ -23,14 +23,14 @@ else:
   sidebar.sidebar_config()
 
 # Cargar los DataFrames desde Google Sheets
-df_notas = load_notas_google()
-df_recuperaciones = load_recuperaciones_google()
-df_comparativos = load_comparativos_google()
+df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
 
 # === PARÁMETROS ===
 grupo = "701"
 periodo = "1"
-ruta_notas = "O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
+ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
 ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
 dict_orden_act = {

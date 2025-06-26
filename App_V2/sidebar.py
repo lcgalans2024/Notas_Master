@@ -1,12 +1,39 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from utils.load_data import load_notas_google, load_recuperaciones_google, load_comparativos_google
+from utils.load_data import load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales#, recuperaciones, comparativos
 
-df_notas = load_notas_google()
-df_recuperaciones = load_recuperaciones_google()
-df_comparativos = load_comparativos_google()
+# Configuración centralizada del libro de Google Sheets
+SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
+
+GIDS = {
+    "notas": "0",
+    "recuperaciones": "451207441",
+    "comparativos": "357866733"
+}
+
+# guardar en session state para evitar recargas innecesarias
+if 'SHEET_ID' not in st.session_state:
+    st.session_state.SHEET_ID = SHEET_ID
+if 'GIDS' not in st.session_state:
+    st.session_state.GIDS = GIDS
+
+SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
+GIDS_PM = {
+    "notas": "0",
+    "notas_701_P1": "1779130150"
+}
+
+# guardar en session state para evitar recargas innecesarias
+if 'SHEET_ID_PM' not in st.session_state:
+    st.session_state.SHEET_ID_PM = SHEET_ID_PM
+if 'GIDS_PM' not in st.session_state:
+    st.session_state.GIDS_PM = GIDS_PM
+
+df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
 
 # Cargar datos en session state si no están ya cargados
 if 'df_notas' not in st.session_state:
@@ -18,7 +45,7 @@ if 'df_comparativos' not in st.session_state:
 # === PARÁMETROS ===
 grupo = "701"
 periodo = "1"
-ruta_notas = "O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
+ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
 ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
 dict_orden_act = {
@@ -66,9 +93,11 @@ def sidebar_config():
 
         if menu == "📘 Consulta de notas":
             st.header("📄 Notas Matemáticas")
-            df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_orden_proc)  # Mostrar notas por defecto
+            df_planilla = load_notas_google(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])
+            #df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_orden_proc)  # Mostrar notas por defecto
             # Mostrar DataFrame de notas
-            st.dataframe(df5[df5['DOCUMENTO'] == st.session_state['usuario']])
+            st.dataframe(df_planilla)#[df_planilla['DOCUMENTO'] == st.session_state['usuario']])
+            #st.dataframe(df5[df5['DOCUMENTO'] == st.session_state['usuario']])
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
             #recuperaciones.mostrar(df_recuperaciones, doc_id, nombre_estudiante, periodo)
