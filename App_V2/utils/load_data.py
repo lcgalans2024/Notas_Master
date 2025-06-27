@@ -88,14 +88,19 @@ def construir_url(SHEET_ID,gid):
     return f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={gid}#gid={gid}"
 
 @st.cache_data(ttl=60)
+def load_planilla_google(SHEET_ID ,GIDS):
+    url = construir_url(SHEET_ID, GIDS['notas_701_P1'])
+    df = cargar_hoja_publica(url)
+    #df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
+    
+    return df
+
+@st.cache_data(ttl=60)
 def load_notas_google(SHEET_ID ,GIDS):
     url = construir_url(SHEET_ID, GIDS["notas"])
     df = cargar_hoja_publica(url)
-    try:
-        df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
-    except:
-        print("Error al convertir la columna 'DOCUMENTO' a tipo str. Verifica que la columna exista.")
-        #df["DOCUMENTO"] = ""
+    df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
+    
     return df
 
 #@st.cache_data(ttl=60)

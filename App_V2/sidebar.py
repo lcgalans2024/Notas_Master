@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from utils.load_data import load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
+from utils.load_data import cargar_estudiantes, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales#, recuperaciones, comparativos
 
 # Configuración centralizada del libro de Google Sheets
@@ -21,8 +21,8 @@ if 'GIDS' not in st.session_state:
 
 SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
 GIDS_PM = {
-    "notas": "0",
-    "notas_701_P1": "1779130150"
+    "notas": 0,
+    "notas_701_P1": 1779130150
 }
 
 # guardar en session state para evitar recargas innecesarias
@@ -46,7 +46,8 @@ if 'df_comparativos' not in st.session_state:
 grupo = "701"
 periodo = "1"
 ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
-ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+#ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
 dict_orden_act = {
           "1.1":1,
@@ -93,10 +94,13 @@ def sidebar_config():
 
         if menu == "📘 Consulta de notas":
             st.header("📄 Notas Matemáticas")
-            df_planilla = load_notas_google(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])
+            df_planilla = load_planilla_google(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM)
             #df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_orden_proc)  # Mostrar notas por defecto
+            df_est = cargar_estudiantes(ruta_estudiantes, sheet_name="All_COL")
             # Mostrar DataFrame de notas
-            st.dataframe(df_planilla)#[df_planilla['DOCUMENTO'] == st.session_state['usuario']])
+            #st.dataframe(df_notas)#[df_planilla['DOCUMENTO'] == st.session_state['usuario']])
+            st.dataframe(df_planilla)
+            st.dataframe(df_est)
             #st.dataframe(df5[df5['DOCUMENTO'] == st.session_state['usuario']])
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
