@@ -61,7 +61,7 @@ ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
 def mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_orden_proc):
     # === PROCESO ===
-    df = cargar_datos_grupo(ruta_notas, grupo, periodo)
+    df = cargar_datos_grupo(ruta_notas, grupo, periodo,st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM)
     mi_diccionario, idx_campo = obtener_diccionario_actividades(df)
     df1 = limpiar_y_seleccionar_notas(df, idx_campo, mi_diccionario)
 

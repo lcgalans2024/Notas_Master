@@ -91,6 +91,9 @@ def construir_url(SHEET_ID,gid):
 def load_planilla_google(SHEET_ID ,GIDS):
     url = construir_url(SHEET_ID, GIDS['notas_701_P1'])
     df = cargar_hoja_publica(url)
+    df.rename(columns={
+        'Nombre_estudiante': 'NOMBRE_ESTUDIANTE'
+    }, inplace=True)
     #df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
     
     return df
@@ -136,8 +139,13 @@ def load_comparativos_google(SHEET_ID, GIDS):
 
 # === Carga de datos y limpieza inicial ===
 @st.cache_data(ttl=60)
-def cargar_datos_grupo(ruta_notas, grupo, periodo="1"):
-    df = pd.read_excel(ruta_notas, sheet_name=f"G{grupo}_P{periodo}", engine='openpyxl')
+def cargar_datos_grupo(ruta_notas, grupo, periodo="1", SHEET_ID="SHEET_ID_PM" , GIDS = "GIDS_PM"):
+    try:
+        # Cargar el DataFrame desde el archivo Excel
+        df = pd.read_excel(ruta_notas, sheet_name=f"G{grupo}_P{periodo}", engine='openpyxl')
+    except:
+        # Si falla, intentar cargarlo como CSV
+        df = load_planilla_google(SHEET_ID, GIDS)
     df.columns = df.columns.str.strip()
     df.rename(columns={
         'Nombre_estudiante': 'NOMBRE_ESTUDIANTE'
@@ -206,6 +214,10 @@ def cargar_estudiantes(ruta_estudiantes, sheet_name="All_COL"):
     Asegura que las columnas 'MATRICULA' y 'DOCUMENTO' sean del tipo string.
     """
     df_estudiantes = pd.read_excel(ruta_estudiantes, sheet_name=sheet_name, engine='openpyxl')
+
+    df_estudiantes.rename(columns={
+        'ESTUDIANTE': 'NOMBRE_ESTUDIANTE'
+    }, inplace=True)
 
     # Eliminamos filas con MATRÍCULA vacía
     df_estudiantes.dropna(subset=['MATRICULA'], inplace=True)

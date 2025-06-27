@@ -1,8 +1,20 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from utils.load_data import cargar_estudiantes, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
+from utils.load_data import cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales#, recuperaciones, comparativos
+
+# Función de formato condicional
+def color_calificacion(val):
+    if val >= 4.5:
+        color = 'background-color: #00b050; color: black'  # Verde
+    elif val >= 4:
+        color = 'background-color: #ffff00; color: black'  # Amarillo claro
+    elif val >= 3:
+        color = 'background-color: #ffc000; color: black'  # Naranja
+    else:
+        color = 'background-color: #ff0000; color: white'  # Rojo
+    return color
 
 # Configuración centralizada del libro de Google Sheets
 SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
@@ -46,8 +58,10 @@ if 'df_comparativos' not in st.session_state:
 grupo = "701"
 periodo = "1"
 ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
-#ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
-ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+#try:
+#    ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+#except:
+#    ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
 dict_orden_act = {
           "1.1":1,
@@ -94,14 +108,23 @@ def sidebar_config():
 
         if menu == "📘 Consulta de notas":
             st.header("📄 Notas Matemáticas")
+
             df_planilla = load_planilla_google(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM)
-            #df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_orden_proc)  # Mostrar notas por defecto
-            df_est = cargar_estudiantes(ruta_estudiantes, sheet_name="All_COL")
-            # Mostrar DataFrame de notas
-            #st.dataframe(df_notas)#[df_planilla['DOCUMENTO'] == st.session_state['usuario']])
             st.dataframe(df_planilla)
-            st.dataframe(df_est)
-            #st.dataframe(df5[df5['DOCUMENTO'] == st.session_state['usuario']])
+
+            df_estudiantes = cargar_estudiantes(st.session_state.ruta_estudiantes, "ALL_COL")
+            st.dataframe(df_estudiantes)
+
+            df_planilla1 = agregar_documento(df_planilla, df_estudiantes)
+            st.dataframe(df_planilla1)    
+
+            df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, st.session_state.ruta_estudiantes, dict_orden_act, dict_orden_proc)  # Mostrar notas por defecto
+            df6 = df5[df5['DOCUMENTO'] == st.session_state['usuario']].copy()
+            # Aplicar estilo
+            styled_df = df6[["PROCESO","ACTIVIDAD","Calificación"]].style.applymap(color_calificacion, subset=['Calificación'])
+            # Mostrar DataFrame de notas
+            st.dataframe(styled_df, use_container_width=True)
+    
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
             #recuperaciones.mostrar(df_recuperaciones, doc_id, nombre_estudiante, periodo)

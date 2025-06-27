@@ -2,7 +2,7 @@
 import streamlit as st
 import pandas as pd
 import pandas as pd
-from utils.load_data import load_notas_google, load_recuperaciones_google, load_comparativos_google
+from utils.load_data import load_notas_google, load_recuperaciones_google, load_comparativos_google, cargar_estudiantes
 
 def construir_usuarios():
     """
@@ -19,13 +19,21 @@ def construir_usuarios():
     df_notas["DOCUMENTO"] = df_notas["DOCUMENTO"].astype(str)
     df_recuperaciones["DOCUMENTO"] = df_recuperaciones["DOCUMENTO"].astype(str)
     df_comparativos["DOCUMENTO"] = df_comparativos["DOCUMENTO"].astype(str)
+
+    # cargar estudiantes
+    df_estudiantes = cargar_estudiantes(st.session_state.ruta_estudiantes, "ALL_COL")
+    # Asegurar que 'DOCUMENTO' sea string
+    df_estudiantes["DOCUMENTO"] = df_estudiantes["DOCUMENTO"].astype(str)
+
     # Concatenar los DataFrames
     df_total = pd.concat([df_notas[["DOCUMENTO", "NOMBRE_ESTUDIANTE"]],    
                           df_recuperaciones[["DOCUMENTO", "NOMBRE_ESTUDIANTE"]],
-                          df_comparativos[["DOCUMENTO", "NOMBRE_ESTUDIANTE"]]], 
+                          df_comparativos[["DOCUMENTO", "NOMBRE_ESTUDIANTE"]],
+                          df_estudiantes[["DOCUMENTO", "NOMBRE_ESTUDIANTE"]]], 
                          ignore_index=True) 
     # Eliminar duplicados y construir diccionario
     df_total = df_total.drop_duplicates()
+
     return dict(zip(df_total["DOCUMENTO"], df_total["NOMBRE_ESTUDIANTE"]))
 
 

@@ -76,6 +76,17 @@ def inicio():
     # Almacenar dict_orden_act y dict_orden_proc en session state
     st.session_state.dict_orden_act = dict_orden_act
     st.session_state.dict_orden_proc = dict_orden_proc
+
+    # cargar estudiantes
+    try:
+        ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+    except:
+        ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+
+    # Almacenar ruta_estudiantes en session state
+    if 'ruta_estudiantes' not in st.session_state:
+        st.session_state.ruta_estudiantes = ruta_estudiantes
+        
     login.generarLogin()
     if 'usuario' in st.session_state:
         st.subheader('Información página principal')

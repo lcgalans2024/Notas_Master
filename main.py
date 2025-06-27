@@ -32,7 +32,7 @@ with tab1:
 
     except Exception as e:
 
-        st.markdown("")
+        st.markdown("error")
 
         #st.error(f"Error al cargar la pantalla de análisis global: {e}")
 
