@@ -27,6 +27,7 @@ def validarUsuario(usuario): #, clave):
                        ])>0:
         # guardar nombre del usuario en session state
         st.session_state['nombre'] = dfusuarios[(dfusuarios['DOCUMENTO']==usuario)]['nombre'].values[0]
+    
         return True
     else:
         return False
@@ -78,7 +79,9 @@ def generarLogin():
                 #st.write(validarUsuario(parUsuario))
                 #Verificamos si el usuario es valido               
                 if validarUsuario(parUsuario):#,parPassword):
-                    st.session_state['usuario'] =parUsuario
+                    st.session_state['usuario'] = parUsuario
+                    # obtener grupo del usuario str(int(valor[:4]))
+                    st.session_state['grupo1'] = st.session_state.df_estudiantes[st.session_state.df_estudiantes['DOCUMENTO'] == parUsuario]['GRUPO'].values[0][1:4]
                     # Si el usuario es correcto reiniciamos la app para que se cargue el menú
                     st.rerun()
                 else:

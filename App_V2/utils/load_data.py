@@ -88,8 +88,8 @@ def construir_url(SHEET_ID,gid):
     return f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={gid}#gid={gid}"
 
 @st.cache_data(ttl=60)
-def load_planilla_google(SHEET_ID ,GIDS):
-    url = construir_url(SHEET_ID, GIDS['notas_701_P1'])
+def load_planilla_google(SHEET_ID ,GIDS,periodo="1"):
+    url = construir_url(SHEET_ID, GIDS[f'notas_701_P{periodo}'])
     df = cargar_hoja_publica(url)
     df.rename(columns={
         'Nombre_estudiante': 'NOMBRE_ESTUDIANTE'
@@ -145,7 +145,7 @@ def cargar_datos_grupo(ruta_notas, grupo, periodo="1", SHEET_ID="SHEET_ID_PM" , 
         df = pd.read_excel(ruta_notas, sheet_name=f"G{grupo}_P{periodo}", engine='openpyxl')
     except:
         # Si falla, intentar cargarlo como CSV
-        df = load_planilla_google(SHEET_ID, GIDS)
+        df = load_planilla_google(SHEET_ID, GIDS,periodo)
     df.columns = df.columns.str.strip()
     df.rename(columns={
         'Nombre_estudiante': 'NOMBRE_ESTUDIANTE'
@@ -242,6 +242,7 @@ def agregar_documento(df1, df_estudiantes):
     return df1
 
 def comparar_y_promediar(df1, columnas_pares):
+    columnas_pares.pop(-2)  # Eliminar el penúltimo elemento de la lista si es necesario
     for col1, col2 in columnas_pares:
         df1[[col1, col2]] = df1[[col1, col2]].apply(pd.to_numeric, errors='coerce')
         df1[col2] = df1[[col1, col2]].max(axis=1)

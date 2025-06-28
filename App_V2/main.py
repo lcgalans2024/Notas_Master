@@ -11,16 +11,26 @@ st.set_page_config(page_title="Plataforma Estudiantil", layout="wide")
 # cargar la página de inicio
 inicio.inicio()
 
+#st.markdown(st.session_state['usuario'])
+
 # Cargar sidebar
 if 'usuario' not in st.session_state:
     st.warning("Por favor, inicia sesión para continuar.")
 else:
+    
     #st.session_state.usuario = login.obtener_usuario()
     #st.session_state.documento = login.obtener_documento()
     #st.session_state.nombre = login.obtener_nombre()
     #st.session_state.grupo = login.obtener_grupo()
     #st.session_state.periodo = login.obtener_periodo()
-  sidebar.sidebar_config()
+  
+  #sidebar.sidebar_config()
+    # Mostrar el sidebar
+    sidebar.mostrar_sidebar()
+
+st.subheader("🔍 Depuración de session_state")
+st.json({key: value for key, value in st.session_state.items()})
+  
 
 # Cargar los DataFrames desde Google Sheets
 df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
@@ -29,9 +39,9 @@ df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session
 
 # === PARÁMETROS ===
 grupo = "701"
-periodo = "1"
-ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
-ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+periodo = st.session_state['periodo1']  # Usar el periodo del session state o por defecto "1"
+ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_701_P{periodo}'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
+#ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
 dict_orden_act = {
   "1.1":1,

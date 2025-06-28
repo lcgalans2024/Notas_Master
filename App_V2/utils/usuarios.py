@@ -24,7 +24,9 @@ def construir_usuarios():
     df_estudiantes = cargar_estudiantes(st.session_state.ruta_estudiantes, "ALL_COL")
     # Asegurar que 'DOCUMENTO' sea string
     df_estudiantes["DOCUMENTO"] = df_estudiantes["DOCUMENTO"].astype(str)
-
+    # guardar df_estudiantes en session state
+    st.session_state.df_estudiantes = df_estudiantes
+    
     # Concatenar los DataFrames
     df_total = pd.concat([df_notas[["DOCUMENTO", "NOMBRE_ESTUDIANTE"]],    
                           df_recuperaciones[["DOCUMENTO", "NOMBRE_ESTUDIANTE"]],

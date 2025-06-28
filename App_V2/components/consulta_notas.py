@@ -34,7 +34,7 @@ if 'GIDS_PM' not in st.session_state:
 grupo = "701"
 periodo = "1"
 ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
-ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+# cargar estudiantes
 
 #dict_orden_act = {
 #  "1.1":1,

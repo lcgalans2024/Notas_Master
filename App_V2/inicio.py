@@ -3,6 +3,7 @@ import login
 import pandas as pd
 from utils.load_data import load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google
 
+# usuari de prueba 6374333
 def inicio():
 
     # Configuración centralizada del libro de Google Sheets
@@ -23,7 +24,8 @@ def inicio():
     SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
     GIDS_PM = {
         "notas": "0",
-        "notas_701_P1": "1779130150"
+        "notas_701_P1": "1779130150",
+        "notas_701_P2": "1360433359"  # Ejemplo de otro grupo y periodo
     }
 
     # guardar en session state para evitar recargas innecesarias
@@ -78,16 +80,17 @@ def inicio():
     st.session_state.dict_orden_proc = dict_orden_proc
 
     # cargar estudiantes
-    try:
-        ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
-    except:
-        ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+    #try:
+    #ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+    #except:
+    ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
     # Almacenar ruta_estudiantes en session state
     if 'ruta_estudiantes' not in st.session_state:
         st.session_state.ruta_estudiantes = ruta_estudiantes
         
     login.generarLogin()
+    
     if 'usuario' in st.session_state:
         st.subheader('Información página principal')
 
