@@ -91,6 +91,17 @@ def construir_url(SHEET_ID,gid):
     except Exception as e:
         print(f"Error construyendo URL: {e}")
         return None
+    
+@st.cache_data(ttl=60)
+def load_hoja_google(SHEET_ID, GIDS, worksheet_name):
+    """
+    Carga una hoja de Google Sheets usando el ID del documento y el GID de la hoja.
+    """
+    url = construir_url(SHEET_ID, GIDS[worksheet_name])
+    df = cargar_hoja_publica(url)
+    df.columns = df.columns.str.strip()
+
+    return df
 
 @st.cache_data(ttl=60)
 def load_planilla_google(SHEET_ID ,GIDS,periodo="1"):
@@ -219,7 +230,11 @@ def cargar_estudiantes(ruta_estudiantes, sheet_name="All_COL"):
     Carga el DataFrame de estudiantes desde un archivo Excel.
     Asegura que las columnas 'MATRICULA' y 'DOCUMENTO' sean del tipo string.
     """
-    df_estudiantes = pd.read_excel(ruta_estudiantes, sheet_name=sheet_name, engine='openpyxl')
+    # Cargar el DataFrame desde el archivo Excel
+    try:
+        df_estudiantes = pd.read_excel(ruta_estudiantes, sheet_name=sheet_name, engine='openpyxl')
+    except:
+        df_estudiantes = cargar_hoja_publica(ruta_estudiantes)
 
     df_estudiantes.rename(columns={
         'ESTUDIANTE': 'NOMBRE_ESTUDIANTE'

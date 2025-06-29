@@ -67,7 +67,7 @@ def generarLogin():
     # Validamos si el usuario ya fue ingresado    
     if 'usuario' in st.session_state:
         #generarMenu(st.session_state['usuario']) # Si ya hay usuario cargamos el menu
-        st.write(f"Hola **:blue-background[{st.session_state['nombre']}]** ")
+        st.write(f"Hola **:blue-background[{st.session_state['nombre']}]** con documento **:blue-background[{st.session_state['usuario']}]**")
         st.write("Bienvenido a la aplicación")        
     else: 
         # Cargamos el formulario de login       
@@ -81,7 +81,7 @@ def generarLogin():
                 if validarUsuario(parUsuario):#,parPassword):
                     st.session_state['usuario'] = parUsuario
                     # obtener grupo del usuario str(int(valor[:4]))
-                    st.session_state['grupo1'] = st.session_state.df_estudiantes[st.session_state.df_estudiantes['DOCUMENTO'] == parUsuario]['GRUPO'].values[0][1:4]
+                    st.session_state['grupo1'] = st.session_state.df_estudiantes[st.session_state.df_estudiantes['DOCUMENTO'] == parUsuario]['GRUPO'].values[0][:3]
                     # Si el usuario es correcto reiniciamos la app para que se cargue el menú
                     st.rerun()
                 else:

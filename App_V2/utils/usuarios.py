@@ -2,19 +2,33 @@
 import streamlit as st
 import pandas as pd
 import pandas as pd
-from utils.load_data import load_notas_google, load_recuperaciones_google, load_comparativos_google, cargar_estudiantes
+from utils.load_data import load_notas_google, load_hoja_google, load_recuperaciones_google, load_comparativos_google, cargar_estudiantes
 
 def construir_usuarios():
     """
     Crea un diccionario de usuarios a partir de varios archivos CSV.
     
     Retorna:
-        dict: Diccionario con 'documento' como clave y 'nombre' como valor.
+        Dict: Diccionario con 'documento' como clave y 'nombre' como valor.
     """
     #########################################################################
     df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
-    df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+    df_recuperaciones = load_hoja_google(st.session_state.SHEET_ID_PM,st.session_state.GIDS_PM,'recuperaciones')#load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
     df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+
+    # Asegurar que 'documento' sea string
+    df_notas["DOCUMENTO"] = df_notas["DOCUMENTO"].astype(str)
+    df_recuperaciones["DOCUMENTO"] = df_recuperaciones["DOCUMENTO"].astype(str)
+    df_recuperaciones["PERIODO"] = df_recuperaciones["PERIODO"].astype(str)  # Asegurar que 'PERIODO' sea string
+    # reemplazar , por . en la columna PUNTAJE
+    df_recuperaciones["PUNTAJE"] = df_recuperaciones["PUNTAJE"].str.replace(',', '.')
+    df_recuperaciones["PUNTAJE"] = df_recuperaciones["PUNTAJE"].astype(float)
+
+    df_comparativos["DOCUMENTO"] = df_comparativos["DOCUMENTO"].astype(str)
+
+    # renombrar las columnas para que coincidan
+    df_recuperaciones.rename(columns={"NOMBRE_COMPLETO": "NOMBRE_ESTUDIANTE"}, inplace=True)
+
     # Cargar datos en session state si no están ya cargados
     if 'df_notas' not in st.session_state:
         st.session_state.df_notas = df_notas
@@ -22,16 +36,15 @@ def construir_usuarios():
         st.session_state.df_recuperaciones = df_recuperaciones
     if 'df_comparativos' not in st.session_state:
         st.session_state.df_comparativos = df_comparativos
+
+    # Cambiar a string
+    #st.session_state.df_recuperaciones["PERIODO"] = st.session_state.df_recuperaciones["PERIODO"].astype(str)
+    #st.session_state.df_recuperaciones["INTENTO"] = st.session_state.df_recuperaciones["INTENTO"].astype(str)
     ###########################################################################
     # Cargar los datos de los archivos CSV
     #df_notas = st.session_state.df_notas
     #df_recuperaciones = st.session_state.df_recuperaciones
     #df_comparativos = st.session_state.df_comparativos
-    
-    # Asegurar que 'documento' sea string
-    df_notas["DOCUMENTO"] = df_notas["DOCUMENTO"].astype(str)
-    df_recuperaciones["DOCUMENTO"] = df_recuperaciones["DOCUMENTO"].astype(str)
-    df_comparativos["DOCUMENTO"] = df_comparativos["DOCUMENTO"].astype(str)
 
     # cargar estudiantes
     df_estudiantes = cargar_estudiantes(st.session_state.ruta_estudiantes, "ALL_COL")
