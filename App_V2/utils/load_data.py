@@ -85,7 +85,12 @@ def cargar_hoja_privada(sheet_name, worksheet_name, cred_path="credenciales.json
 #    st.session_state.GIDS_PM = GIDS_PM
 
 def construir_url(SHEET_ID,gid):
-    return f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={gid}#gid={gid}"
+    try:
+        return f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit?gid={gid}#gid={gid}"
+    
+    except Exception as e:
+        print(f"Error construyendo URL: {e}")
+        return None
 
 @st.cache_data(ttl=60)
 def load_planilla_google(SHEET_ID ,GIDS,periodo="1"):
@@ -102,6 +107,7 @@ def load_planilla_google(SHEET_ID ,GIDS,periodo="1"):
 def load_notas_google(SHEET_ID ,GIDS):
     url = construir_url(SHEET_ID, GIDS["notas"])
     df = cargar_hoja_publica(url)
+    print(df.columns)
     df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
     
     return df

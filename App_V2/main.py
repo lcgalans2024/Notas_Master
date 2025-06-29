@@ -1,12 +1,13 @@
 import streamlit as st
+
+# Configuración general
+st.set_page_config(page_title="Plataforma Estudiantil", layout="wide")
+
 import sidebar
 import inicio
 import login
 from components import auth, consulta_notas, materiales#, recuperaciones, comparativos
 from utils.load_data import construir_url,load_notas_google, load_recuperaciones_google, load_comparativos_google, cargar_datos_grupo, obtener_diccionario_actividades, limpiar_y_seleccionar_notas, cargar_estudiantes, agregar_documento, formar_pares, comparar_y_promediar, preparar_df2, obtener_columnas_validas, transformar_melt
-
-# Configuración general
-st.set_page_config(page_title="Plataforma Estudiantil", layout="wide")
 
 # cargar la página de inicio
 inicio.inicio()
@@ -28,43 +29,43 @@ else:
     # Mostrar el sidebar
     sidebar.mostrar_sidebar()
 
-st.subheader("🔍 Depuración de session_state")
-st.json({key: value for key, value in st.session_state.items()})
+#st.subheader("🔍 Depuración de session_state")
+#st.json({key: value for key, value in st.session_state.items()})
   
 
 # Cargar los DataFrames desde Google Sheets
-df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
-df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
-df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+#df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+#df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+#df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
 
 # === PARÁMETROS ===
-grupo = "701"
-periodo = st.session_state['periodo1']  # Usar el periodo del session state o por defecto "1"
-ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_701_P{periodo}'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
+#grupo = "701"
+#periodo = st.session_state['periodo1']  # Usar el periodo del session state o por defecto "1"
+#ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_701_P{periodo}'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
 #ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
 
-dict_orden_act = {
-  "1.1":1,
-  "1.3":2,
-  "1.5":3,
-  "1.7":4,
-  "1.9":5,
-  "1.11":6,
-  "2.1":7,
-  "2.3":8,
-  "2.5":9,
-  "2.7":10,
-  "2.9":11,
-  "3.1":12,
-  "3.2":13,
-  "4.1":14
-}
-dict_orden_proc = {
-  'HACER':1,
-  'SABER':2,
-  'AUTOEVALUACIÓN':3,
-  'PRUEBA_PERIODO':4
-}
+#dict_orden_act = {
+#  "1.1":1,
+#  "1.3":2,
+#  "1.5":3,
+#  "1.7":4,
+#  "1.9":5,
+#  "1.11":6,
+#  "2.1":7,
+#  "2.3":8,
+#  "2.5":9,
+#  "2.7":10,
+#  "2.9":11,
+#  "3.1":12,
+#  "3.2":13,
+#  "4.1":14
+#}
+#dict_orden_proc = {
+#  'HACER':1,
+#  'SABER':2,
+#  'AUTOEVALUACIÓN':3,
+#  'PRUEBA_PERIODO':4
+#}
 
 # cargar el sidebar
 

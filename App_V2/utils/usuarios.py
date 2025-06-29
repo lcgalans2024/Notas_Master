@@ -11,10 +11,23 @@ def construir_usuarios():
     Retorna:
         dict: Diccionario con 'documento' como clave y 'nombre' como valor.
     """
+    #########################################################################
+    df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+    df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+    df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+    # Cargar datos en session state si no están ya cargados
+    if 'df_notas' not in st.session_state:
+        st.session_state.df_notas = df_notas
+    if 'df_recuperaciones' not in st.session_state:
+        st.session_state.df_recuperaciones = df_recuperaciones
+    if 'df_comparativos' not in st.session_state:
+        st.session_state.df_comparativos = df_comparativos
+    ###########################################################################
     # Cargar los datos de los archivos CSV
-    df_notas = st.session_state.df_notas
-    df_recuperaciones = st.session_state.df_recuperaciones
-    df_comparativos = st.session_state.df_comparativos
+    #df_notas = st.session_state.df_notas
+    #df_recuperaciones = st.session_state.df_recuperaciones
+    #df_comparativos = st.session_state.df_comparativos
+    
     # Asegurar que 'documento' sea string
     df_notas["DOCUMENTO"] = df_notas["DOCUMENTO"].astype(str)
     df_recuperaciones["DOCUMENTO"] = df_recuperaciones["DOCUMENTO"].astype(str)

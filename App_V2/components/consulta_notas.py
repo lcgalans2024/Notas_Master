@@ -21,7 +21,8 @@ if 'GIDS' not in st.session_state:
 SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
 GIDS_PM = {
     "notas": "0",
-    "notas_701_P1": "1779130150"
+    "notas_701_P1": "1779130150",
+    "notas_701_P2": "1360433359"
 }
 
 # guardar en session state para evitar recargas innecesarias

@@ -1,61 +1,49 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from utils.visual_helpers import mostrar_tabla_notas
 from utils.load_data import cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales#, recuperaciones, comparativos
 
-# Función de formato condicional
-def color_calificacion(val):
-    if val >= 4.5:
-        color = 'background-color: #00b050; color: black'  # Verde
-    elif val >= 4:
-        color = 'background-color: #ffff00; color: black'  # Amarillo claro
-    elif val >= 3:
-        color = 'background-color: #ffc000; color: black'  # Naranja
-    elif val == 0.2:
-        color = ' '  # sin color
-    else:
-        color = 'background-color: #ff0000; color: white'  # Rojo
-    return color
+## Configuración centralizada del libro de Google Sheets
+#SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
+#
+#GIDS = {
+#    "notas": "0",
+#    "recuperaciones": "451207441",
+#    "comparativos": "357866733"
+#}
+#
+## guardar en session state para evitar recargas innecesarias
+#if 'SHEET_ID' not in st.session_state:
+#    st.session_state.SHEET_ID = SHEET_ID
+#if 'GIDS' not in st.session_state:
+#    st.session_state.GIDS = GIDS
+#
+#SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
+#GIDS_PM = {
+#    "notas": "0",
+#    "notas_701_P1": "1779130150",
+#    "notas_701_P2": "1360433359"
+#}
+#
+## guardar en session state para evitar recargas innecesarias
+#if 'SHEET_ID_PM' not in st.session_state:
+#    st.session_state.SHEET_ID_PM = SHEET_ID_PM
+#if 'GIDS_PM' not in st.session_state:
+#    st.session_state.GIDS_PM = GIDS_PM
 
-# Configuración centralizada del libro de Google Sheets
-SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
-
-GIDS = {
-    "notas": "0",
-    "recuperaciones": "451207441",
-    "comparativos": "357866733"
-}
-
-# guardar en session state para evitar recargas innecesarias
-if 'SHEET_ID' not in st.session_state:
-    st.session_state.SHEET_ID = SHEET_ID
-if 'GIDS' not in st.session_state:
-    st.session_state.GIDS = GIDS
-
-SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
-GIDS_PM = {
-    "notas": 0,
-    "notas_701_P1": 1779130150
-}
-
-# guardar en session state para evitar recargas innecesarias
-if 'SHEET_ID_PM' not in st.session_state:
-    st.session_state.SHEET_ID_PM = SHEET_ID_PM
-if 'GIDS_PM' not in st.session_state:
-    st.session_state.GIDS_PM = GIDS_PM
-
-df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
-df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
-df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
-
-# Cargar datos en session state si no están ya cargados
-if 'df_notas' not in st.session_state:
-    st.session_state.df_notas = df_notas
-if 'df_recuperaciones' not in st.session_state:
-    st.session_state.df_recuperaciones = df_recuperaciones
-if 'df_comparativos' not in st.session_state:
-    st.session_state.df_comparativos = df_comparativos
+#df_notas = load_notas_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+#df_recuperaciones = load_recuperaciones_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+#df_comparativos = load_comparativos_google(st.session_state.SHEET_ID ,st.session_state.GIDS)
+#
+## Cargar datos en session state si no están ya cargados
+#if 'df_notas' not in st.session_state:
+#    st.session_state.df_notas = df_notas
+#if 'df_recuperaciones' not in st.session_state:
+#    st.session_state.df_recuperaciones = df_recuperaciones
+#if 'df_comparativos' not in st.session_state:
+#    st.session_state.df_comparativos = df_comparativos
 # === PARÁMETROS ===
 grupo = "701"
 #"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
@@ -108,12 +96,12 @@ def sidebar_config():
     ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_701_P{periodo}'])
     st.session_state.ruta_notas = ruta_notas
     st.session_state.ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"  # Ruta de estudiantes
-    st.session_state.dict_orden_act = dict_orden_act
-    st.session_state.dict_orden_proc = dict_orden_proc
+    #st.session_state.dict_orden_act = dict_orden_act
+    #st.session_state.dict_orden_proc = dict_orden_proc
 
     if "usuario" in st.session_state:
         # Verificamos si el estudiante tiene recuperaciones
-        tiene_recuperaciones = not df_recuperaciones[df_recuperaciones["DOCUMENTO"] == st.session_state['usuario']].empty
+        tiene_recuperaciones = not st.session_state.df_recuperaciones[st.session_state.df_recuperaciones["DOCUMENTO"] == st.session_state['usuario']].empty
 
         # Construimos el menú condicionalmente
         opciones_menu = ["📘 Consulta de notas"]
@@ -139,12 +127,20 @@ def sidebar_config():
             #df_planilla1 = agregar_documento(df_planilla, df_estudiantes)
             #st.dataframe(df_planilla1)    
 
-            df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, st.session_state.ruta_estudiantes, dict_orden_act, dict_orden_proc)  # Mostrar notas por defecto
+            df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, st.session_state.ruta_estudiantes, st.session_state.dict_orden_act, st.session_state.dict_orden_proc)  # Mostrar notas por defecto
             df6 = df5[df5['DOCUMENTO'] == st.session_state['usuario']].copy()
-            # Aplicar estilo
-            styled_df = df6[["PROCESO","ACTIVIDAD","Calificación"]].style.applymap(color_calificacion, subset=['Calificación'])
-            # Mostrar DataFrame de notas
-            st.dataframe(styled_df, use_container_width=True, hide_index=True)
+            # redondear las calificaciones a 1 decimal
+            # Tu dataframe filtrado, por ejemplo:
+            #df_filtrado = df6[["PROCESO", "ACTIVIDAD", "Calificación"]]
+
+            # Mostrar tabla con formato
+            mostrar_tabla_notas(df6)
+            #df6['Calificación'] = df6['Calificación'].round(1)#.astype(str)
+            ## Aplicar estilo
+            #styled_df = df6[["PROCESO","ACTIVIDAD","Calificación"]].style.format({"Calificación": "{:.1f}"}).applymap(color_calificacion, subset=['Calificación'])
+            ## Mostrar DataFrame de notas
+            #
+            #st.dataframe(styled_df, use_container_width=True, hide_index=True)
     
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
