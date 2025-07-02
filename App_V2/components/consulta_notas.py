@@ -3,38 +3,38 @@ import pandas as pd
 import urllib.parse
 from utils.load_data import construir_url,cargar_datos_grupo, obtener_diccionario_actividades, limpiar_y_seleccionar_notas, agregar_documento, formar_pares, comparar_y_promediar, preparar_df2, obtener_columnas_validas, transformar_melt, cargar_estudiantes
 
-# Configuración centralizada del libro de Google Sheets
-SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
-
-GIDS = {
-    "notas": "0",
-    "recuperaciones": "451207441",
-    "comparativos": "357866733"
-}
-
-# guardar en session state para evitar recargas innecesarias
-if 'SHEET_ID' not in st.session_state:
-    st.session_state.SHEET_ID = SHEET_ID
-if 'GIDS' not in st.session_state:
-    st.session_state.GIDS = GIDS
-
-SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
-GIDS_PM = {
-    "notas": "0",
-    "notas_701_P1": "1779130150",
-    "notas_701_P2": "1360433359"
-}
-
-# guardar en session state para evitar recargas innecesarias
-if 'SHEET_ID_PM' not in st.session_state:
-    st.session_state.SHEET_ID_PM = SHEET_ID_PM
-if 'GIDS_PM' not in st.session_state:
-    st.session_state.GIDS_PM = GIDS_PM
+## Configuración centralizada del libro de Google Sheets
+#SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
+#
+#GIDS = {
+#    "notas": "0",
+#    "recuperaciones": "451207441",
+#    "comparativos": "357866733"
+#}
+#
+## guardar en session state para evitar recargas innecesarias
+#if 'SHEET_ID' not in st.session_state:
+#    st.session_state.SHEET_ID = SHEET_ID
+#if 'GIDS' not in st.session_state:
+#    st.session_state.GIDS = GIDS
+#
+#SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
+#GIDS_PM = {
+#    "notas": "0",
+#    "notas_701_P1": "1779130150",
+#    "notas_701_P2": "1360433359"
+#}
+#
+## guardar en session state para evitar recargas innecesarias
+#if 'SHEET_ID_PM' not in st.session_state:
+#    st.session_state.SHEET_ID_PM = SHEET_ID_PM
+#if 'GIDS_PM' not in st.session_state:
+#    st.session_state.GIDS_PM = GIDS_PM
 
 # === PARÁMETROS ===
-grupo = "701"
-periodo = "1"
-ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
+#grupo = "701"
+#periodo = "1"
+#ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
 # cargar estudiantes
 
 #dict_orden_act = {
@@ -61,6 +61,7 @@ ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_P
 #}
 
 def mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_orden_proc):
+    ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])
     # === PROCESO ===
     df = cargar_datos_grupo(ruta_notas, grupo, periodo,st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM)
     mi_diccionario, idx_campo = obtener_diccionario_actividades(df)

@@ -1,40 +1,43 @@
 import streamlit as st
 import login
 import pandas as pd
-from utils.load_data import construir_url, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,cargar_hoja_publica
+from utils.load_data import (construir_url, load_planilla_google, load_notas_google,
+                            load_recuperaciones_google, load_comparativos_google,
+                            cargar_hoja_publica
+                            )
 
 # usuari de prueba 6374333
 def inicio():
 
     # Configuración centralizada del libro de Google Sheets
-    SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
-
-    GIDS = {
-        "notas": "0",
-        "recuperaciones": "451207441",
-        "comparativos": "357866733"
-    }
-
-    # guardar en session state para evitar recargas innecesarias
-    if 'SHEET_ID' not in st.session_state:
-        st.session_state.SHEET_ID = SHEET_ID
-    if 'GIDS' not in st.session_state:
-        st.session_state.GIDS = GIDS
-
-    SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
-    GIDS_PM = {
-        "notas": "0",
-        "estudiantes": "817657441",
-        "notas_701_P1": "1779130150",
-        "notas_701_P2": "1360433359",  # Ejemplo de otro grupo y periodo
-        "recuperaciones": "1791404525"
-    }
-
-    # guardar en session state para evitar recargas innecesarias
-    if 'SHEET_ID_PM' not in st.session_state:
-        st.session_state.SHEET_ID_PM = SHEET_ID_PM
-    if 'GIDS_PM' not in st.session_state:
-        st.session_state.GIDS_PM = GIDS_PM
+    #SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
+#
+    #GIDS = {
+    #    "notas": "0",
+    #    "recuperaciones": "451207441",
+    #    "comparativos": "357866733"
+    #}
+#
+    ## guardar en session state para evitar recargas innecesarias
+    #if 'SHEET_ID' not in st.session_state:
+    #    st.session_state.SHEET_ID = SHEET_ID
+    #if 'GIDS' not in st.session_state:
+    #    st.session_state.GIDS = GIDS
+#
+    #SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
+    #GIDS_PM = {
+    #    "notas": "0",
+    #    "estudiantes": "817657441",
+    #    "notas_701_P1": "1779130150",
+    #    "notas_701_P2": "1360433359",  # Ejemplo de otro grupo y periodo
+    #    "recuperaciones": "1791404525"
+    #}
+#
+    ## guardar en session state para evitar recargas innecesarias
+    #if 'SHEET_ID_PM' not in st.session_state:
+    #    st.session_state.SHEET_ID_PM = SHEET_ID_PM
+    #if 'GIDS_PM' not in st.session_state:
+    #    st.session_state.GIDS_PM = GIDS_PM
 
     """Carga la página de inicio y genera el login"""
     #st.set_page_config(page_title="Plataforma Estudiantil", layout="wide")
@@ -86,7 +89,7 @@ def inicio():
     #    ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
     #except:
     #    ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
-    ruta_estudiantes = construir_url(SHEET_ID_PM, GIDS_PM['estudiantes'])
+    ruta_estudiantes = construir_url(st.session_state.SHEET_ID_PM, st.session_state.GIDS_PM['estudiantes'])
     # Almacenar ruta_estudiantes en session state
     if 'ruta_estudiantes' not in st.session_state:
         st.session_state.ruta_estudiantes = ruta_estudiantes

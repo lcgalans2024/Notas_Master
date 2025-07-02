@@ -1,0 +1,48 @@
+import streamlit as st
+
+def inicializar_session_state():
+    if 'SHEET_ID' not in st.session_state:
+        st.session_state.SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM"
+
+    if 'GIDS' not in st.session_state:
+        st.session_state.GIDS = {
+            "notas": "0",
+            "recuperaciones": "451207441",
+            "comparativos": "357866733"
+        }
+
+    if 'SHEET_ID_PM' not in st.session_state:
+        st.session_state.SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS"
+
+    if 'GIDS_PM' not in st.session_state:
+        st.session_state.GIDS_PM = {
+            "notas": "0",
+            "estudiantes": "817657441",
+            "notas_701_P1": "1779130150",
+            "notas_701_P2": "1360433359",  
+            "recuperaciones": "1791404525"
+        }
+
+    if 'dict_orden_act' not in st.session_state:
+        st.session_state.dict_orden_act = {
+            "1.1":1, "1.3":2, "1.5":3, "1.7":4, "1.9":5,
+            "1.11":6, "2.1":7, "2.3":8, "2.5":9, "2.7":10,
+            "2.9":11, "3.1":12, "3.2":13, "4.1":14
+        }
+
+    if 'dict_orden_proc' not in st.session_state:
+        st.session_state.dict_orden_proc = {
+            'HACER':1, 'SABER':2, 'AUTOEVALUACIÓN':3, 'PRUEBA_PERIODO':4
+        }
+
+    # Inicializar otras claves de control
+    #if 'usuario' not in st.session_state:
+    #    st.session_state['usuario'] = None
+    #if 'nombre' not in st.session_state:
+    #    st.session_state['nombre'] = ""
+    #if 'grupo1' not in st.session_state:
+    #    st.session_state['grupo1'] = "701"
+    #if 'periodo1' not in st.session_state:
+    #    st.session_state['periodo1'] = "1"
+
+    # Aquí puedes incluir más inicializaciones según vayas escalando la app

@@ -49,46 +49,46 @@ from components import auth, consulta_notas, materiales, recuperaciones#, compar
 #if 'df_comparativos' not in st.session_state:
 #    st.session_state.df_comparativos = df_comparativos
 # === PARÁMETROS ===
-grupo = "701"
-#"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
-#try:
-#    ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
-#except:
-#    ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
-
-dict_orden_act = {
-          "1.1":1,
-          "1.3":2,
-          "1.5":3,
-          "1.7":4,
-          "1.9":5,
-          "1.11":6,
-          "2.1":7,
-          "2.3":8,
-          "2.5":9,
-          "2.7":10,
-          "2.9":11,
-          "3.1":12,
-          "3.2":13,
-          "4.1":14
-        }
-dict_orden_proc = {
-          'HACER':1,
-          'SABER':2,
-          'AUTOEVALUACIÓN':3,
-          'PRUEBA_PERIODO':4
-        }
-
-#Almacenar dict_orden_act y dict_orden_proc en session state
-st.session_state.dict_orden_act = dict_orden_act
-st.session_state.dict_orden_proc = dict_orden_proc
+#grupo = "701"
+##"O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
+##try:
+##    ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+##except:
+##    ruta_estudiantes = "I:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
+#
+#dict_orden_act = {
+#          "1.1":1,
+#          "1.3":2,
+#          "1.5":3,
+#          "1.7":4,
+#          "1.9":5,
+#          "1.11":6,
+#          "2.1":7,
+#          "2.3":8,
+#          "2.5":9,
+#          "2.7":10,
+#          "2.9":11,
+#          "3.1":12,
+#          "3.2":13,
+#          "4.1":14
+#        }
+#dict_orden_proc = {
+#          'HACER':1,
+#          'SABER':2,
+#          'AUTOEVALUACIÓN':3,
+#          'PRUEBA_PERIODO':4
+#        }
+#
+##Almacenar dict_orden_act y dict_orden_proc en session state
+#st.session_state.dict_orden_act = dict_orden_act
+#st.session_state.dict_orden_proc = dict_orden_proc
 
 def sidebar_config():
-    st.sidebar.header("Auntentificación del Usuario")
+    #st.sidebar.header("Auntentificación del Usuario")
 
     # Selector de grupo y periodo
-    st.sidebar.subheader("Configuración")
-    st.sidebar.write("Selecciona el grupo y periodo para ver las notas correspondientes.")
+    #st.sidebar.subheader("Configuración")
+    #st.sidebar.write("Selecciona el grupo y periodo para ver las notas correspondientes.")
     #grupo1 = st.sidebar.selectbox("Grupo", ["701", "702", "703"])
     #if 'grupo1' in st.session_state:
     st.sidebar.write("Grupo actual:", st.session_state.grupo1)
@@ -136,18 +136,18 @@ def sidebar_config():
             #df_planilla1 = agregar_documento(df_planilla, df_estudiantes)
             #st.dataframe(df_planilla1)    
 
-            df5 = consulta_notas.mostrar(grupo, periodo, ruta_notas, st.session_state.ruta_estudiantes, st.session_state.dict_orden_act, st.session_state.dict_orden_proc)  # Mostrar notas por defecto
+            df5 = consulta_notas.mostrar(st.session_state.grupo1, periodo, ruta_notas, st.session_state.ruta_estudiantes, st.session_state.dict_orden_act, st.session_state.dict_orden_proc)  # Mostrar notas por defecto
             df6 = df5[df5['DOCUMENTO'] == st.session_state['usuario']].copy()
             # mostrar os tipos de las columnas de df6
             
             st.write("Tipos de las columnas del DataFrame de notas:")
-            st.table(st.session_state.df_recuperaciones.dtypes)
+            #st.table(st.session_state.df_recuperaciones.dtypes)
            
-            st.dataframe(st.session_state.df_recuperaciones[(st.session_state.df_recuperaciones["DOCUMENTO"] == st.session_state['usuario']) 
-                                                            &
-                                                            (st.session_state.df_recuperaciones["PERIODO"] == periodo)
-                                                            ]
-                                                            )
+            #st.dataframe(st.session_state.df_recuperaciones[(st.session_state.df_recuperaciones["DOCUMENTO"] == st.session_state['usuario']) 
+            #                                                &
+            #                                                (st.session_state.df_recuperaciones["PERIODO"] == periodo)
+            #                                                ]
+            #                                                )
 
             # redondear las calificaciones a 1 decimal
             # Tu dataframe filtrado, por ejemplo:
