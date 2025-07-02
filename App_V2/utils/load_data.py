@@ -53,36 +53,6 @@ def cargar_hoja_privada(sheet_name, worksheet_name, cred_path="credenciales.json
     except Exception as e:
         print(f"Error cargando hoja privada: {e}")
         return pd.DataFrame()
-    
-#https://docs.google.com/spreadsheets/d/1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS/edit?usp=sharing&ouid=105878547600010956430&rtpof=true&sd=true
-# Cargamos los datos de las hojas públicas
-
-## Configuración centralizada del libro de Google Sheets
-#SHEET_ID = "1mS9mpj5ubrYHbKg707EVMxHVhV6H1gEB50DoM5DK4VM" #Hoja ejemplo
-#
-#GIDS = {
-#    "notas": "0",
-#    "recuperaciones": "451207441",
-#    "comparativos": "357866733"
-#}
-#
-## guardar en session state para evitar recargas innecesarias
-#if 'SHEET_ID' not in st.session_state:
-#    st.session_state.SHEET_ID = SHEET_ID
-#if 'GIDS' not in st.session_state:
-#    st.session_state.GIDS = GIDS
-#
-#SHEET_ID_PM = "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS" #Hoja Planila Master IEOS
-#GIDS_PM = {
-#    "notas": "0",
-#    "notas_701_P1": "1779130150"
-#}
-#
-## guardar en session state para evitar recargas innecesarias
-#if 'SHEET_ID_PM' not in st.session_state:
-#    st.session_state.SHEET_ID_PM = SHEET_ID_PM
-#if 'GIDS_PM' not in st.session_state:
-#    st.session_state.GIDS_PM = GIDS_PM
 
 def construir_url(SHEET_ID,gid):
     try:
@@ -123,13 +93,6 @@ def load_notas_google(SHEET_ID ,GIDS):
     
     return df
 
-#@st.cache_data(ttl=60)
-#def load_notas_google():
-#    url = construir_url(GIDS["notas"])
-#    df = cargar_hoja_publica(url)
-#    df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
-#    return df
-
 @st.cache_data(ttl=60)
 def load_recuperaciones_google(SHEET_ID, GIDS):
     url = construir_url(SHEET_ID, GIDS["recuperaciones"])
@@ -143,16 +106,6 @@ def load_comparativos_google(SHEET_ID, GIDS):
     df = cargar_hoja_publica(url)
     df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
     return df
-
-############################### Notas de grupo ##########################################
-
-# === PARÁMETROS ===
-#grupo = "701"
-#periodo = "1"
-#ruta_notas = "O:/Mi unidad/Orestes/Planilla_Master_IEOS.xlsx"
-#ruta_estudiantes = "O:/Mi unidad/Notebooks/Listas_estudiantes_oreste.xlsx"
-
-
 
 # === Carga de datos y limpieza inicial ===
 @st.cache_data(ttl=60)
@@ -250,13 +203,9 @@ def cargar_estudiantes(ruta_estudiantes, sheet_name="All_COL"):
     df_estudiantes["MATRICULA"] = df_estudiantes.MATRICULA.astype(str)
     df_estudiantes["DOCUMENTO"] = df_estudiantes.DOCUMENTO.astype(str)
 
-    #df_estudiantes['MATRICULA'] = df_estudiantes['MATRICULA'].astype(str).str.strip()
-    #df_estudiantes['DOCUMENTO'] = df_estudiantes['DOCUMENTO'].astype(str).str.strip()
     return df_estudiantes
 
 def agregar_documento(df1, df_estudiantes):
-    #df_estudiantes["MATRICULA"] = df_estudiantes["MATRICULA"].astype(str)
-    #df_estudiantes["DOCUMENTO"] = df_estudiantes["DOCUMENTO"].astype(str)
     dict_doc = df_estudiantes.set_index("MATRICULA")['DOCUMENTO'].to_dict()
     idx = df1.columns.get_loc('NOMBRE_ESTUDIANTE')
     df1.insert(idx, 'DOCUMENTO', df1['Matricula'].map(dict_doc))

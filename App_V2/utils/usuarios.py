@@ -37,15 +37,6 @@ def construir_usuarios():
     if 'df_comparativos' not in st.session_state:
         st.session_state.df_comparativos = df_comparativos
 
-    # Cambiar a string
-    #st.session_state.df_recuperaciones["PERIODO"] = st.session_state.df_recuperaciones["PERIODO"].astype(str)
-    #st.session_state.df_recuperaciones["INTENTO"] = st.session_state.df_recuperaciones["INTENTO"].astype(str)
-    ###########################################################################
-    # Cargar los datos de los archivos CSV
-    #df_notas = st.session_state.df_notas
-    #df_recuperaciones = st.session_state.df_recuperaciones
-    #df_comparativos = st.session_state.df_comparativos
-
     # cargar estudiantes
     df_estudiantes = cargar_estudiantes(st.session_state.ruta_estudiantes, "ALL_COL")
     # Asegurar que 'DOCUMENTO' sea string
@@ -63,19 +54,3 @@ def construir_usuarios():
     df_total = df_total.drop_duplicates()
 
     return dict(zip(df_total["DOCUMENTO"], df_total["NOMBRE_ESTUDIANTE"]))
-
-
-#    archivos = ["data/notas.csv", "data/recuperaciones.csv", "data/comparativos.csv"]
-#    df_total = pd.DataFrame()
-#
-#    for archivo in archivos:
-#        try:
-#            df = pd.read_csv(archivo)[["documento", "nombre"]]
-#            df["documento"] = df["documento"].astype(str)  # Asegurar que 'documento' sea string
-#            df_total = pd.concat([df_total, df])
-#        except FileNotFoundError:
-#            continue  # Ignorar si falta alguno
-#
-#    # Eliminar duplicados y construir diccionario
-#    df_total = df_total.drop_duplicates()
-#    return dict(zip(df_total["documento"], df_total["nombre"]))
