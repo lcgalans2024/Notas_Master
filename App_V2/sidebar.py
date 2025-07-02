@@ -14,7 +14,8 @@ def sidebar_config():
 
     # Selector de grupo y periodo
     st.sidebar.write("Grupo actual:", st.session_state.grupo1)
-    periodo = st.sidebar.selectbox("Periodo", ["1", "2", "3", "Final"])
+    periodo = st.sidebar.selectbox("🗓️ Periodo", ["1", "2", "3", "Final"], 
+                               index=["1", "2", "3", "Final"].index(st.session_state.periodo1))
     st.session_state.periodo1 = periodo
 
     ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_701_P{periodo}'])

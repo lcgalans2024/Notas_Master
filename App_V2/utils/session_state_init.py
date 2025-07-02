@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.load_data import construir_url
 
 def inicializar_session_state():
     if 'SHEET_ID' not in st.session_state:
@@ -34,6 +35,15 @@ def inicializar_session_state():
         st.session_state.dict_orden_proc = {
             'HACER':1, 'SABER':2, 'AUTOEVALUACIÓN':3, 'PRUEBA_PERIODO':4
         }
+
+    if 'ruta_estudiantes' not in st.session_state:
+        st.session_state.ruta_estudiantes = construir_url(
+            st.session_state.SHEET_ID_PM,
+            st.session_state.GIDS_PM['estudiantes']
+        )
+
+    if 'periodo1' not in st.session_state:
+        st.session_state.periodo1 = "1"
 
     # Inicializar otras claves de control
     #if 'usuario' not in st.session_state:
