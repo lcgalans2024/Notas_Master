@@ -24,6 +24,16 @@ def inicializar_session_state():
             "recuperaciones": "1791404525"
         }
 
+    # Consolidados
+    if 'SHEET_ID_CONSOLIDADOS' not in st.session_state:
+        st.session_state.SHEET_ID_CONSOLIDADOS = "1-o01rW92IhES6rVF1Wm21ll7N5Y7R6-4"
+
+    if 'GIDS_CONSOLIDADOS' not in st.session_state:
+        st.session_state.GIDS_CONSOLIDADOS = {
+            "notas": "0",
+            "701_P1": "1097370573"
+        }
+
     if 'dict_orden_act' not in st.session_state:
         st.session_state.dict_orden_act = {
             "1.1":1, "1.3":2, "1.5":3, "1.7":4, "1.9":5,

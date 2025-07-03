@@ -7,7 +7,7 @@ import qrcode
 from io import BytesIO
 from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso
 from utils.load_data import cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
-from components import auth, consulta_notas, materiales, recuperaciones#, comparativos
+from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
 def sidebar_config():
     #st.sidebar.header("Auntentificación del Usuario")
@@ -30,7 +30,7 @@ def sidebar_config():
         opciones_menu = ["📘 Consulta de notas"]
         if tiene_recuperaciones:
             opciones_menu.append("♻️ Recuperaciones")
-        opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
+        opciones_menu += ["Informes", "📊 Comparativos", "📎 Material del área y comunicados"]
 
         menu = st.sidebar.radio("Ir a:", opciones_menu)
         #periodo = st.sidebar.selectbox("🗓️ Selecciona el periodo", ["Periodo 1", "Periodo 2", "Periodo 3", "Final"])
@@ -66,7 +66,12 @@ def sidebar_config():
                 meta = 3
                 fig = mostrar_barra_progreso(nota_acumulada)
                 st.pyplot(fig)
-    
+        elif menu == "Informes":
+            st.header("Informes")
+            # Mostrar el informe del estudiante
+            df = informe.mostrar_informe()
+            #mostrar el informe
+            st.dataframe(df)
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
             recuperaciones.mostrar(st.session_state.df_recuperaciones, st.session_state['usuario'], st.session_state['nombre'], periodo)

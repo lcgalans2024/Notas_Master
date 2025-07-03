@@ -63,6 +63,16 @@ def construir_url(SHEET_ID,gid):
         return None
     
 @st.cache_data(ttl=60)
+def load_hoja_google_consolidados(SHEET_ID, GIDS, worksheet_name):
+    """
+    Carga una hoja de Google Sheets usando el ID del documento y el GID de la hoja.
+    """
+    url = construir_url(SHEET_ID, GIDS[worksheet_name])
+    df = cargar_hoja_publica(url)
+
+    return df
+    
+@st.cache_data(ttl=60)
 def load_hoja_google(SHEET_ID, GIDS, worksheet_name):
     """
     Carga una hoja de Google Sheets usando el ID del documento y el GID de la hoja.
@@ -271,4 +281,50 @@ def agregar_dimension(tarea):
     elif tarea.startswith('4'):
         return 'PRUEBA_PERIODO'
     return None
+
+# Procesamiento de consolidados
+@st.cache_data(ttl=60)
+def procesar_consolidados(df):
+    """
+    Carga los datos consolidados desde Google Sheets.
+    """
+    df1 = df.copy()
+    # Eliminar columnas vacias
+    df1.dropna(axis=1, how='all', inplace=True)
+    # Eliminar columnas que contienen "Unnamed"
+    df2 = df1.loc[:, ~df1.columns.str.contains('Unnamed')]
+    # obtener indice de fila de No aprobados en la columna Ord
+    ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
+    # Eliminar la primera fila
+    df3 = df2.iloc[1:ind_max, :].copy()
+
+    df3.drop(columns=['COM'], inplace=True)
+    # Cambiar a str
+    df3["Matricula"] = df3.Matricula.astype(str)
+    df3["Nro Documento"] = df3["Nro Documento"].astype(str)
+    # Corregir conteo no aprobadas
+    df3['No aprobados'] = df3['No aprobados'].astype(int)
+    df3['No aprobados'] = df3['No aprobados']-1
+    # Renombrar columnas
+    df3.rename(columns={'Nombre completo':'Nombre_estudiante'
+                  ,'Nro Documento':'DOCUMENTO'
+                  ,'Total faltas':'Total_faltas'
+                  ,'No aprobados':'No_Aprobados'
+                   } , inplace=True)
+    
+    # Derretir la tabla
+    melted_df = pd.melt(df3, id_vars=['Ord', 'Matricula', 'DOCUMENTO', 'Nombre_estudiante', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
+    melted_df.sort_values(['Nombre_estudiante'], inplace=True)
+
+    melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
+    melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
+
+    melted_df.NOTA = melted_df.NOTA.astype(float)
+    melted_df.loc[melted_df.NOTA < 3.0, 'ESTADO'] = "R"
+    melted_df.loc[(melted_df.NOTA >= 3.0) & (melted_df.ESTADO != 'S'), 'ESTADO'] = "G"
+
+    # mostrar los tipos de las columnas
+    #st.write("Tipos de las columnas del DataFrame de consolidados:")
+    #st.table(df3.dtypes)
+    return melted_df[melted_df.DOCUMENTO == st.session_state['usuario']][['MATERIA', 'NOTA', 'ESTADO']]  # Filtrar por usuario actual
  
