@@ -84,8 +84,8 @@ def load_hoja_google(SHEET_ID, GIDS, worksheet_name):
     return df
 
 @st.cache_data(ttl=60)
-def load_planilla_google(SHEET_ID ,GIDS,periodo="1"):
-    url = construir_url(SHEET_ID, GIDS[f'notas_701_P{periodo}'])
+def load_planilla_google(SHEET_ID ,GIDS, grupo ="701",periodo="1"):
+    url = construir_url(SHEET_ID, GIDS[f'notas_{grupo}_P{periodo}'])
     df = cargar_hoja_publica(url)
     df.rename(columns={
         'Nombre_estudiante': 'NOMBRE_ESTUDIANTE'
@@ -125,7 +125,7 @@ def cargar_datos_grupo(ruta_notas, grupo, periodo="1", SHEET_ID="SHEET_ID_PM" , 
         df = pd.read_excel(ruta_notas, sheet_name=f"G{grupo}_P{periodo}", engine='openpyxl')
     except:
         # Si falla, intentar cargarlo como CSV
-        df = load_planilla_google(SHEET_ID, GIDS,periodo)
+        df = load_planilla_google(SHEET_ID, GIDS, grupo,periodo)
     df.columns = df.columns.str.strip()
     df.rename(columns={
         'Nombre_estudiante': 'NOMBRE_ESTUDIANTE'

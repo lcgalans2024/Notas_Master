@@ -10,7 +10,21 @@ from utils.load_data import cargar_estudiantes, agregar_documento, load_planilla
 from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
 def sidebar_config():
-    #st.sidebar.header("Auntentificación del Usuario")
+    if "adm" in st.session_state: #st.session_state.get('usuario') == "0":
+        st.sidebar.write("👤 Usuario: **Administrador**")
+        st.session_state['nombre'] = "Administrador"
+        # Selector de grupo
+        grupos = ['701','702','703','704']#st.session_state.df_estudiantes['GRUPO'].unique().tolist()
+        grupos = sorted(grupos)  # Ordenar los grupos alfabéticamente
+        grupo = st.sidebar.selectbox("👥 Selecciona tu grupo", grupos)
+        st.session_state.grupo1 = grupo
+        # Selector de usuario
+        estudiantes = st.session_state.df_estudiantes[st.session_state.df_estudiantes.GRUPO == f'{grupo}00']['NOMBRE_ESTUDIANTE'].unique().tolist()
+        estudiante = st.sidebar.selectbox("👤 Selecciona tu usuario", estudiantes)
+
+        # Obtener el documento del estudiante seleccionado
+        documento = st.session_state.df_estudiantes[st.session_state.df_estudiantes['NOMBRE_ESTUDIANTE'] == estudiante]['DOCUMENTO'].values[0]
+        st.session_state['usuario'] = documento
 
     # Selector de grupo y periodo
     st.sidebar.write("Grupo actual:", st.session_state.grupo1)
@@ -18,7 +32,7 @@ def sidebar_config():
                                index=["1", "2", "3", "Final"].index(st.session_state.periodo1))
     st.session_state.periodo1 = periodo
 
-    ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_701_P{periodo}'])
+    ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_{st.session_state.grupo1}_P{periodo}'])
     st.session_state.ruta_notas = ruta_notas
 
     if "usuario" in st.session_state:
@@ -30,7 +44,12 @@ def sidebar_config():
         opciones_menu = ["📘 Consulta de notas"]
         if tiene_recuperaciones:
             opciones_menu.append("♻️ Recuperaciones")
-        opciones_menu += ["Informes", "📊 Comparativos", "📎 Material del área y comunicados"]
+
+        # verificar si el usuario es del grupo 701
+        if st.session_state.grupo1 == "701":
+            opciones_menu.append("📝 Informes")
+        
+        opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
 
         menu = st.sidebar.radio("Ir a:", opciones_menu)
         #periodo = st.sidebar.selectbox("🗓️ Selecciona el periodo", ["Periodo 1", "Periodo 2", "Periodo 3", "Final"])
@@ -42,9 +61,13 @@ def sidebar_config():
             st.markdown('''**Nota:** Las calificaciones se muestran en una escala de 0 a 5, 
                         donde 0.2 indica que no se ha realizado la actividad y en consecuencia no se ha evaluado.''') 
 
-            df5 = consulta_notas.mostrar(st.session_state.grupo1, periodo, ruta_notas, st.session_state.ruta_estudiantes, st.session_state.dict_orden_act, st.session_state.dict_orden_proc)  # Mostrar notas por defecto
+            df5 = consulta_notas.mostrar(st.session_state.grupo1, periodo, ruta_notas, st.session_state.ruta_estudiantes,
+                                         st.session_state.dict_orden_act, st.session_state.dict_orden_proc
+                                         )  # Mostrar notas por defecto
+            #st.write(f"dimensiones df: {df5.shape[0]} filas, {df5.shape[1]} columnas")
+            
             df6 = df5[df5['DOCUMENTO'] == st.session_state['usuario']].copy()
-
+            
             # mostrar os tipos de las columnas de df6
             st.write("Tipos de las columnas del DataFrame de notas:")
             #st.table(st.session_state.df_recuperaciones.dtypes)
@@ -66,7 +89,7 @@ def sidebar_config():
                 meta = 3
                 fig = mostrar_barra_progreso(nota_acumulada)
                 st.pyplot(fig)
-        elif menu == "Informes":
+        elif menu == "📝 Informes":
             st.header("Informes")
             # Mostrar el informe del estudiante
             df = informe.mostrar_informe()

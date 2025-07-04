@@ -7,7 +7,7 @@ from utils.load_data import (construir_url, cargar_datos_grupo, obtener_dicciona
                             transformar_melt, cargar_estudiantes)
 
 def mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_orden_proc):
-    ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM['notas_701_P1'])
+    ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_{grupo}_P{periodo}'])
     # === PROCESO ===
     df = cargar_datos_grupo(ruta_notas, grupo, periodo,st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM)
     mi_diccionario, idx_campo = obtener_diccionario_actividades(df)

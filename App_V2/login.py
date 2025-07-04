@@ -80,8 +80,12 @@ def generarLogin():
                 #Verificamos si el usuario es valido               
                 if validarUsuario(parUsuario):#,parPassword):
                     st.session_state['usuario'] = parUsuario
-                    # obtener grupo del usuario str(int(valor[:4]))
-                    st.session_state['grupo1'] = st.session_state.df_estudiantes[st.session_state.df_estudiantes['DOCUMENTO'] == parUsuario]['GRUPO'].values[0][:3]
+                    if parUsuario == "0":
+                        st.session_state['grupo1'] = ""
+                        st.session_state['adm'] = "Administrador"
+                    else:
+                        # obtener grupo del usuario str(int(valor[:4]))
+                        st.session_state['grupo1'] = st.session_state.df_estudiantes[st.session_state.df_estudiantes['DOCUMENTO'] == parUsuario]['GRUPO'].values[0][:3]
                     # Si el usuario es correcto reiniciamos la app para que se cargue el menú
                     st.rerun()
                 else:

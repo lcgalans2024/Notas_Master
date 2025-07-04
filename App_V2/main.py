@@ -6,7 +6,7 @@ from utils.session_state_init import inicializar_session_state
 inicializar_session_state()
 
 # Configuración general
-st.set_page_config(page_title="Plataforma Estudiantil", layout="wide")
+#st.set_page_config(page_title="Plataforma Estudiantil", layout="wide")
 
 import sidebar
 import inicio
@@ -30,3 +30,8 @@ if 'usuario' not in st.session_state:
 else:
     # Mostrar el sidebar
     sidebar.mostrar_sidebar()
+
+## Elementos de control
+#st.write(f'notas_{st.session_state.grupo1}_P{st.session_state.periodo1}')
+#st.write(st.session_state.GIDS_PM[f'notas_{st.session_state.grupo1}_P{st.session_state.periodo1}'])
+#st.write(st.session_state.ruta_notas)

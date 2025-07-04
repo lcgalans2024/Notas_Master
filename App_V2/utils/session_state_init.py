@@ -20,7 +20,9 @@ def inicializar_session_state():
             "notas": "0",
             "estudiantes": "817657441",
             "notas_701_P1": "1779130150",
-            "notas_701_P2": "1360433359",  
+            "notas_701_P2": "1360433359",
+            "notas_702_P1": "1659300987",
+            "notas_702_P2": "1327140213",  
             "recuperaciones": "1791404525"
         }
 
@@ -60,9 +62,15 @@ def inicializar_session_state():
     #    st.session_state['usuario'] = None
     #if 'nombre' not in st.session_state:
     #    st.session_state['nombre'] = ""
-    #if 'grupo1' not in st.session_state:
-    #    st.session_state['grupo1'] = "701"
+    if 'grupo1' not in st.session_state:
+        st.session_state['grupo1'] = "701"
     #if 'periodo1' not in st.session_state:
     #    st.session_state['periodo1'] = "1"
+
+    if 'ruta_notas' not in st.session_state:
+        st.session_state.ruta_notas = construir_url(
+            st.session_state.SHEET_ID_PM,
+            st.session_state.GIDS_PM[f'notas_{st.session_state.grupo1}_P{st.session_state.periodo1}']
+        )
 
     # Aquí puedes incluir más inicializaciones según vayas escalando la app
