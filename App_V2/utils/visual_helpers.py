@@ -18,6 +18,25 @@ def color_calificacion(val):
     return color
 
 @st.cache_data(ttl=60)
+def color_informe(val):
+    if val == 'G':
+        color = 'background-color: #00b050; color: black'  # Verde
+    elif val == 'S':
+        color = 'background-color: #ffff00; color: black'  # Amarillo claro
+    else:
+        color = 'background-color: #ff0000; color: white'  # Rojo
+    return color
+
+def color_fila(row):
+    estado = row['ESTADO']
+    if estado == 'G':
+        return ['background-color: #00b050; color: black'] * len(row)
+    elif estado == 'S':
+        return ['background-color: #ffff00; color: black'] * len(row)
+    else:
+        return ['background-color: #ff0000; color: white'] * len(row)
+
+@st.cache_data(ttl=60)
 def mostrar_tabla_notas(df):
     """
     Muestra el DataFrame de notas con calificaciones redondeadas a 1 decimal

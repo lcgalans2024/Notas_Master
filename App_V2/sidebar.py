@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import altair as alt
 import qrcode
 from io import BytesIO
-from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso
+from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila
 from utils.load_data import cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
@@ -93,8 +93,20 @@ def sidebar_config():
             st.header("Informes")
             # Mostrar el informe del estudiante
             df = informe.mostrar_informe()
+            # Leyenda de colores con emoji
+            st.markdown("""
+            ✅ **Leyenda de colores:**
+
+            🟩 **Verde (G)**: Aprobado  
+            🟥 **Rojo (R)**: Reprobado  
+            🟨 **Amarillo (S)**: Superada
+            """)
             #mostrar el informe
-            st.dataframe(df)
+            #styled_df = df.style.applymap(color_informe, subset=['ESTADO'])
+            styled_df = df.style.apply(color_fila, axis=1)
+            st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+            st.dataframe(df, use_container_width=True, hide_index=True)
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
             recuperaciones.mostrar(st.session_state.df_recuperaciones, st.session_state['usuario'], st.session_state['nombre'], periodo)
