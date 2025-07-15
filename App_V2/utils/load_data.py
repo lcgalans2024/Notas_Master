@@ -179,6 +179,8 @@ def formar_pares(columnas_validas):
     return pares
 
 def limpiar_y_seleccionar_notas(df, index_campo, mi_diccionario):
+    # Eliminar segunda fila
+    df = df.drop(index=0).reset_index(drop=True)
     df = df.iloc[:int(index_campo) - 2].copy()
     #columnas = ['Matricula', 'Nombre_estudiante'] + [f'{i}.{j}' for i in range(1, 5) for j in range(1, 3) if not (i == 3 and j == 2)]
     columnas = ['Matricula', 'NOMBRE_ESTUDIANTE'] + obtener_columnas_validas(mi_diccionario)
@@ -261,7 +263,7 @@ def transformar_melt(df2, mi_diccionario, dict_orden_act, dict_orden_proc, perio
     df_melt['PROCESO'] = df_melt['Tarea'].apply(agregar_dimension)
     df_melt['ORDEN_PROCESO'] = df_melt['PROCESO'].map(dict_orden_proc)
     collator = Collator()
-    df_melt['Sort_Key'] = df_melt['NOMBRE_ESTUDIANTE'].apply(collator.sort_key)
+    df_melt['Sort_Key'] = df_melt['NOMBRE_ESTUDIANTE'].astype(str).apply(collator.sort_key)
 
     df_grouped = df_melt.groupby([
         'PROCESO', 'Matricula', 'DOCUMENTO', 'NOMBRE_ESTUDIANTE',
