@@ -131,6 +131,7 @@ def cargar_datos_grupo(ruta_notas, grupo, periodo="1", SHEET_ID="SHEET_ID_PM" , 
         'Nombre_estudiante': 'NOMBRE_ESTUDIANTE'
     }, inplace=True)
     df["Matricula"] = df["Matricula"].astype(str).str.strip()
+    df = df.drop(index=0).reset_index(drop=True)
     return df
 
 def obtener_diccionario_actividades(df):
@@ -180,7 +181,7 @@ def formar_pares(columnas_validas):
 
 def limpiar_y_seleccionar_notas(df, index_campo, mi_diccionario):
     # Eliminar segunda fila
-    df = df.drop(index=0).reset_index(drop=True)
+    #df = df.drop(index=0).reset_index(drop=True)
     df = df.iloc[:int(index_campo) - 2].copy()
     #columnas = ['Matricula', 'Nombre_estudiante'] + [f'{i}.{j}' for i in range(1, 5) for j in range(1, 3) if not (i == 3 and j == 2)]
     columnas = ['Matricula', 'NOMBRE_ESTUDIANTE'] + obtener_columnas_validas(mi_diccionario)
@@ -295,6 +296,8 @@ def procesar_consolidados(df):
     df1.dropna(axis=1, how='all', inplace=True)
     # Eliminar columnas que contienen "Unnamed"
     df2 = df1.loc[:, ~df1.columns.str.contains('Unnamed')]
+    # eliminar fila por indice 26, 40 
+    df2 = df2.drop(index=[26,35,41]).reset_index(drop=True)
     # obtener indice de fila de No aprobados en la columna Ord
     ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
     # Eliminar la primera fila

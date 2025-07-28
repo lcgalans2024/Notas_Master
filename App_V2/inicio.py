@@ -16,6 +16,8 @@ def inicio():
     login.generarLogin()
     
     if 'usuario' in st.session_state:
-        st.subheader('Información página principal')
+        # crear una linea horizontal
+        st.markdown("---")
+        #st.subheader('')
 
     

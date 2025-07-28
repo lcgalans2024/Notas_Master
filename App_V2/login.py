@@ -68,7 +68,7 @@ def generarLogin():
     if 'usuario' in st.session_state:
         #generarMenu(st.session_state['usuario']) # Si ya hay usuario cargamos el menu
         st.write(f"Hola **:blue-background[{st.session_state['nombre']}]** con documento **:blue-background[{st.session_state['usuario']}]**")
-        st.write("Bienvenido a la aplicación")        
+        st.write("Bienvenido a la aplicación en la que podrás consultar información relacionada con el area de matemáticas, por ejemplo notas y actividades.")        
     else: 
         # Cargamos el formulario de login       
         with st.form('frmLogin'):

@@ -6,7 +6,7 @@ import altair as alt
 import qrcode
 from io import BytesIO
 from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila
-from utils.load_data import cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
+from utils.load_data import load_hoja_google_consolidados,cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
 def sidebar_config():
@@ -49,7 +49,8 @@ def sidebar_config():
         if st.session_state.grupo1 == "701":
             opciones_menu.append("📝 Informes")
         
-        opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
+        #opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
+        opciones_menu += ["📎 Material del área y comunicados"]
 
         menu = st.sidebar.radio("Ir a:", opciones_menu)
         #periodo = st.sidebar.selectbox("🗓️ Selecciona el periodo", ["Periodo 1", "Periodo 2", "Periodo 3", "Final"])
@@ -90,23 +91,29 @@ def sidebar_config():
                 fig = mostrar_barra_progreso(nota_acumulada)
                 st.pyplot(fig)
         elif menu == "📝 Informes":
-            st.header("Informes")
+            st.header("Informe de Notas")
             # Mostrar el informe del estudiante
             df = informe.mostrar_informe()
-            # Leyenda de colores con emoji
-            st.markdown("""
-            ✅ **Leyenda de colores:**
-
-            🟩 **Verde (G)**: Aprobado  
-            🟥 **Rojo (R)**: Reprobado  
-            🟨 **Amarillo (S)**: Superada
-            """)
+            
             #mostrar el informe
             #styled_df = df.style.applymap(color_informe, subset=['ESTADO'])
-            styled_df = df.style.apply(color_fila, axis=1)
-            st.dataframe(styled_df, use_container_width=True, hide_index=True)
+            # si dataframe no esta vacío
+            if df.shape[0] == 0:
+                st.warning("No hay datos disponibles para mostrar el informe.")
+            else:
+                # Leyenda de colores con emoji
+                st.markdown("""
+                ✅ **Leyenda de colores:**
 
-            st.dataframe(df, use_container_width=True, hide_index=True)
+                🟩 **Verde (G)**: Aprobado  
+                🟥 **Rojo (R)**: Reprobado  
+                🟨 **Amarillo (S)**: Superada
+                """)
+                # Aplicar el estilo de color a las filas según el estado
+                styled_df = df.style.apply(color_fila, axis=1)
+                st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+            #st.dataframe(df, use_container_width=True, hide_index=True)
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
             recuperaciones.mostrar(st.session_state.df_recuperaciones, st.session_state['usuario'], st.session_state['nombre'], periodo)
@@ -114,7 +121,7 @@ def sidebar_config():
             st.header("📊 Comparativos")
             #comparativos.mostrar(df_comparativos, doc_id, nombre_estudiante)
         elif menu == "📎 Material del área y comunicados":
-            st.header("📎 Material del área y comunicados")
+            st.header(f"📎 Material del área y comunicados")
             materiales.mostrar()
 
 # Mostrar el sidebar
