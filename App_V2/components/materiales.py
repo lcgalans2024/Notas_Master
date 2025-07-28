@@ -68,7 +68,7 @@ def mostrar():
                 mime="application/pdf"
             )
         ##############################################################
-        st.markdown("- Paginas 3, 4, 5, 6 y 7 del libro guía: Divermate 7°")
+        st.markdown("- Paginas 3, 4, 5, 6 y 7 del libro guía: Saber Matemático 7°")
         ##############################################################
         st.markdown("- Plegable figuras geométricas planas")
         with open("materiales/Actividad plegable figuras geometricas.pdf", "rb") as file:
