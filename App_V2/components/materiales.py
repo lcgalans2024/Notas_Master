@@ -81,7 +81,7 @@ def mostrar():
         ##############################################################
         st.markdown("- Taller números enteros")
         
-        with open("materiales/Taller números enteros.pdf", "rb") as file:
+        with open("App_V2/materiales/Taller números enteros.pdf", "rb") as file:
             st.download_button(
                 label="- [📥 Descargar Actividad](#)",
                 data=file,
@@ -90,7 +90,7 @@ def mostrar():
             )
         ##############################################################
         st.markdown("- Taller de valor absoluto")
-        with open("materiales/Taller de valor absoluto.pdf", "rb") as file:
+        with open("App_V2/materiales/Taller de valor absoluto.pdf", "rb") as file:
             st.download_button(
                 label="- [📥 Descargar Actividad](#)",
                 data=file,
