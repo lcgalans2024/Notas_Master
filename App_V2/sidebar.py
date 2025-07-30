@@ -70,7 +70,7 @@ def sidebar_config():
             df6 = df5[df5['DOCUMENTO'] == st.session_state['usuario']].copy()
             
             # mostrar os tipos de las columnas de df6
-            st.write("Tipos de las columnas del DataFrame de notas:")
+            #st.write("Tipos de las columnas del DataFrame de notas:")
             #st.table(st.session_state.df_recuperaciones.dtypes)
            
             #st.dataframe(st.session_state.df_recuperaciones[(st.session_state.df_recuperaciones["DOCUMENTO"] == st.session_state['usuario']) 
