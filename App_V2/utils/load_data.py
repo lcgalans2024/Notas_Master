@@ -321,6 +321,9 @@ def procesar_consolidados(df):
     melted_df = pd.melt(df3, id_vars=['Ord', 'Matricula', 'DOCUMENTO', 'Nombre_estudiante', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
     melted_df.sort_values(['Nombre_estudiante'], inplace=True)
 
+    # Mapear MATERIA con el diccionario materias
+    melted_df['MATERIA'] = melted_df['MATERIA'].map(st.session_state.materias)
+
     melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
     melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
 

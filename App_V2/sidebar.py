@@ -92,6 +92,10 @@ def sidebar_config():
                 st.pyplot(fig)
         elif menu == "📝 Informes":
             st.header("Informe de Notas")
+            st.markdown("""El presente informe permite ver las materias perdidas en periodos anteriores y si estas han sido superadas o no. 
+                        Adicionalmente, muestra las materias alertadas en el presente periodo, las cuales deben ser atendidas con prioridad para 
+                        evitar que se conviertan en materias perdidas en el periodo actual. 
+            """)
             # Mostrar el informe del estudiante
             df = informe.mostrar_informe()
             
@@ -131,6 +135,6 @@ def mostrar_sidebar():
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app1.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_2.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
-    st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_4.png", use_container_width=True)
+    st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
     sidebar_config()
 

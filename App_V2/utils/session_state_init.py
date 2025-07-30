@@ -75,4 +75,17 @@ def inicializar_session_state():
             st.session_state.GIDS_PM[f'notas_{st.session_state.grupo1}_P{st.session_state.periodo1}']
         )
 
-    # Aquí puedes incluir más inicializaciones según vayas escalando la app
+    # Diccionario de materias
+    if 'materias' not in st.session_state:
+        st.session_state.materias = {
+            "CNS": "CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL",
+            "ART": "EDUCACIÓN ARTISTICA Y CULTURAL",
+            "ETI": "EDUCACION ETICA  Y  EN VALORES HUMANOS",
+            "EDF": "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES",
+            "LEI": "LENGUA EXTRANJERA INGLES",
+            "MAT": "MATEMÁTICAS",
+            "CIE": "CIENCIAS SOCIALES",
+            "TEC": "TECNOLOGIA E INFORMÁTICA",
+            "REL": "EDUCACION RELIGIOSA",
+            "LEN": "LENGUA CASTELLANA"
+        }
