@@ -51,7 +51,7 @@ def mostrar():
         #st.subheader("📂 Materiales disponibles")
         ##############################################################
         st.markdown("- Criterios de divisibilidad")
-        with open("materiales/Actividad criterios.pdf", "rb") as file:
+        with open("App_V2/materiales/Actividad criterios.pdf", "rb") as file:
             st.download_button(
                 label="- [📥 Descargar Actividad](#)",
                 data=file,
@@ -60,7 +60,7 @@ def mostrar():
             )
         ##############################################################
         st.markdown("- Decomposición en factores primos")
-        with open("materiales/Actividad MCD_mcm.pdf", "rb") as file:
+        with open("App_V2/materiales/Actividad MCD_mcm.pdf", "rb") as file:
             st.download_button(
                 label="- [📥 Descargar Actividad](#)",
                 data=file,
@@ -71,7 +71,7 @@ def mostrar():
         st.markdown("- Paginas 3, 4, 5, 6 y 7 del libro guía: Saber Matemático 7°")
         ##############################################################
         st.markdown("- Plegable figuras geométricas planas")
-        with open("materiales/Actividad plegable figuras geometricas.pdf", "rb") as file:
+        with open("App_V2/materiales/Actividad plegable figuras geometricas.pdf", "rb") as file:
             st.download_button(
                 label="- [📥 Descargar Actividad](#)",
                 data=file,
