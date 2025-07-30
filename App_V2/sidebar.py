@@ -60,7 +60,9 @@ def sidebar_config():
 
             # Agregar una nota aclaratoria
             st.markdown('''**Nota:** Las calificaciones se muestran en una escala de 0 a 5, 
-                        donde 0.2 indica que no se ha realizado la actividad y en consecuencia no se ha evaluado.''') 
+                        donde 0.2 indica que no se ha realizado la actividad y en consecuencia no se ha evaluado.''')
+
+            st.markdown('''La nota de **Heteroevaluación:** es una nota que se evalua en el aula, clase a clase segun el desempeño integral del estudiante en el área.''') 
 
             df5 = consulta_notas.mostrar(st.session_state.grupo1, periodo, ruta_notas, st.session_state.ruta_estudiantes,
                                          st.session_state.dict_orden_act, st.session_state.dict_orden_proc
