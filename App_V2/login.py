@@ -79,7 +79,7 @@ def generarLogin():
     else: 
         # Cargamos el formulario de login       
         with st.form('frmLogin'):
-            parUsuario = st.text_input('Usuario',type='password')
+            parUsuario = st.text_input('Documento estudiante',type='password')
             #parPassword = st.text_input('Password',type='password')
             btnLogin=st.form_submit_button('Ingresar',type='primary')
             if btnLogin:
