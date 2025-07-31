@@ -14,7 +14,7 @@ def sidebar_config():
         st.sidebar.write("👤 Usuario: **Administrador**")
         st.session_state['nombre'] = "Administrador"
         # Selector de grupo
-        grupos = ['701','702','703','704']#st.session_state.df_estudiantes['GRUPO'].unique().tolist()
+        grupos = ['601','602','701','702','703','704']#st.session_state.df_estudiantes['GRUPO'].unique().tolist()
         grupos = sorted(grupos)  # Ordenar los grupos alfabéticamente
         grupo = st.sidebar.selectbox("👥 Selecciona tu grupo", grupos)
         st.session_state.grupo1 = grupo
