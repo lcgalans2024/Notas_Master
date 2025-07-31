@@ -57,7 +57,7 @@ def inicializar_session_state():
         )
 
     if 'periodo1' not in st.session_state:
-        st.session_state.periodo1 = "1"
+        st.session_state.periodo1 = "2"
 
     # Inicializar otras claves de control
     #if 'usuario' not in st.session_state:

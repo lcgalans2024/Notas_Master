@@ -28,6 +28,7 @@ def sidebar_config():
 
     # Selector de grupo y periodo
     st.sidebar.write("Grupo actual:", st.session_state.grupo1)
+    # Selector de periodo
     periodo = st.sidebar.selectbox("🗓️ Periodo", ["1", "2", "3", "Final"], 
                                index=["1", "2", "3", "Final"].index(st.session_state.periodo1))
     st.session_state.periodo1 = periodo
