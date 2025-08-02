@@ -24,7 +24,9 @@ def inicializar_session_state():
             "notas_702_P1": "1659300987",
             "notas_702_P2": "1327140213",
             "notas_703_P1": "2122928690",
-            "notas_703_P2": "83185436",  
+            "notas_703_P2": "83185436",
+            "notas_704_P1": "1926990909",
+            "notas_704_P2": "1004768913",
             "recuperaciones": "1791404525"
         }
 
