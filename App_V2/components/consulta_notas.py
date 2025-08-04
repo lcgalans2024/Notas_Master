@@ -13,7 +13,7 @@ def mostrar(grupo, periodo, ruta_notas, ruta_estudiantes, dict_orden_act, dict_o
     mi_diccionario, idx_campo = obtener_diccionario_actividades(df)
     df1 = limpiar_y_seleccionar_notas(df, idx_campo, mi_diccionario)
 
-    df_est = cargar_estudiantes(ruta_estudiantes, "All_7")
+    df_est = cargar_estudiantes(ruta_estudiantes, "ALL_COL")
     df1 = agregar_documento(df1, df_est)
 
     pares = formar_pares(obtener_columnas_validas(mi_diccionario))
