@@ -66,6 +66,9 @@ def sidebar_config():
                 st.session_state.area = "Artística"
             else:
                 st.session_state.area = "Matemáticas"
+            # Mostrar el título del área
+            area = st.session_state.area
+            st.sidebar.write(f"Área: **{area}**")
             st.header(f"📄 Notas {st.session_state.area}")
 
             # Agregar una nota aclaratoria
