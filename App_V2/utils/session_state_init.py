@@ -19,6 +19,8 @@ def inicializar_session_state():
         st.session_state.GIDS_PM = {
             "notas": "0",
             "estudiantes": "817657441",
+            "notas_601_P2": "732983744",
+            "notas_602_P2": "201335434",
             "notas_701_P1": "1779130150",
             "notas_701_P2": "1360433359",
             "notas_702_P1": "1659300987",
