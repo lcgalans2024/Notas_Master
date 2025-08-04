@@ -69,7 +69,7 @@ def sidebar_config():
             # Mostrar el título del área
             area = st.session_state.area
             st.sidebar.write(f"Área: **{area}**")
-            st.header(f"📄 Notas {st.session_state.area}")
+            st.header(f"📄 Notas de {st.session_state.area}")
 
             # Agregar una nota aclaratoria
             st.markdown('''**Nota:** Las calificaciones se muestran en una escala de 0 a 5, 
