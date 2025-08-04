@@ -53,6 +53,10 @@ def sidebar_config():
         #opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
         opciones_menu += ["📎 Material del área y comunicados"]
 
+        # si el grupo es 601 o 602, mostrar solo consultas de notas
+        if st.session_state.grupo1 in ["601", "602"]:
+            opciones_menu = ["📘 Consulta de notas"]
+
         menu = st.sidebar.radio("Ir a:", opciones_menu)
         #periodo = st.sidebar.selectbox("🗓️ Selecciona el periodo", ["Periodo 1", "Periodo 2", "Periodo 3", "Final"])
 
