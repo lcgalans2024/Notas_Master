@@ -61,7 +61,12 @@ def sidebar_config():
         #periodo = st.sidebar.selectbox("🗓️ Selecciona el periodo", ["Periodo 1", "Periodo 2", "Periodo 3", "Final"])
 
         if menu == "📘 Consulta de notas":
-            st.header("📄 Notas Matemáticas")
+            # Si el grupo es 601 o 602, definir area como "Artística"
+            if st.session_state.grupo1 in ["601", "602"]:
+                st.session_state.area = "Artística"
+            else:
+                st.session_state.area = "Matemáticas"
+            st.header(f"📄 Notas {st.session_state.area}")
 
             # Agregar una nota aclaratoria
             st.markdown('''**Nota:** Las calificaciones se muestran en una escala de 0 a 5, 
