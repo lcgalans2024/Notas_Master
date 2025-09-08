@@ -296,8 +296,12 @@ def procesar_consolidados(df):
     df1.dropna(axis=1, how='all', inplace=True)
     # Eliminar columnas que contienen "Unnamed"
     df2 = df1.loc[:, ~df1.columns.str.contains('Unnamed')]
-    # eliminar fila por indice 26, 40 
-    df2 = df2.drop(index=[26,35,41]).reset_index(drop=True)
+    try:
+       # eliminar fila por indice 26, 40 y 41 si existen
+       df2 = df2.drop(index=[26,35,41]).reset_index(drop=True)
+    except:
+       pass
+    #df2 = df2.drop(index=[26,35,41]).reset_index(drop=True)
     # obtener indice de fila de No aprobados en la columna Ord
     ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
     # Eliminar la primera fila
