@@ -10,7 +10,7 @@ def mostrar_informe():
     #st.title("Informe de Notas")
 
     # Cargar datos de notas
-    df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, '701_P1')
+    df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P{st.session_state.periodo1}')
 
     # Procesar los datos de notas
     df_consolidados = procesar_consolidados(df_consolidados)
