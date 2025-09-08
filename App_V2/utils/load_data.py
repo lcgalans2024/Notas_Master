@@ -328,8 +328,11 @@ def procesar_consolidados(df):
     # Mapear MATERIA con el diccionario materias
     melted_df['MATERIA'] = melted_df['MATERIA'].map(st.session_state.materias)
 
-    melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
-    melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
+    try:
+        melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
+        melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
+    except:
+        pass
 
     melted_df.NOTA = melted_df.NOTA.astype(float)
     melted_df.loc[melted_df.NOTA < 3.0, 'ESTADO'] = "R"
