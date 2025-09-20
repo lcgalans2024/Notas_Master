@@ -256,6 +256,6 @@ def mostrar_sidebar():
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app1.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_2.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
-    #st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
+    st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
     sidebar_config()
 
