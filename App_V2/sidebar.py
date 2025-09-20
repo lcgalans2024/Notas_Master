@@ -113,7 +113,61 @@ def sidebar_config():
             """)
             # Mostrar el informe del estudiante
             df = informe.mostrar_informe()
-            
+            #mostrar el dataframe original
+            #st.dataframe(df, use_container_width=True)
+#
+            #st.session_state['usuario']
+            #st.write(f"Usuario: {st.session_state['usuario']}")
+#
+            #df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P{st.session_state.periodo1}')
+            ## mostrar el dataframe
+            #st.dataframe(df_consolidados, use_container_width=True)
+            #df_consolidados.dropna(axis=1, how='all', inplace=True)
+            ##mostrar el dataframe sin columnas vacías
+            #st.dataframe(df_consolidados, use_container_width=True)
+            #df2 = df_consolidados.loc[:, ~df_consolidados.columns.str.contains('Unnamed')]
+            #st.dataframe(df2, use_container_width=True)
+            #ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
+            #st.write(f"indice maximo: {ind_max}")
+            #df3 = df2.iloc[1:ind_max, :].copy()
+            #st.dataframe(df3, use_container_width=True)
+            ##mostrar el typo de las columnas
+            #st.write("Tipos de las columnas del DataFrame de consolidados:")
+            #st.table(df3.dtypes)
+            #df3.drop(columns=['COM'], inplace=True)
+            ## Cambiar Matricula y documento a integer
+            #df3["Matricula"] = df3.Matricula.astype(int)
+            #try:
+            #    df3["Nro Documento"] = df3["Nro Documento"].astype(int)
+            #except:
+            #    pass
+            ## Cambiar a str
+            #df3["Matricula"] = df3.Matricula.astype(str)
+            #df3["Nro Documento"] = df3["Nro Documento"].astype(str)
+            #df3['No aprobados'] = df3['No aprobados'].astype(int)
+            #df3['No aprobados'] = df3['No aprobados']-1
+            #
+            #df3.rename(columns={'Nombre completo':'Nombre_estudiante'
+            #      ,'Nro Documento':'DOCUMENTO'
+            #      ,'Total faltas':'Total_faltas'
+            #      ,'No aprobados':'No_Aprobados'
+            #       } , inplace=True)
+            #st.dataframe(df3, use_container_width=True)
+            ## Derretir la tabla
+            #melted_df = pd.melt(df3, id_vars=['Ord', 'Matricula', 'DOCUMENTO', 'Nombre_estudiante', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
+            #melted_df.sort_values(['Nombre_estudiante'], inplace=True)
+            ## Mapear MATERIA con el diccionario materias
+            #melted_df['MATERIA'] = melted_df['MATERIA'].map(st.session_state.materias)
+            #melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
+            #melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
+            #melted_df.NOTA = melted_df.NOTA.astype(float)
+            #melted_df.loc[melted_df.NOTA < 3.0, 'ESTADO'] = "R"
+            #melted_df.loc[(melted_df.NOTA >= 3.0) & (melted_df.ESTADO != 'S'), 'ESTADO'] = "G"
+            ## mostrar el dataframe derretido
+            #st.dataframe(melted_df, use_container_width=True)
+            ## Filtrar por el usuario actual
+            #dfk = melted_df[melted_df['DOCUMENTO'] == st.session_state['usuario']].copy()
+            #st.dataframe(dfk, use_container_width=True)
             #mostrar el informe
             #styled_df = df.style.applymap(color_informe, subset=['ESTADO'])
             # si dataframe no esta vacío
@@ -143,6 +197,58 @@ def sidebar_config():
             st.header(f"📎 Material del área y comunicados")
             materiales.mostrar()
 
+    # Estilos de botones en HTML + CSS
+    st.markdown(
+        """
+        <style>
+        div.stButton > button.reset-filtros {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 4px;
+            cursor: pointer;
+        }
+        div.stButton > button.reset-todo {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 4px;
+            cursor: pointer;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Dos columnas para los botones
+    col1, col2 = st.sidebar.columns(2)
+
+    with col1:
+        reset_filtros = st.button("🧹 Reset Filtros", key="reset_filtros", help="Limpiar grado y año")
+    with col2:
+        #reset_todo = st.button("🔄 Reset Todo", key="reset_todo", help="Reiniciar toda la sesión")
+        reset_cache = st.button("🔄 Actualizar", key="reset_cache", help="Limpiar la caché de datos")
+
+    # Lógica de botones
+    if reset_filtros:
+        st.session_state.grado_seleccionado = None
+        st.session_state.año_seleccionado = None
+        st.success("Filtros reseteados. Selecciona de nuevo.")
+        st.rerun()
+    if reset_cache:
+        #st.session_state.clear()
+        st.cache_data.clear()
+        st.success("Todo reseteado. Aplicación reiniciada.")
+        st.rerun()
+    # limpiar la cache
+    #st.cache_data.clear()
+
 # Mostrar el sidebar
 def mostrar_sidebar():
     st.sidebar.title("Menú de Navegación")
@@ -150,6 +256,6 @@ def mostrar_sidebar():
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app1.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_2.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
-    st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
+    #st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
     sidebar_config()
 
