@@ -71,7 +71,14 @@ def barra_progreso(nota_max,nota,meta,titulo='Nota'):
     fig, ax = plt.subplots(figsize=(8, 2))
     # Create the bar
     ax.broken_barh([(0, nota_max)], (0.5, 1), facecolors='lightgray')
-    ax.broken_barh([(0, nota)], (0.5, 1), facecolors='lightgreen')
+    if nota < meta:
+        ax.broken_barh([(0, nota)], (0.5, 1), facecolors='lightcoral')
+    elif nota < 4.0:
+        ax.broken_barh([(0, nota)], (0.5, 1), facecolors='orange')
+    elif nota < 4.5:
+        ax.broken_barh([(0, nota)], (0.5, 1), facecolors='yellow')
+    else:
+        ax.broken_barh([(0, nota)], (0.5, 1), facecolors='green')
 
     # Add a vertical line for the score
     ax.vlines(meta, 0.5, 1.5, colors='black')
