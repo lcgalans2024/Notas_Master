@@ -313,7 +313,8 @@ def procesar_consolidados(df):
     ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
     # Eliminar la primera fila
     df3 = df2.iloc[1:ind_max, :].copy()
-
+    df3 = df3[df3['Est'] != 'C']
+    df3.drop(columns=['Est'], inplace=True)
     df3.drop(columns=['COM'], inplace=True)
     # Cambiar Matricula y documento a integer
     try:
