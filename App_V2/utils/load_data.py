@@ -15,7 +15,7 @@ def load_comparativos():
     return pd.read_csv("data/comparativos.csv")
 
 # Opción 1: Leer hoja pública de Google Sheets como CSV (formato correcto)
-@st.cache_data(ttl=30)
+##@st.cache_data(ttl=1)
 def cargar_hoja_publica(sheet_url):
     """
     Carga una hoja pública de Google Sheets exportándola como CSV.
@@ -34,7 +34,7 @@ def cargar_hoja_publica(sheet_url):
         return pd.DataFrame()
 
 # Opción 2: Leer hoja privada de Google Sheets usando credenciales
-@st.cache_data(ttl=30)
+##@st.cache_data(ttl=1)
 def cargar_hoja_privada(sheet_name, worksheet_name, cred_path="credenciales.json"):
     """
     Carga una hoja privada de Google Sheets autenticándose con una cuenta de servicio.
@@ -62,7 +62,7 @@ def construir_url(SHEET_ID,gid):
         print(f"Error construyendo URL: {e}")
         return None
     
-@st.cache_data(ttl=60)
+##@st.cache_data(ttl=1)
 def load_hoja_google_consolidados(SHEET_ID, GIDS, worksheet_name):
     """
     Carga una hoja de Google Sheets usando el ID del documento y el GID de la hoja.
@@ -72,7 +72,7 @@ def load_hoja_google_consolidados(SHEET_ID, GIDS, worksheet_name):
 
     return df
     
-@st.cache_data(ttl=60)
+#@st.cache_data(ttl=1)
 def load_hoja_google(SHEET_ID, GIDS, worksheet_name):
     """
     Carga una hoja de Google Sheets usando el ID del documento y el GID de la hoja.
@@ -83,7 +83,7 @@ def load_hoja_google(SHEET_ID, GIDS, worksheet_name):
 
     return df
 
-@st.cache_data(ttl=60)
+#@st.cache_data(ttl=1)
 def load_planilla_google(SHEET_ID ,GIDS, grupo ="701",periodo="1"):
     url = construir_url(SHEET_ID, GIDS[f'notas_{grupo}_P{periodo}'])
     df = cargar_hoja_publica(url)
@@ -94,7 +94,7 @@ def load_planilla_google(SHEET_ID ,GIDS, grupo ="701",periodo="1"):
     
     return df
 
-@st.cache_data(ttl=60)
+#@st.cache_data(ttl=1)
 def load_notas_google(SHEET_ID ,GIDS):
     url = construir_url(SHEET_ID, GIDS["notas"])
     df = cargar_hoja_publica(url)
@@ -103,14 +103,14 @@ def load_notas_google(SHEET_ID ,GIDS):
     
     return df
 
-@st.cache_data(ttl=60)
+#@st.cache_data(ttl=1)
 def load_recuperaciones_google(SHEET_ID, GIDS):
     url = construir_url(SHEET_ID, GIDS["recuperaciones"])
     df = cargar_hoja_publica(url)
     df["DOCUMENTO"] = df["DOCUMENTO"].astype(str)
     return df
 
-@st.cache_data(ttl=60)
+#@st.cache_data(ttl=1)
 def load_comparativos_google(SHEET_ID, GIDS):
     url = construir_url(SHEET_ID, GIDS["comparativos"])
     df = cargar_hoja_publica(url)
@@ -118,7 +118,7 @@ def load_comparativos_google(SHEET_ID, GIDS):
     return df
 
 # === Carga de datos y limpieza inicial ===
-@st.cache_data(ttl=60)
+#@st.cache_data(ttl=1)
 def cargar_datos_grupo(ruta_notas, grupo, periodo="1", SHEET_ID="SHEET_ID_PM" , GIDS = "GIDS_PM"):
     try:
         # Cargar el DataFrame desde el archivo Excel
@@ -286,7 +286,7 @@ def agregar_dimension(tarea):
     return None
 
 # Procesamiento de consolidados
-@st.cache_data(ttl=60)
+##@st.cache_data(ttl=1)
 def procesar_consolidados(df):
     """
     Carga los datos consolidados desde Google Sheets.
