@@ -51,13 +51,22 @@ def mostrar():
         #st.subheader("📂 Materiales disponibles")
         ##############################################################
         st.markdown("- Criterios de divisibilidad")
-        with open("App_V2/materiales/Actividad criterios.pdf", "rb") as file:
-            st.download_button(
-                label="- [📥 Descargar Actividad](#)",
-                data=file,
-                file_name="Actividad criterios.pdf",
-                mime="application/pdf"
-            )
+        try:
+            with open("App_V2/materiales/Actividad criterios.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad criterios.pdf",
+                    mime="application/pdf"
+                )
+        except:
+            with open("D:/Repositorios/Notas_Master/App_V2/materiales/Actividad criterios.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad criterios.pdf",
+                    mime="application/pdf"
+                )
         ##############################################################
         st.markdown("- Decomposición en factores primos")
         with open("App_V2/materiales/Actividad MCD_mcm.pdf", "rb") as file:
@@ -97,3 +106,26 @@ def mostrar():
                 file_name="Taller de valor absoluto.pdf",
                 mime="application/pdf"
             )
+        #####################################################################################################
+    elif st.session_state.periodo1 == "3":
+        st.subheader(f"Periodo {st.session_state.periodo1} - Grupo {st.session_state.grupo1}")
+        #st.subheader("📂 Materiales disponibles")
+        ##############################################################
+        # si estamos en local
+        st.markdown("- Números racionales")
+        try:
+            with open("App_V2/materiales/Actividad ubicación numeros racionales.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad ubicación numeros racionales.pdf",
+                    mime="application/pdf"
+                )
+        except:
+            with open("D:/Repositorios/Notas_Master/App_V2/materiales/Actividad ubicación numeros racionales.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad ubicación numeros racionales.pdf",
+                    mime="application/pdf"
+                )
