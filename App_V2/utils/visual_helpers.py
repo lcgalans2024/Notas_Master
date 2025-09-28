@@ -35,6 +35,32 @@ def color_fila(row):
         return ['background-color: #ffff00; color: black'] * len(row)
     else:
         return ['background-color: #ff0000; color: white'] * len(row)
+    
+# colorear NOTA_P1 y NOTA_P2 segun ESTADO_P1 y ESTADO_P2
+def color_estado(row):
+    color_map = {
+        'G': 'background-color: #00b050; color: black',  # Verde
+        'S': 'background-color: #ffff00; color: black',  # Amarillo claro
+        'R': 'background-color: #ff0000; color: white'   # Rojo
+    }
+    if row['ESTADO_P1'] == 'G' and row['ESTADO_P2'] == 'G':
+        return [''] + [color_map['G']]*4
+    elif row['ESTADO_P1'] == 'R' and row['ESTADO_P2'] == 'R':
+        return [''] + [color_map['R']]*4
+    elif row['ESTADO_P1'] == 'S' and row['ESTADO_P2'] == 'S':
+        return [''] + [color_map['S']]*4
+    elif row['ESTADO_P1'] == 'G' and row['ESTADO_P2'] == 'S':
+        return [''] + [color_map['G'],color_map['G'], color_map['S'], color_map['S']]
+    elif row['ESTADO_P1'] == 'S' and row['ESTADO_P2'] == 'G':
+        return [''] + [color_map['S'],color_map['S'], color_map['G'], color_map['G']]
+    elif row['ESTADO_P1'] == 'G' and row['ESTADO_P2'] == 'R':
+        return [''] + [color_map['G'],color_map['G'], color_map['R'], color_map['R']]
+    elif row['ESTADO_P1'] == 'R' and row['ESTADO_P2'] == 'G':
+        return [''] + [color_map['R'],color_map['R'], color_map['G'], color_map['G']]
+    elif row['ESTADO_P1'] == 'S' and row['ESTADO_P2'] == 'R':
+        return [''] + [color_map['S'],color_map['S'],color_map['R'], color_map['R']]
+    else:
+        return [''] + [color_map['R'],color_map['R'], color_map['S'], color_map['S']]
 
 @st.cache_data(ttl=60)
 def mostrar_tabla_notas(df):
