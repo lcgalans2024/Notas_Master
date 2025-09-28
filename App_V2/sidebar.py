@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import altair as alt
 import qrcode
 from io import BytesIO
-from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila
+from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila, color_estado
 from utils.load_data import load_hoja_google_consolidados,cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
@@ -184,12 +184,41 @@ def sidebar_config():
                 """)
                 # Aplicar el estilo de color a las filas según el estado
                 styled_df = df.style.apply(color_fila, axis=1)
-                st.dataframe(styled_df, use_container_width=True, hide_index=True)
+                #st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+            # mostrar dataframe consolidados P1 y P2
+            #st.markdown("### Consolidados de Periodos Anteriores") 
+            #st.markdown("**Consolidado Periodo 1**")
+            #st.dataframe(st.session_state.consolidado_P1, use_container_width=True, hide_index=True)
+            #st.markdown("**Consolidado Periodo 2**")
+            #st.dataframe(st.session_state.consolidado_P2, use_container_width=True, hide_index=True)
+            #st.markdown("**Consolidado Periodo 1 y 2**")
+            #st.dataframe(st.session_state.consolidado_P1_P2, use_container_width=True, hide_index=True)
+
+            # Aplicar el estilo de color a las filas según el estado
+            styled_df = (st.session_state.consolidado_P1_P2
+                         .style
+                         .format({"PERÍODO 1": "{:.1f}",
+                                  "PERÍODO 2": "{:.1f}"})
+                         .apply(color_estado, axis=1)
+                        .set_table_styles([
+                            {'selector': 'th', 'props': [
+                                ('text-align', 'center'),
+                                ('background-color', '#cce5ff')  # azul claro
+                            ]},
+                            {'selector': 'td', 'props': [('text-align', 'center')]}
+                        ]
+                        ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
+                        )
+            # Oculta las columnas en la visualización (pandas 2.0+)
+            styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2'], axis=1)
+            st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
 
             #st.dataframe(df, use_container_width=True, hide_index=True)
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
             recuperaciones.mostrar(st.session_state.df_recuperaciones, st.session_state['usuario'], st.session_state['nombre'], periodo)
+              
         elif menu == "📊 Comparativos":
             st.header("📊 Comparativos")
             #comparativos.mostrar(df_comparativos, doc_id, nombre_estudiante)
@@ -255,6 +284,7 @@ def mostrar_sidebar():
     #st.sidebar.image("C:/Users/Durley/Documents/Maycol/Repositorios/Notas_Master/App_V2/escudo_oreste.png", use_container_width=True)  # Logo de la institución
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app1.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_2.png", use_container_width=True)
+    #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
     #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
     st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
     sidebar_config()
