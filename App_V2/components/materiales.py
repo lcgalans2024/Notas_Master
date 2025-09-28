@@ -111,7 +111,24 @@ def mostrar():
         st.subheader(f"Periodo {st.session_state.periodo1} - Grupo {st.session_state.grupo1}")
         #st.subheader("📂 Materiales disponibles")
         ##############################################################
-        # si estamos en local
+        st.markdown("- Plan Lector 1° parte")
+        try:
+            with open("App_V2/materiales/Activida_PL_P2.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Activida_PL_P2.pdf",
+                    mime="application/pdf"
+                )
+        except:
+            with open("D:/Repositorios/Notas_Master/App_V2/materiales/Activida_PL_P2.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Activida_PL_P2.pdf",
+                    mime="application/pdf"
+                )
+        ##############################################################
         st.markdown("- Números racionales")
         try:
             with open("App_V2/materiales/Actividad ubicación numeros racionales.pdf", "rb") as file:
@@ -129,3 +146,4 @@ def mostrar():
                     file_name="Actividad ubicación numeros racionales.pdf",
                     mime="application/pdf"
                 )
+            
