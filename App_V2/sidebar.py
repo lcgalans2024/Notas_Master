@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.express as px
 import altair as alt
 import qrcode
 from io import BytesIO
-from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila, color_estado
+from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila, color_estado, color_calificacion, mostrar_tabla_informe, obtener_color
 from utils.load_data import load_hoja_google_consolidados,cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
@@ -29,6 +30,7 @@ def sidebar_config():
     # Selector de grupo y periodo
     st.sidebar.write("Grupo actual:", st.session_state.grupo1)
     # Selector de periodo
+    
     periodo = st.sidebar.selectbox("🗓️ Periodo", ["1", "2", "3", "Final"], 
                                index=["1", "2", "3", "Final"].index(st.session_state.periodo1))
     st.session_state.periodo1 = periodo
@@ -43,8 +45,8 @@ def sidebar_config():
 
         # Construimos el menú condicionalmente
         opciones_menu = ["📘 Consulta de notas"]
-        if tiene_recuperaciones:
-            opciones_menu.append("♻️ Recuperaciones")
+        #if tiene_recuperaciones:
+        #    opciones_menu.append("♻️ Recuperaciones")
 
         # verificar si el usuario es del grupo 701
         if st.session_state.grupo1 == "701":
@@ -174,14 +176,31 @@ def sidebar_config():
             if df.shape[0] == 0:
                 st.warning("No hay datos disponibles para mostrar el informe.")
             else:
-                # Leyenda de colores con emoji
-                st.markdown("""
-                ✅ **Leyenda de colores:**
+                # Dos columnas para las leyendas
+                col1, col2 = st.columns(2)
 
-                🟩 **Verde (G)**: Aprobado  
-                🟥 **Rojo (R)**: Reprobado  
-                🟨 **Amarillo (S)**: Superada
-                """)
+                with col1:
+                    # Leyenda de colores con emoji para desempeño
+                    st.markdown("""
+                    **Leyenda de colores para desempeño:**
+
+                    🟩 **Verde**: Desempeño superior          
+                    🟨 **Amarillo**: Desempeño alto         
+                    🟧 **Naranja**: Desempeño basico         
+                    🟥 **Rojo**: Desempeño bajo  
+                    
+                    """)
+                with col2:
+                    # Leyenda de colores con emoji para estado
+                    st.markdown("""
+                    **Leyenda de estado en la materia:**
+
+                    ✅ **Aprobado**: (G)  
+                    ⛔️ **Reprobado**: (R)  
+                    🎚️ **Superada**: (S)
+                    """)
+
+                
                 # Aplicar el estilo de color a las filas según el estado
                 styled_df = df.style.apply(color_fila, axis=1)
                 #st.dataframe(styled_df, use_container_width=True, hide_index=True)
@@ -212,7 +231,59 @@ def sidebar_config():
                         )
             # Oculta las columnas en la visualización (pandas 2.0+)
             styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2'], axis=1)
-            st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+            #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+
+            # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
+            prom_P1 = st.session_state.consolidado_P1_P2['PERÍODO 1'].mean().round(2)
+            # mostrar barra de progreso del promedio P1
+            fig = mostrar_barra_progreso(prom_P1, titulo='Promedio General PERÍODO 1')
+            #st.pyplot(fig)
+            prom_P2 = st.session_state.consolidado_P1_P2['PERÍODO 2'].mean().round(2)
+            # mostrar barra de progreso del promedio P2
+            fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
+            #t.pyplot(fig)
+            # Agregar promedio general al final del dataframe
+            #promedio_general = pd.DataFrame({ 
+            #    'MATERIA': ['Promedio General'],
+            #    'PERÍODO 1': [prom_P1],
+            #    'PERÍODO 2': [prom_P2],
+            #    'ESTADO_P1': [''],
+            #    'ESTADO_P2': ['']
+            #})
+            #df_final = pd.concat([st.session_state.consolidado_P1_P2, promedio_general], ignore_index=True)
+            df_final = st.session_state.consolidado_P1_P2.copy()
+            #st.dataframe(df_final, use_container_width=True, hide_index=True)
+
+            # Aplicar color de calificación a las columnas PERÍODO 1 y PERÍODO 2
+            styled_df = df_final.style.applymap(color_calificacion, subset=['PERÍODO 1', 'PERÍODO 2'])
+            #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+
+            # mostrar tabla de informe con formato
+            mostrar_tabla_informe(df_final)
+
+            # Crear grafico de barras para promedios por periodo
+            # Crear gráfico de barras para promedios por periodo
+            df_promedios = pd.DataFrame({
+                "Periodo": ["PERÍODO 1", "PERÍODO 2"],
+                "Promedio": [prom_P1, prom_P2]
+            })
+
+            df_promedios["Color"] = df_promedios["Promedio"].apply(obtener_color)
+
+            fig_bar = px.bar(
+                df_promedios,
+                x="Promedio",
+                y="Periodo",
+                text="Promedio",
+                color="Color",
+                color_discrete_map="identity",  # Usa los colores tal cual,
+                title="Desempeño por Periodo"
+            )
+            fig_bar.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+            fig_bar.update_layout(xaxis_range=[0, 5], xaxis_title="Promedio", yaxis_title="Periodo")
+
+            st.plotly_chart(fig_bar)
+
 
             #st.dataframe(df, use_container_width=True, hide_index=True)
         elif menu == "♻️ Recuperaciones":
@@ -281,11 +352,13 @@ def sidebar_config():
 # Mostrar el sidebar
 def mostrar_sidebar():
     st.sidebar.title("Menú de Navegación")
-    #st.sidebar.image("C:/Users/Durley/Documents/Maycol/Repositorios/Notas_Master/App_V2/escudo_oreste.png", use_container_width=True)  # Logo de la institución
-    #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app1.png", use_container_width=True)
-    #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_2.png", use_container_width=True)
-    #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
-    #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
-    st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
+    try:
+        #st.sidebar.image("C:/Users/Durley/Documents/Maycol/Repositorios/Notas_Master/App_V2/escudo_oreste.png", use_container_width=True)  # Logo de la institución
+        #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app1.png", use_container_width=True)
+        #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_2.png", use_container_width=True)
+        #st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
+        st.sidebar.image("D:/Repositorios/Notas_Master/App_V2/logo_app_3.png", use_container_width=True)
+    except:
+        st.sidebar.image("App_V2/logo_app_4.png", use_container_width=True)
     sidebar_config()
 
