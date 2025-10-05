@@ -75,6 +75,7 @@ def generarLogin():
         st.write("📱 **WhatsApp:** 304 250 8068")
         # Email del docente
         #st.write("📧 **Correo:**")
+
                     
     else: 
         # Cargamos el formulario de login       
