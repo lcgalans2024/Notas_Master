@@ -99,7 +99,18 @@ def inicializar_session_state():
             "LEN": "LENGUA CASTELLANA"
         }
 
-    # inicializar menú
-    if 'menu' not in st.session_state:
-        st.session_state.menu = "Inicio"
+    # Diccionario de email docentes y materias
+    if 'emails' not in st.session_state:
+        st.session_state.emails = {
+            "CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL": "mayra.parra@itagui.edu.co",
+            "EDUCACIÓN ARTISTICA Y CULTURAL": "mauriciorgomezr@itagui.edu.co",
+            "EDUCACION ETICA  Y  EN VALORES HUMANOS": "dianajlozanod@itagui.edu.co",
+            "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES": "gabrielhortizr@itagui.edu.co",
+            "LENGUA EXTRANJERA INGLES": "ferney.rios@itagui.edu.co",
+            "MATEMÁTICAS": "maycol.segura@itagui.edu.co",
+            "CIENCIAS SOCIALES": "veronica",
+            "TECNOLOGIA E INFORMÁTICA": "paolaoochoas@itagui.edu.co",
+            "EDUCACION RELIGIOSA": "dianajlozanod@itagui.edu.co",
+            "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"            
+        }
         

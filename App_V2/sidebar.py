@@ -115,8 +115,42 @@ def sidebar_config():
             """)
             # Mostrar el informe del estudiante
             df = informe.mostrar_informe()
-            #mostrar el dataframe original
-            #st.dataframe(df, use_container_width=True)
+            # Agregar columna de email
+            if hasattr(st.session_state, "emails"):
+                df["EMAIL"] = df["MATERIA"].map(st.session_state.emails)
+            else:
+                emails = {
+                    "CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL": "mayra.parra@itagui.edu.co",
+                    "EDUCACIÓN ARTISTICA Y CULTURAL": "mauriciorgomezr@itagui.edu.co",
+                    "EDUCACION ETICA  Y  EN VALORES HUMANOS": "dianajlozanod@itagui.edu.co",
+                    "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES": "gabrielhortizr@itagui.edu.co",
+                    "LENGUA EXTRANJERA INGLES": "ferney.rios@itagui.edu.co",
+                    "MATEMÁTICAS": "maycol.segura@itagui.edu.co",
+                    "CIENCIAS SOCIALES": "veronica",
+                    "TECNOLOGIA E INFORMÁTICA": "paolaoochoas@itagui.edu.co",
+                    "EDUCACION RELIGIOSA": "dianajlozanod@itagui.edu.co",
+                    "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"
+                }
+                st.session_state.emails = emails
+                df["EMAIL"] = df["MATERIA"].map(emails)
+            ## igualar la longitud de las materias con espacios
+            #max_len = df["MATERIA"].str.len().max()
+            #df["MATERIA"] = df["MATERIA"].apply(lambda x: x.ljust(max_len))
+            ## Concatenar materias y email en una columna
+            #df["MATERIA_EMAIL"] = df["MATERIA"] + " (" + df["EMAIL"] + ")"
+            ## truncar texto en materias a max_len caracteres y al hacer clic mostrarlo completo
+            #df["MATERIA_EMAIL"] = df["MATERIA_EMAIL"].str.slice(0,max_len) + "..."
+            ##mostrar el dataframe original
+            #st.dataframe(df, use_container_width=True, hide_index=True)
+#
+            #st.data_editor(
+            #    df[['EMAIL', 'MATERIA', 'PERÍODO 1','ESTADO_P1','PERÍODO 2', 'ESTADO_P2']],
+            #    column_config={
+            #        "EMAIL": st.column_config.LinkColumn("EMAIL", display_text="Abrir link")
+            #    },
+            #    hide_index=True,
+            #    use_container_width=True
+            #)
 #
             #st.session_state['usuario']
             #st.write(f"Usuario: {st.session_state['usuario']}")
@@ -283,6 +317,15 @@ def sidebar_config():
             fig_bar.update_layout(xaxis_range=[0, 5], xaxis_title="Promedio", yaxis_title="Periodo")
 
             st.plotly_chart(fig_bar)
+
+            st.subheader("📧 Contacto docente")
+
+            col1, col2 = st.columns(2)
+
+            for i, row in df.iterrows():
+                target_col = col1 if i % 2 == 0 else col2
+                with target_col.expander(f"{row['MATERIA']}"):
+                    st.write(row['EMAIL'])
 
 
             #st.dataframe(df, use_container_width=True, hide_index=True)
