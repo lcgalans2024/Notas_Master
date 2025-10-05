@@ -17,6 +17,21 @@ def color_calificacion(val):
         color = 'background-color: #ff0000; color: white'  # Rojo
     return color
 
+# Mapea el color según la función color_calificacion
+def obtener_color(val):
+    color = color_calificacion(val)
+    # Extrae el color de fondo de la cadena CSS
+    if "#00b050" in color:
+        return "#00b050"  # Verde
+    elif "#ffff00" in color:
+        return "#ffff00"  # Amarillo
+    elif "#ffc000" in color:
+        return "#ffc000"  # Naranja
+    elif "#ff0000" in color:
+        return "#ff0000"  # Rojo
+    else:
+        return "#cccccc"  # Gris por defecto
+# Colorear el informe segun el estado
 @st.cache_data(ttl=60)
 def color_informe(val):
     if val == 'G':
@@ -61,6 +76,79 @@ def color_estado(row):
         return [''] + [color_map['S'],color_map['S'],color_map['R'], color_map['R']]
     else:
         return [''] + [color_map['R'],color_map['R'], color_map['S'], color_map['S']]
+
+# Colorear informe por nota de periodo segun desempeño
+def color_informe_desempeño(row):
+    color_map = {
+        'G': 'background-color: #00b050; color: black',  # Verde
+        'S': 'background-color: #ffff00; color: black',  # Amarillo claro
+        'R': 'background-color: #ff0000; color: white'   # Rojo
+    }
+    return [color_map.get(row['ESTADO_P1'], '') if col == 'PERÍODO 1' else
+            color_map.get(row['ESTADO_P2'], '') if col == 'PERÍODO 2' else ''
+            for col in row.index]
+
+def color_informe_desempeño2(row):
+    color_map = {
+        'Sup': 'background-color: #00b050; color: black',  # Verde
+        'Alt': 'background-color: #ffff00; color: black',  # Amarillo claro
+        'Bas': 'background-color: #ffc000; color: black',   # Naranja
+        'Baj': 'background-color: #ff0000; color: white'   # Rojo
+    }
+    if row['PERÍODO 1'] < 3.0 and row['PERÍODO 2'] < 3.0:
+        return [''] + [color_map['Baj']]*4
+    elif row['PERÍODO 1'] < 3.0 and row['PERÍODO 2'] < 4.0:
+        return [''] + [color_map['Baj']]*2 + [color_map['Bas']]*2
+    elif row['PERÍODO 1'] < 4.0 and row['PERÍODO 2'] < 3.0:
+        return [''] + [color_map['Bas']]*2 + [color_map['Baj']]*2
+    elif row['PERÍODO 1'] < 4.0 and row['PERÍODO 2'] < 4.0:
+        return [''] + [color_map['Bas']]*2 + [color_map['Bas']]*2
+    elif row['PERÍODO 1'] < 3.0 and row['PERÍODO 2'] < 4.6:
+        return [''] + [color_map['Baj']]*2 + [color_map['Alt']]*2
+    elif row['PERÍODO 1'] < 4.6 and row['PERÍODO 2'] < 3.0:
+        return [''] + [color_map['Alt']]*2 + [color_map['Baj']]*2
+    elif row['PERÍODO 1'] < 4.0 and row['PERÍODO 2'] < 4.6:
+        return [''] + [color_map['Bas']]*2 + [color_map['Alt']]*2
+    elif row['PERÍODO 1'] < 4.6 and row['PERÍODO 2'] < 4.0:
+        return [''] + [color_map['Alt']]*2 + [color_map['Bas']]*2
+    elif row['PERÍODO 1'] < 4.6 and row['PERÍODO 2'] < 4.6:
+        return [''] + [color_map['Alt']]*2 + [color_map['Alt']]*2
+    elif row['PERÍODO 1'] < 3.0 and row['PERÍODO 2'] <= 5.0:
+        return [''] + [color_map['Baj']]*2 + [color_map['Sup']]*2
+    elif row['PERÍODO 1'] < 4.0 and row['PERÍODO 2'] <= 5.0:
+        return [''] + [color_map['Bas']]*2 + [color_map['Sup']]*2
+    elif row['PERÍODO 1'] < 4.6 and row['PERÍODO 2'] <= 5.0:
+        return [''] + [color_map['Alt']]*2 + [color_map['Sup']]*2
+    elif row['PERÍODO 1'] <= 5.0 and row['PERÍODO 2'] < 3.0:
+        return [''] + [color_map['Sup']]*2 + [color_map['Baj']]*2
+    elif row['PERÍODO 1'] <= 5.0 and row['PERÍODO 2'] < 4.0:
+        return [''] + [color_map['Sup']]*2 + [color_map['Bas']]*2
+    elif row['PERÍODO 1'] <= 5.0 and row['PERÍODO 2'] < 4.6:
+        return [''] + [color_map['Sup']]*2 + [color_map['Alt']]*2
+    elif row['PERÍODO 1'] <= 5.0 and row['PERÍODO 2'] <= 5.0:
+        return [''] + [color_map['Sup']]*2 + [color_map['Sup']]*2
+    
+# Mostrar tabla de informe de notas periodos
+def mostrar_tabla_informe(df):
+    """
+    Muestra el DataFrame de informe con colores según su estado.
+    """
+    styled_df = (
+        df[["MATERIA", "PERÍODO 1", "ESTADO_P1", "PERÍODO 2", "ESTADO_P2"]]
+        .style
+        .format({"PERÍODO 1": "{:.1f}", "PERÍODO 2": "{:.1f}"})
+        .apply(color_informe_desempeño2, axis=1)
+        .set_table_styles([
+            {'selector': 'th', 'props': [
+                ('text-align', 'center'),
+                ('background-color', '#cce5ff')  # azul claro
+            ]},
+            {'selector': 'td', 'props': [('text-align', 'center')]}
+        ]
+        ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
+    )
+
+    st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
 
 @st.cache_data(ttl=60)
 def mostrar_tabla_notas(df):
@@ -147,13 +235,13 @@ def calcular_nota_acumulada(df_usuario):
 
     return round(promedio_ponderado, 1)
 
-def mostrar_barra_progreso(nota_acumulada):
+def mostrar_barra_progreso(nota_acumulada, titulo ='Nota Acumulada'):
     """
     Muestra una barra de progreso con la nota acumulada.
     """
     nota_max = 5  # Nota máxima
     meta = 3  # Meta a alcanzar
-    titulo = 'Nota Acumulada'
+    titulo = titulo
 
     #fig = barra_progreso(nota_max, nota_acumulada, meta, titulo)
     #st.pyplot(fig, use_container_width=True)
