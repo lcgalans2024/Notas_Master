@@ -9,6 +9,8 @@ def mostrar_informe():
     """
     #st.title("Informe de Notas")
 
+    k = 2
+
     # Cargar consolidados
     st.session_state.consolidado_P1 = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P1')
     # procesar consolidados P1
@@ -26,10 +28,10 @@ def mostrar_informe():
 
 
     # Cargar consolidado segun el periodo seleccionado
-    df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P{st.session_state.periodo1}')
+    #df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P{st.session_state.periodo1}')
 
     # Procesar los datos de notas
-    df_consolidados = procesar_consolidados(df_consolidados)
+    #df_consolidados = procesar_consolidados(df_consolidados)
 
     ## Agregar opciones de descarga
     #csv = df_consolidados.to_csv(index=False).encode('utf-8')
@@ -40,4 +42,4 @@ def mostrar_informe():
     #    mime='text/csv'
     #)
 
-    return df_consolidados
+    return st.session_state.consolidado_P1_P2#df_consolidados
