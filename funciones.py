@@ -3,18 +3,18 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-@st.cache_data
+#@st.cache_data
 def cargar_datos_all(file_path, nombre_hoja):
     df = pd.read_excel(file_path,sheet_name=nombre_hoja)
     return df
 
-@st.cache_data
+#@st.cache_data
 def cargar_datos(file_path, nombre_hoja, numero_periodo):
     df = pd.read_excel(file_path,sheet_name=nombre_hoja)
     df = df[df.PERIODO == numero_periodo]
     return df
 
-@st.cache_data
+#@st.cache_data
 def filtrar_datos(usuario, df):
     df_filtrado = df[df['DOCUMENTO'] == str(usuario)]
     return df_filtrado.round(2)
@@ -55,7 +55,7 @@ def resaltar_aciertos1(row):
     styles.append('')  # ACIERTOS (aunque se ocultará)
     return styles
 
-@st.cache_data
+#@st.cache_data
 # Create a horizontal bar plot representing score
 def barra_progreso(M,nota,meta,titulo='Nota'):
     fig, ax = plt.subplots(figsize=(8, 2))
