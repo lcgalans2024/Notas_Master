@@ -98,3 +98,8 @@ def inicializar_session_state():
             "REL": "EDUCACION RELIGIOSA",
             "LEN": "LENGUA CASTELLANA"
         }
+
+    # inicializar menú
+    if 'menu' not in st.session_state:
+        st.session_state.menu = "Inicio"
+        
