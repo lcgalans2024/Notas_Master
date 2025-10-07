@@ -339,6 +339,7 @@ def sidebar_config():
                     # Leyenda de colores con emoji para desempeño
                     st.markdown("""
                     **Leyenda de colores para desempeño:**
+                                
                     🟩 **Verde**: Desempeño superior          
                     🟨 **Amarillo**: Desempeño alto         
                     🟧 **Naranja**: Desempeño basico         
