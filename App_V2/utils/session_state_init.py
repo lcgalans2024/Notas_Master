@@ -114,7 +114,7 @@ def inicializar_session_state():
             "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES": "gabrielhortizr@itagui.edu.co",
             "LENGUA EXTRANJERA INGLES": "ferney.rios@itagui.edu.co",
             "MATEMÁTICAS": "maycol.segura@itagui.edu.co",
-            "CIENCIAS SOCIALES": "veronica",
+            "CIENCIAS SOCIALES": "veronica.usuga@itagui.edu.co",
             "TECNOLOGIA E INFORMÁTICA": "paolaoochoas@itagui.edu.co",
             "EDUCACION RELIGIOSA": "dianajlozanod@itagui.edu.co",
             "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"            
