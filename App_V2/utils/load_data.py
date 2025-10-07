@@ -221,7 +221,10 @@ def cargar_estudiantes(ruta_estudiantes, sheet_name="All_COL"):
 def agregar_documento(df1, df_estudiantes):
     dict_doc = df_estudiantes.set_index("MATRICULA")['DOCUMENTO'].to_dict()
     idx = df1.columns.get_loc('NOMBRE_ESTUDIANTE')
-    df1.insert(idx, 'DOCUMENTO', df1['Matricula'].map(dict_doc))
+    try:
+        df1.insert(idx, 'DOCUMENTO', df1['Matricula'].map(dict_doc))
+    except:
+        df1.insert(idx, 'DOCUMENTO', df1['MATRICULA'].map(dict_doc))
     return df1
 
 def comparar_y_promediar(df1, columnas_pares):
@@ -355,4 +358,67 @@ def procesar_consolidados(df):
     #st.write("Tipos de las columnas del DataFrame de consolidados:")
     #st.table(df3.dtypes)
     return melted_df[melted_df.DOCUMENTO == st.session_state['usuario']][['MATERIA', 'NOTA', 'ESTADO']]  # Filtrar por usuario actual
- 
+
+def procesar_consolidados2(df):
+    df_clean = df.dropna(axis=1, how='all')
+
+    # Eliminar filas completamente vacías
+    df_clean = df_clean.dropna(axis=0, how='all')
+
+    # resetear el indice
+    df_clean.reset_index(drop=True,inplace=True)
+
+    # renombramos de la columa 4 a la 9
+    df_clean.columns.values[2:10] = ['MATRICULA','NOMBRE_ESTUDIANTE','PERÍODO 1', 'PERÍODO 2', 'PERÍODO 3', 'A', 'P', 'FN']
+
+    # Eliminar primeras filas
+    df_clean = df_clean.drop(axis=0,index=range(0,2))
+
+    # Eliminar tres ultimas filas
+    df_clean = df_clean.iloc[:-3]
+
+    # Filtrar por 'Est' activo
+    df_clean = df_clean[df_clean.Est != 'C']
+
+    # resetear el indice
+    df_clean.reset_index(drop=True,inplace=True)
+
+    # Remplazar nan en Est por Activo (A)
+    df_clean['Est'] = df_clean['Est'].fillna('A')
+
+    df_clean["MATRICULA"] = df_clean.MATRICULA.astype(int)
+    df_clean["MATRICULA"] = df_clean.MATRICULA.astype(str)
+
+    df_clean["PERÍODO 1"] = df_clean["PERÍODO 1"].astype(str)
+    df_clean["PERÍODO 2"] = df_clean["PERÍODO 2"].astype(str)
+
+    df_clean.loc[df_clean["PERÍODO 1"].str.contains('#'), 'ESTADO_P1'] = "S"
+    df_clean["PERÍODO 1"] = df_clean["PERÍODO 1"].str.replace('#', '', regex=False)
+    df_clean.loc[df_clean["PERÍODO 2"].str.contains('#'), 'ESTADO_P2'] = "S"
+    df_clean["PERÍODO 2"] = df_clean["PERÍODO 2"].str.replace('#', '', regex=False)
+
+    df_clean["PERÍODO 1"] = df_clean["PERÍODO 1"].astype(float)
+    df_clean.loc[df_clean["PERÍODO 1"] < 3.0, 'ESTADO_P1'] = "R"
+    df_clean.loc[(df_clean["PERÍODO 1"] >= 3.0) & (df_clean.ESTADO_P1 != 'S'), 'ESTADO_P1'] = "G"
+
+    df_clean["PERÍODO 2"] = df_clean["PERÍODO 2"].astype(float)
+    df_clean.loc[df_clean["PERÍODO 2"] < 3.0, 'ESTADO_P2'] = "R"
+    df_clean.loc[(df_clean["PERÍODO 2"] >= 3.0) & (df_clean.ESTADO_P2 != 'S'), 'ESTADO_P2'] = "G"
+
+    df_clean['MATERIA'] = 'MATEMÁTICAS'
+
+    # Seleccionar columnas de interes
+    df_clean = df_clean[[
+        'Ord',
+        'Est',
+        'MATRICULA',
+        'NOMBRE_ESTUDIANTE',
+        'MATERIA',
+        'PERÍODO 1',
+        'ESTADO_P1',
+        'PERÍODO 2',
+        'ESTADO_P2'
+#        #,'P3'
+    ]]
+
+    return df_clean

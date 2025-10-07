@@ -44,7 +44,13 @@ def inicializar_session_state():
         st.session_state.GIDS_CONSOLIDADOS = {
             "notas": "0",
             "701_P1": "1097370573",
-            "701_P2": "2026688764"
+            "701_P2": "2026688764",
+            "702_P1": "826727624",
+            "601": "847053289",
+            "602": "2080976296",
+            "702": "1314501183",
+            "703": "934585376",
+            "704": "376543266"
         }
 
     if 'dict_orden_act' not in st.session_state:

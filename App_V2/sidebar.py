@@ -49,7 +49,7 @@ def sidebar_config():
         #    opciones_menu.append("♻️ Recuperaciones")
 
         # verificar si el usuario es del grupo 701
-        if st.session_state.grupo1 == "701":
+        if st.session_state.grupo1 in ["701","702","703","704"]:
             opciones_menu.append("📝 Informes")
         
         #opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
@@ -108,227 +108,258 @@ def sidebar_config():
                 fig = mostrar_barra_progreso(nota_acumulada)
                 st.pyplot(fig)
         elif menu == "📝 Informes":
-            st.header("Informe de Notas")
-            st.markdown("""El presente informe permite ver las materias perdidas en periodos anteriores y si estas han sido superadas o no. 
-                        Adicionalmente, muestra las materias alertadas en el presente periodo, las cuales deben ser atendidas con prioridad para 
-                        evitar que se conviertan en materias perdidas en el periodo actual. 
-            """)
-            # Mostrar el informe del estudiante
-            df = informe.mostrar_informe()
-            # Agregar columna de email
-            if hasattr(st.session_state, "emails"):
-                df["EMAIL"] = df["MATERIA"].map(st.session_state.emails)
-            else:
-                emails = {
-                    "CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL": "mayra.parra@itagui.edu.co",
-                    "EDUCACIÓN ARTISTICA Y CULTURAL": "mauriciorgomezr@itagui.edu.co",
-                    "EDUCACION ETICA  Y  EN VALORES HUMANOS": "dianajlozanod@itagui.edu.co",
-                    "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES": "gabrielhortizr@itagui.edu.co",
-                    "LENGUA EXTRANJERA INGLES": "ferney.rios@itagui.edu.co",
-                    "MATEMÁTICAS": "maycol.segura@itagui.edu.co",
-                    "CIENCIAS SOCIALES": "veronica",
-                    "TECNOLOGIA E INFORMÁTICA": "paolaoochoas@itagui.edu.co",
-                    "EDUCACION RELIGIOSA": "dianajlozanod@itagui.edu.co",
-                    "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"
-                }
-                st.session_state.emails = emails
-                df["EMAIL"] = df["MATERIA"].map(emails)
-            ## igualar la longitud de las materias con espacios
-            #max_len = df["MATERIA"].str.len().max()
-            #df["MATERIA"] = df["MATERIA"].apply(lambda x: x.ljust(max_len))
-            ## Concatenar materias y email en una columna
-            #df["MATERIA_EMAIL"] = df["MATERIA"] + " (" + df["EMAIL"] + ")"
-            ## truncar texto en materias a max_len caracteres y al hacer clic mostrarlo completo
-            #df["MATERIA_EMAIL"] = df["MATERIA_EMAIL"].str.slice(0,max_len) + "..."
-            ##mostrar el dataframe original
-            #st.dataframe(df, use_container_width=True, hide_index=True)
-#
-            #st.data_editor(
-            #    df[['EMAIL', 'MATERIA', 'PERÍODO 1','ESTADO_P1','PERÍODO 2', 'ESTADO_P2']],
-            #    column_config={
-            #        "EMAIL": st.column_config.LinkColumn("EMAIL", display_text="Abrir link")
-            #    },
-            #    hide_index=True,
-            #    use_container_width=True
-            #)
-#
-            #st.session_state['usuario']
-            #st.write(f"Usuario: {st.session_state['usuario']}")
-#
-            #df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P{st.session_state.periodo1}')
-            ## mostrar el dataframe
-            #st.dataframe(df_consolidados, use_container_width=True)
-            #df_consolidados.dropna(axis=1, how='all', inplace=True)
-            ##mostrar el dataframe sin columnas vacías
-            #st.dataframe(df_consolidados, use_container_width=True)
-            #df2 = df_consolidados.loc[:, ~df_consolidados.columns.str.contains('Unnamed')]
-            #st.dataframe(df2, use_container_width=True)
-            #ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
-            #st.write(f"indice maximo: {ind_max}")
-            #df3 = df2.iloc[1:ind_max, :].copy()
-            #st.dataframe(df3, use_container_width=True)
-            ##mostrar el typo de las columnas
-            #st.write("Tipos de las columnas del DataFrame de consolidados:")
-            #st.table(df3.dtypes)
-            #df3.drop(columns=['COM'], inplace=True)
-            ## Cambiar Matricula y documento a integer
-            #df3["Matricula"] = df3.Matricula.astype(int)
-            #try:
-            #    df3["Nro Documento"] = df3["Nro Documento"].astype(int)
-            #except:
-            #    pass
-            ## Cambiar a str
-            #df3["Matricula"] = df3.Matricula.astype(str)
-            #df3["Nro Documento"] = df3["Nro Documento"].astype(str)
-            #df3['No aprobados'] = df3['No aprobados'].astype(int)
-            #df3['No aprobados'] = df3['No aprobados']-1
-            #
-            #df3.rename(columns={'Nombre completo':'Nombre_estudiante'
-            #      ,'Nro Documento':'DOCUMENTO'
-            #      ,'Total faltas':'Total_faltas'
-            #      ,'No aprobados':'No_Aprobados'
-            #       } , inplace=True)
-            #st.dataframe(df3, use_container_width=True)
-            ## Derretir la tabla
-            #melted_df = pd.melt(df3, id_vars=['Ord', 'Matricula', 'DOCUMENTO', 'Nombre_estudiante', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
-            #melted_df.sort_values(['Nombre_estudiante'], inplace=True)
-            ## Mapear MATERIA con el diccionario materias
-            #melted_df['MATERIA'] = melted_df['MATERIA'].map(st.session_state.materias)
-            #melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
-            #melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
-            #melted_df.NOTA = melted_df.NOTA.astype(float)
-            #melted_df.loc[melted_df.NOTA < 3.0, 'ESTADO'] = "R"
-            #melted_df.loc[(melted_df.NOTA >= 3.0) & (melted_df.ESTADO != 'S'), 'ESTADO'] = "G"
-            ## mostrar el dataframe derretido
-            #st.dataframe(melted_df, use_container_width=True)
-            ## Filtrar por el usuario actual
-            #dfk = melted_df[melted_df['DOCUMENTO'] == st.session_state['usuario']].copy()
-            #st.dataframe(dfk, use_container_width=True)
-            #mostrar el informe
-            #styled_df = df.style.applymap(color_informe, subset=['ESTADO'])
-            # si dataframe no esta vacío
-            if df.shape[0] == 0:
-                st.warning("No hay datos disponibles para mostrar el informe.")
-            else:
-                # Dos columnas para las leyendas
+
+            if st.session_state.grupo1 == "701":
+                st.header("Informe de Notas")
+                st.markdown("""El presente informe permite ver las materias perdidas en periodos anteriores y si estas han sido superadas o no. 
+                            Adicionalmente, muestra las materias alertadas en el presente periodo, las cuales deben ser atendidas con prioridad para 
+                            evitar que se conviertan en materias perdidas en el periodo actual. 
+                """)
+                # Mostrar el informe del estudiante
+                df = informe.mostrar_informe()
+                
+                # Agregar columna de email
+                if hasattr(st.session_state, "emails"):
+                    df["EMAIL"] = df["MATERIA"].map(st.session_state.emails)
+                else:
+                    emails = {
+                        "CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL": "mayra.parra@itagui.edu.co",
+                        "EDUCACIÓN ARTISTICA Y CULTURAL": "mauriciorgomezr@itagui.edu.co",
+                        "EDUCACION ETICA  Y  EN VALORES HUMANOS": "dianajlozanod@itagui.edu.co",
+                        "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES": "gabrielhortizr@itagui.edu.co",
+                        "LENGUA EXTRANJERA INGLES": "ferney.rios@itagui.edu.co",
+                        "MATEMÁTICAS": "maycol.segura@itagui.edu.co",
+                        "CIENCIAS SOCIALES": "veronica",
+                        "TECNOLOGIA E INFORMÁTICA": "paolaoochoas@itagui.edu.co",
+                        "EDUCACION RELIGIOSA": "dianajlozanod@itagui.edu.co",
+                        "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"
+                    }
+                    st.session_state.emails = emails
+                    df["EMAIL"] = df["MATERIA"].map(emails)
+                ## igualar la longitud de las materias con espacios
+                #max_len = df["MATERIA"].str.len().max()
+                #df["MATERIA"] = df["MATERIA"].apply(lambda x: x.ljust(max_len))
+                ## Concatenar materias y email en una columna
+                #df["MATERIA_EMAIL"] = df["MATERIA"] + " (" + df["EMAIL"] + ")"
+                ## truncar texto en materias a max_len caracteres y al hacer clic mostrarlo completo
+                #df["MATERIA_EMAIL"] = df["MATERIA_EMAIL"].str.slice(0,max_len) + "..."
+                ##mostrar el dataframe original
+                #st.dataframe(df, use_container_width=True, hide_index=True)
+#   
+                #st.data_editor(
+                #    df[['EMAIL', 'MATERIA', 'PERÍODO 1','ESTADO_P1','PERÍODO 2', 'ESTADO_P2']],
+                #    column_config={
+                #        "EMAIL": st.column_config.LinkColumn("EMAIL", display_text="Abrir link")
+                #    },
+                #    hide_index=True,
+                #    use_container_width=True
+                #)
+#   
+                #st.session_state['usuario']
+                #st.write(f"Usuario: {st.session_state['usuario']}")
+#   
+                #df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P{st.session_state.periodo1}')
+                ## mostrar el dataframe
+                #st.dataframe(df_consolidados, use_container_width=True)
+                #df_consolidados.dropna(axis=1, how='all', inplace=True)
+                ##mostrar el dataframe sin columnas vacías
+                #st.dataframe(df_consolidados, use_container_width=True)
+                #df2 = df_consolidados.loc[:, ~df_consolidados.columns.str.contains('Unnamed')]
+                #st.dataframe(df2, use_container_width=True)
+                #ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
+                #st.write(f"indice maximo: {ind_max}")
+                #df3 = df2.iloc[1:ind_max, :].copy()
+                #st.dataframe(df3, use_container_width=True)
+                ##mostrar el typo de las columnas
+                #st.write("Tipos de las columnas del DataFrame de consolidados:")
+                #st.table(df3.dtypes)
+                #df3.drop(columns=['COM'], inplace=True)
+                ## Cambiar Matricula y documento a integer
+                #df3["Matricula"] = df3.Matricula.astype(int)
+                #try:
+                #    df3["Nro Documento"] = df3["Nro Documento"].astype(int)
+                #except:
+                #    pass
+                ## Cambiar a str
+                #df3["Matricula"] = df3.Matricula.astype(str)
+                #df3["Nro Documento"] = df3["Nro Documento"].astype(str)
+                #df3['No aprobados'] = df3['No aprobados'].astype(int)
+                #df3['No aprobados'] = df3['No aprobados']-1
+                #
+                #df3.rename(columns={'Nombre completo':'Nombre_estudiante'
+                #      ,'Nro Documento':'DOCUMENTO'
+                #      ,'Total faltas':'Total_faltas'
+                #      ,'No aprobados':'No_Aprobados'
+                #       } , inplace=True)
+                #st.dataframe(df3, use_container_width=True)
+                ## Derretir la tabla
+                #melted_df = pd.melt(df3, id_vars=['Ord', 'Matricula', 'DOCUMENTO', 'Nombre_estudiante', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
+                #melted_df.sort_values(['Nombre_estudiante'], inplace=True)
+                ## Mapear MATERIA con el diccionario materias
+                #melted_df['MATERIA'] = melted_df['MATERIA'].map(st.session_state.materias)
+                #melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
+                #melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
+                #melted_df.NOTA = melted_df.NOTA.astype(float)
+                #melted_df.loc[melted_df.NOTA < 3.0, 'ESTADO'] = "R"
+                #melted_df.loc[(melted_df.NOTA >= 3.0) & (melted_df.ESTADO != 'S'), 'ESTADO'] = "G"
+                ## mostrar el dataframe derretido
+                #st.dataframe(melted_df, use_container_width=True)
+                ## Filtrar por el usuario actual
+                #dfk = melted_df[melted_df['DOCUMENTO'] == st.session_state['usuario']].copy()
+                #st.dataframe(dfk, use_container_width=True)
+                #mostrar el informe
+                #styled_df = df.style.applymap(color_informe, subset=['ESTADO'])
+                # si dataframe no esta vacío
+                if df.shape[0] == 0:
+                    st.warning("No hay datos disponibles para mostrar el informe.")
+                else:
+                    # Dos columnas para las leyendas
+                    col1, col2 = st.columns(2)
+
+                    with col1:
+                        # Leyenda de colores con emoji para desempeño
+                        st.markdown("""
+                        **Leyenda de colores para desempeño:**
+
+                        🟩 **Verde**: Desempeño superior          
+                        🟨 **Amarillo**: Desempeño alto         
+                        🟧 **Naranja**: Desempeño basico         
+                        🟥 **Rojo**: Desempeño bajo  
+
+                        """)
+                    with col2:
+                        # Leyenda de colores con emoji para estado
+                        st.markdown("""
+                        **Leyenda de estado en la materia:**
+
+                        ✅ **Aprobado**: (G)  
+                        ⛔️ **Reprobado**: (R)  
+                        🎚️ **Superada**: (S)
+                        """)
+
+
+                    # Aplicar el estilo de color a las filas según el estado
+                    styled_df = df.style.apply(color_fila, axis=1)
+                    #st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+                # mostrar dataframe consolidados P1 y P2
+                #st.markdown("### Consolidados de Periodos Anteriores") 
+                #st.markdown("**Consolidado Periodo 1**")
+                #st.dataframe(st.session_state.consolidado_P1, use_container_width=True, hide_index=True)
+                #st.markdown("**Consolidado Periodo 2**")
+                #st.dataframe(st.session_state.consolidado_P2, use_container_width=True, hide_index=True)
+                #st.markdown("**Consolidado Periodo 1 y 2**")
+                #st.dataframe(st.session_state.consolidado_P1_P2, use_container_width=True, hide_index=True)
+
+                # Aplicar el estilo de color a las filas según el estado
+                styled_df = (st.session_state.consolidado_P1_P2
+                             .style
+                             .format({"PERÍODO 1": "{:.1f}",
+                                      "PERÍODO 2": "{:.1f}"})
+                             .apply(color_estado, axis=1)
+                            .set_table_styles([
+                                {'selector': 'th', 'props': [
+                                    ('text-align', 'center'),
+                                    ('background-color', '#cce5ff')  # azul claro
+                                ]},
+                                {'selector': 'td', 'props': [('text-align', 'center')]}
+                            ]
+                            ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
+                            )
+                # Oculta las columnas en la visualización (pandas 2.0+)
+                styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2'], axis=1)
+                #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+
+                # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
+                prom_P1 = st.session_state.consolidado_P1_P2['PERÍODO 1'].mean().round(2)
+                # mostrar barra de progreso del promedio P1
+                fig = mostrar_barra_progreso(prom_P1, titulo='Promedio General PERÍODO 1')
+                #st.pyplot(fig)
+                prom_P2 = st.session_state.consolidado_P1_P2['PERÍODO 2'].mean().round(2)
+                # mostrar barra de progreso del promedio P2
+                fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
+                #t.pyplot(fig)
+                # Agregar promedio general al final del dataframe
+                #promedio_general = pd.DataFrame({ 
+                #    'MATERIA': ['Promedio General'],
+                #    'PERÍODO 1': [prom_P1],
+                #    'PERÍODO 2': [prom_P2],
+                #    'ESTADO_P1': [''],
+                #    'ESTADO_P2': ['']
+                #})
+                #df_final = pd.concat([st.session_state.consolidado_P1_P2, promedio_general], ignore_index=True)
+                df_final = st.session_state.consolidado_P1_P2.copy()
+                #st.dataframe(df_final, use_container_width=True, hide_index=True)
+
+                # Aplicar color de calificación a las columnas PERÍODO 1 y PERÍODO 2
+                styled_df = df_final.style.applymap(color_calificacion, subset=['PERÍODO 1', 'PERÍODO 2'])
+                #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+
+                # mostrar tabla de informe con formato
+                mostrar_tabla_informe(df_final)
+
+                # Crear grafico de barras para promedios por periodo
+                # Crear gráfico de barras para promedios por periodo
+                df_promedios = pd.DataFrame({
+                    "Periodo": ["PERÍODO 1", "PERÍODO 2"],
+                    "Promedio": [prom_P1, prom_P2]
+                })
+
+                df_promedios["Color"] = df_promedios["Promedio"].apply(obtener_color)
+
+                fig_bar = px.bar(
+                    df_promedios,
+                    x="Promedio",
+                    y="Periodo",
+                    text="Promedio",
+                    color="Color",
+                    color_discrete_map="identity",  # Usa los colores tal cual,
+                    title="Desempeño por Periodo"
+                )
+                fig_bar.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+                fig_bar.update_layout(xaxis_range=[0, 5], xaxis_title="Promedio", yaxis_title="Periodo")
+
+                st.plotly_chart(fig_bar)
+
+                st.subheader("📧 Contacto docente")
+
                 col1, col2 = st.columns(2)
 
+                for i, row in df.iterrows():
+                    target_col = col1 if i % 2 == 0 else col2
+                    with target_col.expander(f"{row['MATERIA']}"):
+                        st.write(row['EMAIL'])
+
+            elif st.session_state.grupo1 in ["702","703","704"]:
+                st.header("Resultado Periodos")
+
+                # Dos columnas para las leyendas
+                col1, col2 = st.columns(2)
                 with col1:
                     # Leyenda de colores con emoji para desempeño
                     st.markdown("""
                     **Leyenda de colores para desempeño:**
-
                     🟩 **Verde**: Desempeño superior          
                     🟨 **Amarillo**: Desempeño alto         
                     🟧 **Naranja**: Desempeño basico         
                     🟥 **Rojo**: Desempeño bajo  
-                    
                     """)
                 with col2:
                     # Leyenda de colores con emoji para estado
                     st.markdown("""
                     **Leyenda de estado en la materia:**
-
+                                
                     ✅ **Aprobado**: (G)  
                     ⛔️ **Reprobado**: (R)  
                     🎚️ **Superada**: (S)
                     """)
 
-                
-                # Aplicar el estilo de color a las filas según el estado
-                styled_df = df.style.apply(color_fila, axis=1)
-                #st.dataframe(styled_df, use_container_width=True, hide_index=True)
+                df_702 = informe.mostrar_informe2(st.session_state.ruta_estudiantes)
+                #st.dataframe(df_702, use_container_width=True, hide_index=True)
 
-            # mostrar dataframe consolidados P1 y P2
-            #st.markdown("### Consolidados de Periodos Anteriores") 
-            #st.markdown("**Consolidado Periodo 1**")
-            #st.dataframe(st.session_state.consolidado_P1, use_container_width=True, hide_index=True)
-            #st.markdown("**Consolidado Periodo 2**")
-            #st.dataframe(st.session_state.consolidado_P2, use_container_width=True, hide_index=True)
-            #st.markdown("**Consolidado Periodo 1 y 2**")
-            #st.dataframe(st.session_state.consolidado_P1_P2, use_container_width=True, hide_index=True)
+                # mostrar tabla de informe con formato
+                mostrar_tabla_informe(df_702)
 
-            # Aplicar el estilo de color a las filas según el estado
-            styled_df = (st.session_state.consolidado_P1_P2
-                         .style
-                         .format({"PERÍODO 1": "{:.1f}",
-                                  "PERÍODO 2": "{:.1f}"})
-                         .apply(color_estado, axis=1)
-                        .set_table_styles([
-                            {'selector': 'th', 'props': [
-                                ('text-align', 'center'),
-                                ('background-color', '#cce5ff')  # azul claro
-                            ]},
-                            {'selector': 'td', 'props': [('text-align', 'center')]}
-                        ]
-                        ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
-                        )
-            # Oculta las columnas en la visualización (pandas 2.0+)
-            styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2'], axis=1)
-            #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
-
-            # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
-            prom_P1 = st.session_state.consolidado_P1_P2['PERÍODO 1'].mean().round(2)
-            # mostrar barra de progreso del promedio P1
-            fig = mostrar_barra_progreso(prom_P1, titulo='Promedio General PERÍODO 1')
-            #st.pyplot(fig)
-            prom_P2 = st.session_state.consolidado_P1_P2['PERÍODO 2'].mean().round(2)
-            # mostrar barra de progreso del promedio P2
-            fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
-            #t.pyplot(fig)
-            # Agregar promedio general al final del dataframe
-            #promedio_general = pd.DataFrame({ 
-            #    'MATERIA': ['Promedio General'],
-            #    'PERÍODO 1': [prom_P1],
-            #    'PERÍODO 2': [prom_P2],
-            #    'ESTADO_P1': [''],
-            #    'ESTADO_P2': ['']
-            #})
-            #df_final = pd.concat([st.session_state.consolidado_P1_P2, promedio_general], ignore_index=True)
-            df_final = st.session_state.consolidado_P1_P2.copy()
-            #st.dataframe(df_final, use_container_width=True, hide_index=True)
-
-            # Aplicar color de calificación a las columnas PERÍODO 1 y PERÍODO 2
-            styled_df = df_final.style.applymap(color_calificacion, subset=['PERÍODO 1', 'PERÍODO 2'])
-            #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
-
-            # mostrar tabla de informe con formato
-            mostrar_tabla_informe(df_final)
-
-            # Crear grafico de barras para promedios por periodo
-            # Crear gráfico de barras para promedios por periodo
-            df_promedios = pd.DataFrame({
-                "Periodo": ["PERÍODO 1", "PERÍODO 2"],
-                "Promedio": [prom_P1, prom_P2]
-            })
-
-            df_promedios["Color"] = df_promedios["Promedio"].apply(obtener_color)
-
-            fig_bar = px.bar(
-                df_promedios,
-                x="Promedio",
-                y="Periodo",
-                text="Promedio",
-                color="Color",
-                color_discrete_map="identity",  # Usa los colores tal cual,
-                title="Desempeño por Periodo"
-            )
-            fig_bar.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-            fig_bar.update_layout(xaxis_range=[0, 5], xaxis_title="Promedio", yaxis_title="Periodo")
-
-            st.plotly_chart(fig_bar)
-
-            st.subheader("📧 Contacto docente")
-
-            col1, col2 = st.columns(2)
-
-            for i, row in df.iterrows():
-                target_col = col1 if i % 2 == 0 else col2
-                with target_col.expander(f"{row['MATERIA']}"):
-                    st.write(row['EMAIL'])
-
-
-            #st.dataframe(df, use_container_width=True, hide_index=True)
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
             recuperaciones.mostrar(st.session_state.df_recuperaciones, st.session_state['usuario'], st.session_state['nombre'], periodo)
