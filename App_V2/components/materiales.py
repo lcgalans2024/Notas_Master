@@ -111,6 +111,24 @@ def mostrar():
         st.subheader(f"Periodo {st.session_state.periodo1} - Grupo {st.session_state.grupo1}")
         #st.subheader("📂 Materiales disponibles")
         ##############################################################
+        st.markdown("- Taller operaciones con fracciones")
+        try:
+            with open("App_V2/materiales/Taller operaciones con fracciones.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Taller operaciones con fracciones.pdf",
+                    mime="application/pdf"
+                )
+        except:
+            with open("D:/Repositorios/Notas_Master/App_V2/materiales/Taller operaciones con fracciones.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Taller operaciones con fracciones.pdf",
+                    mime="application/pdf"
+                )
+        ##############################################################
         st.markdown("- Plan Lector 1° parte")
         try:
             with open("App_V2/materiales/Activida_PL_P2.pdf", "rb") as file:
@@ -144,6 +162,42 @@ def mostrar():
                     label="- [📥 Descargar Actividad](#)",
                     data=file,
                     file_name="Actividad ubicación numeros racionales.pdf",
+                    mime="application/pdf"
+                )
+        ##############################################################
+        st.markdown("- Comparación de racionales")
+        try:
+            with open("App_V2/materiales/Actividad comparación de numeros racionales.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad comparación de numeros racionales.pdf",
+                    mime="application/pdf"
+                )
+        except:
+            with open("D:/Repositorios/Notas_Master/App_V2/materiales/Actividad comparación de numeros racionales.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad comparación de numeros racionales.pdf",
+                    mime="application/pdf"
+                )
+        ##############################################################
+        st.markdown("- De fracción a decimal")
+        try:
+            with open("App_V2/materiales/Actividad numeros decimales.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad numeros decimales.pdf",
+                    mime="application/pdf"
+                )
+        except:
+            with open("D:/Repositorios/Notas_Master/App_V2/materiales/Actividad numeros decimales.pdf", "rb") as file:
+                st.download_button(
+                    label="- [📥 Descargar Actividad](#)",
+                    data=file,
+                    file_name="Actividad numeros decimales.pdf",
                     mime="application/pdf"
                 )
             
