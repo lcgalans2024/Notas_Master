@@ -38,6 +38,8 @@ def sidebar_config():
     ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_{st.session_state.grupo1}_P{periodo}'])
     st.session_state.ruta_notas = ruta_notas
 
+    st.session_state.consolidado = informe.mostrar_informe()
+
     if "usuario" in st.session_state:
         # Verificamos si el estudiante tiene recuperaciones / verificar si st.session_state.df_recuperaciones esta vacío
         d = st.session_state.df_recuperaciones.shape[0] if 'df_recuperaciones' in st.session_state else 0
@@ -54,6 +56,9 @@ def sidebar_config():
         
         #opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
         opciones_menu += ["📎 Material del área y comunicados"]
+
+        if "adm" in st.session_state:
+            opciones_menu.append("♻️ Balances")
 
         # si el grupo es 601 o 602, mostrar solo consultas de notas
         if st.session_state.grupo1 in ["601", "602"]:
@@ -116,8 +121,8 @@ def sidebar_config():
                             evitar que se conviertan en materias perdidas en el periodo actual. 
                 """)
                 # Mostrar el informe del estudiante
-                df = informe.mostrar_informe()
-                
+                df = st.session_state.consolidado.copy()
+                #st.dataframe(df, use_container_width=True, hide_index=True)
                 # Agregar columna de email
                 if hasattr(st.session_state, "emails"):
                     df["EMAIL"] = df["MATERIA"].map(st.session_state.emails)
@@ -129,7 +134,7 @@ def sidebar_config():
                         "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES": "gabrielhortizr@itagui.edu.co",
                         "LENGUA EXTRANJERA INGLES": "ferney.rios@itagui.edu.co",
                         "MATEMÁTICAS": "maycol.segura@itagui.edu.co",
-                        "CIENCIAS SOCIALES": "veronica",
+                        "CIENCIAS SOCIALES": "veronica.usuga@itagui.edu.co",
                         "TECNOLOGIA E INFORMÁTICA": "paolaoochoas@itagui.edu.co",
                         "EDUCACION RELIGIOSA": "dianajlozanod@itagui.edu.co",
                         "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"
@@ -288,15 +293,17 @@ def sidebar_config():
                 #    'ESTADO_P2': ['']
                 #})
                 #df_final = pd.concat([st.session_state.consolidado_P1_P2, promedio_general], ignore_index=True)
-                df_final = st.session_state.consolidado_P1_P2.copy()
+                #df_final = st.session_state.consolidado_P1_P2.copy()
                 #st.dataframe(df_final, use_container_width=True, hide_index=True)
 
+                df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
+                st.dataframe(df_individual, use_container_width=True, hide_index=True)
                 # Aplicar color de calificación a las columnas PERÍODO 1 y PERÍODO 2
-                styled_df = df_final.style.applymap(color_calificacion, subset=['PERÍODO 1', 'PERÍODO 2'])
+                #styled_df = df_final.style.applymap(color_calificacion, subset=['PERÍODO 1', 'PERÍODO 2'])
                 #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
 
                 # mostrar tabla de informe con formato
-                mostrar_tabla_informe(df_final)
+                mostrar_tabla_informe(df_individual)
 
                 # Crear grafico de barras para promedios por periodo
                 # Crear gráfico de barras para promedios por periodo
@@ -371,6 +378,23 @@ def sidebar_config():
         elif menu == "📎 Material del área y comunicados":
             st.header(f"📎 Material del área y comunicados")
             materiales.mostrar()
+
+        elif menu == "♻️ Balances":
+            st.header("♻️ Balances")
+            st.write("Funcionalidad en desarrollo...")
+            df = st.session_state.consolidado.copy()
+            #st.dataframe(df, use_container_width=True, hide_index=True)
+            # Sumar las notas de los dos periodos y agregar columna con la diferencia a 9
+            df['NOTA_TOTAL'] = df['PERÍODO 1'].fillna(0) + df['PERÍODO 2'].fillna(0)
+            df['FALTANTE'] = 9 - df['NOTA_TOTAL']
+            # Eliminar documetos ['1035980132','1155713584','1015191755','7925234','1040575437']
+            df = df[~(df.DOCUMENTO.isin(['1035980132','1155713584','1015191755','7925234','1040575437']))]
+            st.dataframe(df[['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2','FALTANTE']].sort_values(by=['Nombre_estudiante','FALTANTE'], ascending=True), use_container_width=True, hide_index=True)
+            # crear un dataframe con el numero de materias por estudiante que no han alcanzado la nota minima de 9
+            df_faltantes = df[df.FALTANTE > 3.0].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).size().reset_index(name='Materias_Faltantes')
+            # order by Materias_Faltantes descending
+            df_faltantes = df_faltantes.sort_values(by='Materias_Faltantes', ascending=False)
+            st.dataframe(df_faltantes[['Nombre_estudiante','Materias_Faltantes']], use_container_width=True, hide_index=True)
 
     # Estilos de botones en HTML + CSS
     st.markdown(

@@ -299,19 +299,7 @@ def procesar_consolidados(df):
     df1.dropna(axis=1, how='all', inplace=True)
     # Eliminar columnas que contienen "Unnamed"
     df2 = df1.loc[:, ~df1.columns.str.contains('Unnamed')]
-    #try:
-    #   # eliminar fila por indice 26, 40 y 41 si existen
-    #   df2 = df2.drop(index=[2,
-    #                         16,
-    #                         #24,
-    #                         27,
-    #                         30,
-    #                         36,
-    #                         42
-    #                         ]).reset_index(drop=True)
-    #except:
-    #   pass
-    #df2 = df2.drop(index=[26,35,41]).reset_index(drop=True)
+    
     # obtener indice de fila de No aprobados en la columna Ord
     ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
     # Eliminar la primera fila
@@ -357,7 +345,7 @@ def procesar_consolidados(df):
     # mostrar los tipos de las columnas
     #st.write("Tipos de las columnas del DataFrame de consolidados:")
     #st.table(df3.dtypes)
-    return melted_df[melted_df.DOCUMENTO == st.session_state['usuario']][['MATERIA', 'NOTA', 'ESTADO']]  # Filtrar por usuario actual
+    return melted_df#[melted_df.DOCUMENTO == st.session_state['usuario']][['MATERIA', 'NOTA', 'ESTADO']]  # Filtrar por usuario actual
 
 def procesar_consolidados2(df):
     df_clean = df.dropna(axis=1, how='all')
