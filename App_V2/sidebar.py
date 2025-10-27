@@ -275,12 +275,15 @@ def sidebar_config():
                 styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2'], axis=1)
                 #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
 
+                df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
+                #st.dataframe(df_individual, use_container_width=True, hide_index=True)
+
                 # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
-                prom_P1 = st.session_state.consolidado_P1_P2['PERÍODO 1'].mean().round(2)
+                prom_P1 = df_individual['PERÍODO 1'].mean().round(2)
                 # mostrar barra de progreso del promedio P1
                 fig = mostrar_barra_progreso(prom_P1, titulo='Promedio General PERÍODO 1')
                 #st.pyplot(fig)
-                prom_P2 = st.session_state.consolidado_P1_P2['PERÍODO 2'].mean().round(2)
+                prom_P2 = df_individual['PERÍODO 2'].mean().round(2)
                 # mostrar barra de progreso del promedio P2
                 fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
                 #t.pyplot(fig)
@@ -296,8 +299,6 @@ def sidebar_config():
                 #df_final = st.session_state.consolidado_P1_P2.copy()
                 #st.dataframe(df_final, use_container_width=True, hide_index=True)
 
-                df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
-                st.dataframe(df_individual, use_container_width=True, hide_index=True)
                 # Aplicar color de calificación a las columnas PERÍODO 1 y PERÍODO 2
                 #styled_df = df_final.style.applymap(color_calificacion, subset=['PERÍODO 1', 'PERÍODO 2'])
                 #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
@@ -332,7 +333,7 @@ def sidebar_config():
 
                 col1, col2 = st.columns(2)
 
-                for i, row in df.iterrows():
+                for i, row in df_individual.iterrows():
                     target_col = col1 if i % 2 == 0 else col2
                     with target_col.expander(f"{row['MATERIA']}"):
                         st.write(row['EMAIL'])
