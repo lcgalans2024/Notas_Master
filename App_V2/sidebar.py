@@ -90,16 +90,6 @@ def sidebar_config():
             #st.write(f"dimensiones df: {df5.shape[0]} filas, {df5.shape[1]} columnas")
             
             df6 = df5[df5['DOCUMENTO'] == st.session_state['usuario']].copy()
-            
-            # mostrar os tipos de las columnas de df6
-            #st.write("Tipos de las columnas del DataFrame de notas:")
-            #st.table(st.session_state.df_recuperaciones.dtypes)
-           
-            #st.dataframe(st.session_state.df_recuperaciones[(st.session_state.df_recuperaciones["DOCUMENTO"] == st.session_state['usuario']) 
-            #                                                &
-            #                                                (st.session_state.df_recuperaciones["PERIODO"] == periodo)
-            #                                                ]
-            #                                                )
 
             # Mostrar tabla con formato
             mostrar_tabla_notas(df6)
@@ -112,7 +102,7 @@ def sidebar_config():
                 meta = 3
                 fig = mostrar_barra_progreso(nota_acumulada)
                 st.pyplot(fig)
-        elif menu == "📝 Informes":
+        elif (menu == "📝 Informes"):
 
             if st.session_state.grupo1 == "701":
                 st.header("Informe de Notas")
@@ -121,8 +111,10 @@ def sidebar_config():
                             evitar que se conviertan en materias perdidas en el periodo actual. 
                 """)
                 # Mostrar el informe del estudiante
-                df = st.session_state.consolidado.copy()
+                df = informe.mostrar_informe()
                 #st.dataframe(df, use_container_width=True, hide_index=True)
+                # Obtener el dataframe individual del estudiante
+                df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
                 # Agregar columna de email
                 if hasattr(st.session_state, "emails"):
                     df["EMAIL"] = df["MATERIA"].map(st.session_state.emails)
@@ -141,79 +133,7 @@ def sidebar_config():
                     }
                     st.session_state.emails = emails
                     df["EMAIL"] = df["MATERIA"].map(emails)
-                ## igualar la longitud de las materias con espacios
-                #max_len = df["MATERIA"].str.len().max()
-                #df["MATERIA"] = df["MATERIA"].apply(lambda x: x.ljust(max_len))
-                ## Concatenar materias y email en una columna
-                #df["MATERIA_EMAIL"] = df["MATERIA"] + " (" + df["EMAIL"] + ")"
-                ## truncar texto en materias a max_len caracteres y al hacer clic mostrarlo completo
-                #df["MATERIA_EMAIL"] = df["MATERIA_EMAIL"].str.slice(0,max_len) + "..."
-                ##mostrar el dataframe original
-                #st.dataframe(df, use_container_width=True, hide_index=True)
-#   
-                #st.data_editor(
-                #    df[['EMAIL', 'MATERIA', 'PERÍODO 1','ESTADO_P1','PERÍODO 2', 'ESTADO_P2']],
-                #    column_config={
-                #        "EMAIL": st.column_config.LinkColumn("EMAIL", display_text="Abrir link")
-                #    },
-                #    hide_index=True,
-                #    use_container_width=True
-                #)
-#   
-                #st.session_state['usuario']
-                #st.write(f"Usuario: {st.session_state['usuario']}")
-#   
-                #df_consolidados = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P{st.session_state.periodo1}')
-                ## mostrar el dataframe
-                #st.dataframe(df_consolidados, use_container_width=True)
-                #df_consolidados.dropna(axis=1, how='all', inplace=True)
-                ##mostrar el dataframe sin columnas vacías
-                #st.dataframe(df_consolidados, use_container_width=True)
-                #df2 = df_consolidados.loc[:, ~df_consolidados.columns.str.contains('Unnamed')]
-                #st.dataframe(df2, use_container_width=True)
-                #ind_max = df2[df2['Ord'] == "No aprobados"].index[0]
-                #st.write(f"indice maximo: {ind_max}")
-                #df3 = df2.iloc[1:ind_max, :].copy()
-                #st.dataframe(df3, use_container_width=True)
-                ##mostrar el typo de las columnas
-                #st.write("Tipos de las columnas del DataFrame de consolidados:")
-                #st.table(df3.dtypes)
-                #df3.drop(columns=['COM'], inplace=True)
-                ## Cambiar Matricula y documento a integer
-                #df3["Matricula"] = df3.Matricula.astype(int)
-                #try:
-                #    df3["Nro Documento"] = df3["Nro Documento"].astype(int)
-                #except:
-                #    pass
-                ## Cambiar a str
-                #df3["Matricula"] = df3.Matricula.astype(str)
-                #df3["Nro Documento"] = df3["Nro Documento"].astype(str)
-                #df3['No aprobados'] = df3['No aprobados'].astype(int)
-                #df3['No aprobados'] = df3['No aprobados']-1
-                #
-                #df3.rename(columns={'Nombre completo':'Nombre_estudiante'
-                #      ,'Nro Documento':'DOCUMENTO'
-                #      ,'Total faltas':'Total_faltas'
-                #      ,'No aprobados':'No_Aprobados'
-                #       } , inplace=True)
-                #st.dataframe(df3, use_container_width=True)
-                ## Derretir la tabla
-                #melted_df = pd.melt(df3, id_vars=['Ord', 'Matricula', 'DOCUMENTO', 'Nombre_estudiante', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
-                #melted_df.sort_values(['Nombre_estudiante'], inplace=True)
-                ## Mapear MATERIA con el diccionario materias
-                #melted_df['MATERIA'] = melted_df['MATERIA'].map(st.session_state.materias)
-                #melted_df.loc[melted_df.NOTA.str.contains('#'), 'ESTADO'] = "S"
-                #melted_df.NOTA = melted_df.NOTA.str.replace('#', '', regex=False)
-                #melted_df.NOTA = melted_df.NOTA.astype(float)
-                #melted_df.loc[melted_df.NOTA < 3.0, 'ESTADO'] = "R"
-                #melted_df.loc[(melted_df.NOTA >= 3.0) & (melted_df.ESTADO != 'S'), 'ESTADO'] = "G"
-                ## mostrar el dataframe derretido
-                #st.dataframe(melted_df, use_container_width=True)
-                ## Filtrar por el usuario actual
-                #dfk = melted_df[melted_df['DOCUMENTO'] == st.session_state['usuario']].copy()
-                #st.dataframe(dfk, use_container_width=True)
-                #mostrar el informe
-                #styled_df = df.style.applymap(color_informe, subset=['ESTADO'])
+                
                 # si dataframe no esta vacío
                 if df.shape[0] == 0:
                     st.warning("No hay datos disponibles para mostrar el informe.")
@@ -247,15 +167,6 @@ def sidebar_config():
                     styled_df = df.style.apply(color_fila, axis=1)
                     #st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
-                # mostrar dataframe consolidados P1 y P2
-                #st.markdown("### Consolidados de Periodos Anteriores") 
-                #st.markdown("**Consolidado Periodo 1**")
-                #st.dataframe(st.session_state.consolidado_P1, use_container_width=True, hide_index=True)
-                #st.markdown("**Consolidado Periodo 2**")
-                #st.dataframe(st.session_state.consolidado_P2, use_container_width=True, hide_index=True)
-                #st.markdown("**Consolidado Periodo 1 y 2**")
-                #st.dataframe(st.session_state.consolidado_P1_P2, use_container_width=True, hide_index=True)
-
                 # Aplicar el estilo de color a las filas según el estado
                 styled_df = (st.session_state.consolidado_P1_P2
                              .style
@@ -275,9 +186,6 @@ def sidebar_config():
                 styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2'], axis=1)
                 #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
 
-                df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
-                #st.dataframe(df_individual, use_container_width=True, hide_index=True)
-
                 # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
                 prom_P1 = df_individual['PERÍODO 1'].mean().round(2)
                 # mostrar barra de progreso del promedio P1
@@ -286,23 +194,8 @@ def sidebar_config():
                 prom_P2 = df_individual['PERÍODO 2'].mean().round(2)
                 # mostrar barra de progreso del promedio P2
                 fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
-                #t.pyplot(fig)
-                # Agregar promedio general al final del dataframe
-                #promedio_general = pd.DataFrame({ 
-                #    'MATERIA': ['Promedio General'],
-                #    'PERÍODO 1': [prom_P1],
-                #    'PERÍODO 2': [prom_P2],
-                #    'ESTADO_P1': [''],
-                #    'ESTADO_P2': ['']
-                #})
-                #df_final = pd.concat([st.session_state.consolidado_P1_P2, promedio_general], ignore_index=True)
-                #df_final = st.session_state.consolidado_P1_P2.copy()
-                #st.dataframe(df_final, use_container_width=True, hide_index=True)
-
-                # Aplicar color de calificación a las columnas PERÍODO 1 y PERÍODO 2
-                #styled_df = df_final.style.applymap(color_calificacion, subset=['PERÍODO 1', 'PERÍODO 2'])
-                #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
-
+                #st.pyplot(fig)
+                
                 # mostrar tabla de informe con formato
                 mostrar_tabla_informe(df_individual)
 
@@ -383,12 +276,12 @@ def sidebar_config():
         elif menu == "♻️ Balances":
             st.header("♻️ Balances")
             st.write("Funcionalidad en desarrollo...")
-            df = st.session_state.consolidado.copy()
+            df = informe.mostrar_informe()
             #st.dataframe(df, use_container_width=True, hide_index=True)
             # Sumar las notas de los dos periodos y agregar columna con la diferencia a 9
             df['NOTA_TOTAL'] = df['PERÍODO 1'].fillna(0) + df['PERÍODO 2'].fillna(0)
             df['FALTANTE'] = 9 - df['NOTA_TOTAL']
-            # Eliminar documetos ['1035980132','1155713584','1015191755','7925234','1040575437']
+            # Eliminar documentos de estudiantes cancelados
             df = df[~(df.DOCUMENTO.isin(['1035980132','1155713584','1015191755','7925234','1040575437']))]
             st.dataframe(df[['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2','FALTANTE']].sort_values(by=['Nombre_estudiante','FALTANTE'], ascending=True), use_container_width=True, hide_index=True)
             # crear un dataframe con el numero de materias por estudiante que no han alcanzado la nota minima de 9
