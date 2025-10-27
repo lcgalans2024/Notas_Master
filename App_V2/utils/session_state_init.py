@@ -121,7 +121,3 @@ def inicializar_session_state():
             "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"            
         }
 
-    # cargar consolidado general de todos los periodos
-    if 'consolidado' not in st.session_state:
-        st.session_state.consolidado = informe.mostrar_informe()
-
