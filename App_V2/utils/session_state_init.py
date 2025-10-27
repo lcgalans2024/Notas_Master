@@ -1,5 +1,6 @@
 import streamlit as st
 from utils.load_data import construir_url
+from components import informe
 
 def inicializar_session_state():
     if 'SHEET_ID' not in st.session_state:
@@ -119,4 +120,8 @@ def inicializar_session_state():
             "EDUCACION RELIGIOSA": "dianajlozanod@itagui.edu.co",
             "LENGUA CASTELLANA": "ruthfmontoyam@itagui.edu.co"            
         }
-        
+
+    # cargar consolidado general de todos los periodos
+    if 'consolidado' not in st.session_state:
+        st.session_state.consolidado = informe.mostrar_informe()
+

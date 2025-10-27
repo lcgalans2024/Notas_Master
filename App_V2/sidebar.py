@@ -38,7 +38,7 @@ def sidebar_config():
     ruta_notas = construir_url(st.session_state.SHEET_ID_PM ,st.session_state.GIDS_PM[f'notas_{st.session_state.grupo1}_P{periodo}'])
     st.session_state.ruta_notas = ruta_notas
 
-    st.session_state.consolidado = informe.mostrar_informe()
+    #st.session_state.consolidado = informe.mostrar_informe()
 
     if "usuario" in st.session_state:
         # Verificamos si el estudiante tiene recuperaciones / verificar si st.session_state.df_recuperaciones esta vacío
