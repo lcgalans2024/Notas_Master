@@ -154,8 +154,8 @@ def sidebar_config():
                 
                 # Obtener el dataframe individual del estudiante
                 df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
-                df_individual["PROMEDIO AÑO"] = round((df_individual["PERÍODO 1"] + df_individual["PERÍODO 2"] + df_individual["PERÍODO 3"])/3,1)
-                df_individual["ESTADO AÑO"] = np.where(df_individual["PROMEDIO AÑO"] >= 3.0, "APROBADA", "REPROBADA")
+                #df_individual["PROMEDIO AÑO"] = round((df_individual["PERÍODO 1"] + df_individual["PERÍODO 2"] + df_individual["PERÍODO 3"])/3,1)
+                #df_individual["ESTADO AÑO"] = np.where(df_individual["PROMEDIO AÑO"] >= 3.0, "APROBADA", "REPROBADA")
                 #st.dataframe(df_individual, use_container_width=True, hide_index=True)
 
                 # si dataframe no esta vacío

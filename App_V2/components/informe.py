@@ -82,4 +82,4 @@ def mostrar_informe2(ruta_estudiantes):
     #    mime='text/csv'
     #)
 
-    return st.session_state.consolidado_7[st.session_state.consolidado_7.DOCUMENTO == st.session_state['usuario']][['MATERIA','PERÍODO 1','ESTADO_P1','PERÍODO 2','ESTADO_P2']]
+    return st.session_state.consolidado_7[st.session_state.consolidado_7.DOCUMENTO == st.session_state['usuario']][['MATERIA','PERÍODO 1','ESTADO_P1','PERÍODO 2','ESTADO_P2','PERÍODO 3','ESTADO_P3']]

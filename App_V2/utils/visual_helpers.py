@@ -153,7 +153,7 @@ def color_informe_desempeño3(row):
     cat_p3 = categoria(row['PERÍODO 3'])
 
     # Retornar estilos: una columna vacía + 2 celdas por cada periodo
-    return [''] + [color_map[cat_p1]] * 2 + [color_map[cat_p2]] * 2 + [color_map[cat_p3]] * 2 + ['']
+    return [''] + [color_map[cat_p1]] * 2 + [color_map[cat_p2]] * 2 + [color_map[cat_p3]] * 2# + ['']
     
 # Mostrar tabla de informe de notas periodos
 def mostrar_tabla_informe(df):
@@ -164,8 +164,7 @@ def mostrar_tabla_informe(df):
         df[["MATERIA",
             "PERÍODO 1", "ESTADO_P1",
             "PERÍODO 2", "ESTADO_P2",
-            "PERÍODO 3", "ESTADO_P3",
-            "ESTADO AÑO"
+            "PERÍODO 3", "ESTADO_P3"
             ]]
         .style
         .format({"PERÍODO 1": "{:.1f}", "PERÍODO 2": "{:.1f}", "PERÍODO 3": "{:.1f}"})

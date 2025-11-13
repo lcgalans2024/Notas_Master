@@ -379,11 +379,14 @@ def procesar_consolidados2(df):
 
     df_clean["PERÍODO 1"] = df_clean["PERÍODO 1"].astype(str)
     df_clean["PERÍODO 2"] = df_clean["PERÍODO 2"].astype(str)
+    df_clean["PERÍODO 3"] = df_clean["PERÍODO 3"].astype(str)
 
     df_clean.loc[df_clean["PERÍODO 1"].str.contains('#'), 'ESTADO_P1'] = "S"
     df_clean["PERÍODO 1"] = df_clean["PERÍODO 1"].str.replace('#', '', regex=False)
     df_clean.loc[df_clean["PERÍODO 2"].str.contains('#'), 'ESTADO_P2'] = "S"
     df_clean["PERÍODO 2"] = df_clean["PERÍODO 2"].str.replace('#', '', regex=False)
+    df_clean.loc[df_clean["PERÍODO 3"].str.contains('#'), 'ESTADO_P3'] = "S"
+    df_clean["PERÍODO 3"] = df_clean["PERÍODO 3"].str.replace('#', '', regex=False)
 
     df_clean["PERÍODO 1"] = df_clean["PERÍODO 1"].astype(float)
     df_clean.loc[df_clean["PERÍODO 1"] < 3.0, 'ESTADO_P1'] = "R"
@@ -392,6 +395,10 @@ def procesar_consolidados2(df):
     df_clean["PERÍODO 2"] = df_clean["PERÍODO 2"].astype(float)
     df_clean.loc[df_clean["PERÍODO 2"] < 3.0, 'ESTADO_P2'] = "R"
     df_clean.loc[(df_clean["PERÍODO 2"] >= 3.0) & (df_clean.ESTADO_P2 != 'S'), 'ESTADO_P2'] = "G"
+
+    df_clean["PERÍODO 3"] = df_clean["PERÍODO 3"].astype(float)
+    df_clean.loc[df_clean["PERÍODO 3"] < 3.0, 'ESTADO_P3'] = "R"
+    df_clean.loc[(df_clean["PERÍODO 3"] >= 3.0) & (df_clean.ESTADO_P2 != 'S'), 'ESTADO_P3'] = "G"
 
     df_clean['MATERIA'] = 'MATEMÁTICAS'
 
@@ -405,7 +412,9 @@ def procesar_consolidados2(df):
         'PERÍODO 1',
         'ESTADO_P1',
         'PERÍODO 2',
-        'ESTADO_P2'
+        'ESTADO_P2',
+        'PERÍODO 3',
+        'ESTADO_P3'
 #        #,'P3'
     ]]
 
