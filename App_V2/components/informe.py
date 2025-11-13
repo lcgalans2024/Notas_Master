@@ -1,4 +1,5 @@
 import streamlit as st
+import numpy as np
 
 from utils.load_data import load_hoja_google_consolidados, procesar_consolidados, procesar_consolidados2, agregar_documento, cargar_estudiantes
 
@@ -19,12 +20,32 @@ def mostrar_informe():
     st.session_state.consolidado_P2 = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P2')
     # procesar consolidados P2
     st.session_state.consolidado_P2 = procesar_consolidados(st.session_state.consolidado_P2)
+    # cargar consolidados P3  
+    st.session_state.consolidado_P3 = load_hoja_google_consolidados(st.session_state.SHEET_ID_CONSOLIDADOS, st.session_state.GIDS_CONSOLIDADOS, f'{st.session_state.grupo1}_P3')
+    # procesar consolidados P3
+    st.session_state.consolidado_P3 = procesar_consolidados(st.session_state.consolidado_P3)
     # Unificar los consolidados P1 y P2 en un solo dataframe con metodo merge
-    st.session_state.consolidado_P1_P2 = st.session_state.consolidado_P1.merge(st.session_state.consolidado_P2, on=['Matricula','DOCUMENTO','Nombre_estudiante','MATERIA'], how='outer', suffixes=('_P1', '_P2'))[['Matricula','DOCUMENTO','Nombre_estudiante','MATERIA','NOTA_P1', 'ESTADO_P1','NOTA_P2','ESTADO_P2']]
+    st.session_state.consolidado_P1_P2 = st.session_state.consolidado_P1.merge(st.session_state.consolidado_P2,
+                                                                               on=['Matricula','DOCUMENTO','Nombre_estudiante','MATERIA'],
+                                                                               how='outer',
+                                                                               suffixes=('_P1', '_P2')
+                                                                               )#[['Matricula','DOCUMENTO','Nombre_estudiante','MATERIA','NOTA_P1', 'ESTADO_P1','NOTA_P2','ESTADO_P2']]
+    # Unificar los consolidados P1, P2 y P3 en un solo dataframe con metodo merge
+    st.session_state.consolidado_P1_P2_P3 = st.session_state.consolidado_P1_P2.merge(st.session_state.consolidado_P3,
+                                                                                     on=['Matricula','DOCUMENTO','Nombre_estudiante','MATERIA'],
+                                                                                     how='outer',
+                                                                                     suffixes=('_P12', '_P3')
+                                                                                     )[['Matricula','DOCUMENTO','Nombre_estudiante','MATERIA','NOTA_P1', 'ESTADO_P1','NOTA_P2','ESTADO_P2','NOTA','ESTADO']]
     # renombrar columnas Nota_P1 a PERÍODO 1 y Nota_P2 a PERÍODO 2
-    st.session_state.consolidado_P1_P2 = st.session_state.consolidado_P1_P2.rename(columns={'NOTA_P1': 'PERÍODO 1', 'NOTA_P2': 'PERÍODO 2'})
+    st.session_state.consolidado_P1_P2_P3 = st.session_state.consolidado_P1_P2_P3.rename(columns={'NOTA_P1': 'PERÍODO 1', 'NOTA_P2': 'PERÍODO 2','NOTA': 'PERÍODO 3', 'ESTADO': 'ESTADO_P3'})
+    
+    st.session_state.consolidado_P1_P2_P3["PROMEDIO AÑO"] = round((st.session_state.consolidado_P1_P2_P3["PERÍODO 1"] + 
+                                                                   st.session_state.consolidado_P1_P2_P3["PERÍODO 2"] + 
+                                                                   st.session_state.consolidado_P1_P2_P3["PERÍODO 3"])/3,1
+                                                                   )
+    st.session_state.consolidado_P1_P2_P3["ESTADO AÑO"] = np.where(st.session_state.consolidado_P1_P2_P3["PROMEDIO AÑO"] >= 3.0, "APROBADA", "REPROBADA")
 
-    return st.session_state.consolidado_P1_P2#df_consolidados
+    return st.session_state.consolidado_P1_P2_P3#df_consolidados
 
 def mostrar_informe2(ruta_estudiantes):
     """

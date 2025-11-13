@@ -106,18 +106,36 @@ def sidebar_config():
 
             if st.session_state.grupo1 == "701":
                 st.header("Informe de Notas")
-                st.markdown("""El presente informe permite ver las materias perdidas en periodos anteriores y si estas han sido superadas o no. 
-                            Adicionalmente, muestra las materias alertadas en el presente periodo, las cuales deben ser atendidas con prioridad para 
-                            evitar que se conviertan en materias perdidas en el periodo actual. 
-                """)
+                st.markdown("""El presente informe permite ver las materias reprobadas en los tres periodos académicos, evidenciando si han sido superadas o no.""")
+                st.markdown(
+                    """
+                    <div style='
+                    background-color:#f0f6ff; 
+                    padding:12px;
+                    border-radius:10px;
+                    border: 1px solid #d0d0d0;
+                    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.0);
+                    text-align:left
+                    '>
+                    <span style='font-size:22px; font-weight:600'>  
+                    <span style='color:#d62728'>¡IMPORTANTE!</span>
+
+                    * El estudiante que al finalizar el tercer periodo tenga tres o más areas en desempeño bajo <span style='color:#1f77b4'>se le dara por reprobado su año escolar</span> 
+
+                    * El estudiante tiene el compromiso de presentar actividades de superación en la fecha establecida por la institución (semanas 39 y 40). En la semana 39 se le informará al estudiante y a su acudiente las ÁREAS o
+                    asignaturas a superar, el plan de superación con fechas y horario.    
+                    </span>
+                    </div>                             
+                """,
+            unsafe_allow_html=True
+            )
                 # Mostrar el informe del estudiante
                 df = informe.mostrar_informe()
-                #st.dataframe(df, use_container_width=True, hide_index=True)
-                # Obtener el dataframe individual del estudiante
-                df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
+            
                 # Agregar columna de email
                 if hasattr(st.session_state, "emails"):
                     df["EMAIL"] = df["MATERIA"].map(st.session_state.emails)
+                    
                 else:
                     emails = {
                         "CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL": "mayra.parra@itagui.edu.co",
@@ -134,6 +152,12 @@ def sidebar_config():
                     st.session_state.emails = emails
                     df["EMAIL"] = df["MATERIA"].map(emails)
                 
+                # Obtener el dataframe individual del estudiante
+                df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
+                df_individual["PROMEDIO AÑO"] = round((df_individual["PERÍODO 1"] + df_individual["PERÍODO 2"] + df_individual["PERÍODO 3"])/3,1)
+                df_individual["ESTADO AÑO"] = np.where(df_individual["PROMEDIO AÑO"] >= 3.0, "APROBADA", "REPROBADA")
+                #st.dataframe(df_individual, use_container_width=True, hide_index=True)
+
                 # si dataframe no esta vacío
                 if df.shape[0] == 0:
                     st.warning("No hay datos disponibles para mostrar el informe.")
@@ -161,29 +185,32 @@ def sidebar_config():
                         ⛔️ **Reprobado**: (R)  
                         🎚️ **Superada**: (S)
                         """)
-
-
+                    #st.dataframe(st.session_state.consolidado_P1_P2)
+                    #st.dataframe(st.session_state.consolidado_P3)
+                    #st.dataframe(st.session_state.consolidado_P1_P2_P3)
                     # Aplicar el estilo de color a las filas según el estado
-                    styled_df = df.style.apply(color_fila, axis=1)
-                    #st.dataframe(styled_df, use_container_width=True, hide_index=True)
+                    #styled_df = df.style.apply(color_fila, axis=1)
+                    #st.dataframe(df, use_container_width=True, hide_index=True)
 
                 # Aplicar el estilo de color a las filas según el estado
-                styled_df = (st.session_state.consolidado_P1_P2
-                             .style
-                             .format({"PERÍODO 1": "{:.1f}",
-                                      "PERÍODO 2": "{:.1f}"})
-                             .apply(color_estado, axis=1)
-                            .set_table_styles([
-                                {'selector': 'th', 'props': [
-                                    ('text-align', 'center'),
-                                    ('background-color', '#cce5ff')  # azul claro
-                                ]},
-                                {'selector': 'td', 'props': [('text-align', 'center')]}
-                            ]
-                            ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
-                            )
-                # Oculta las columnas en la visualización (pandas 2.0+)
-                styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2'], axis=1)
+                #styled_df = (st.session_state.consolidado_P1_P2_P3
+                #             .style
+                #             .format({"PERÍODO 1": "{:.1f}",
+                #                      "PERÍODO 2": "{:.1f}",
+                #                      "PERÍODO 3": "{:.1f}"
+                #                      })
+                #             .apply(color_estado, axis=1)
+                #            .set_table_styles([
+                #                {'selector': 'th', 'props': [
+                #                    ('text-align', 'center'),
+                #                    ('background-color', '#cce5ff')  # azul claro
+                #                ]},
+                #                {'selector': 'td', 'props': [('text-align', 'center')]}
+                #            ]
+                #            ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
+                #            )
+                ## Oculta las columnas en la visualización (pandas 2.0+)
+                #styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2', 'ESTADO_P3'], axis=1)
                 #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
 
                 # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
@@ -195,6 +222,9 @@ def sidebar_config():
                 # mostrar barra de progreso del promedio P2
                 fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
                 #st.pyplot(fig)
+                prom_P3 = df_individual['PERÍODO 3'].mean().round(2)
+                # mostrar barra de progreso del promedio P2
+                fig = mostrar_barra_progreso(prom_P3, titulo='Promedio General PERÍODO 3')
                 
                 # mostrar tabla de informe con formato
                 mostrar_tabla_informe(df_individual)
@@ -202,8 +232,8 @@ def sidebar_config():
                 # Crear grafico de barras para promedios por periodo
                 # Crear gráfico de barras para promedios por periodo
                 df_promedios = pd.DataFrame({
-                    "Periodo": ["PERÍODO 1", "PERÍODO 2"],
-                    "Promedio": [prom_P1, prom_P2]
+                    "Periodo": ["PERÍODO 1", "PERÍODO 2", "PERÍODO 3"],
+                    "Promedio": [prom_P1, prom_P2, prom_P3]
                 })
 
                 df_promedios["Color"] = df_promedios["Promedio"].apply(obtener_color)
@@ -221,7 +251,7 @@ def sidebar_config():
                 fig_bar.update_layout(xaxis_range=[0, 5], xaxis_title="Promedio", yaxis_title="Periodo")
 
                 st.plotly_chart(fig_bar)
-
+                
                 st.subheader("📧 Contacto docente")
 
                 col1, col2 = st.columns(2)
@@ -279,17 +309,23 @@ def sidebar_config():
             df = informe.mostrar_informe()
             #st.dataframe(df, use_container_width=True, hide_index=True)
             # Sumar las notas de los dos periodos y agregar columna con la diferencia a 9
-            df['NOTA_TOTAL'] = df['PERÍODO 1'].fillna(0) + df['PERÍODO 2'].fillna(0)
-            df['FALTANTE'] = 9 - df['NOTA_TOTAL']
+            df['NOTA_TOTAL'] = df['PERÍODO 1'].fillna(0) + df['PERÍODO 2'].fillna(0) + + df['PERÍODO 3'].fillna(0)
+            df['FALTANTE'] = df['NOTA_TOTAL'].apply(lambda x: max(0,9-x))
+            # Contar los periodos con nota menor a 3.0
+            df["PENDIENTES"] = (df[["PERÍODO 1", "PERÍODO 2", "PERÍODO 3"]] < 3.0).sum(axis=1)
             # Eliminar documentos de estudiantes cancelados
             df = df[~(df.DOCUMENTO.isin(['1035980132','1155713584','1015191755','7925234','1040575437']))]
-            st.dataframe(df[['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2','FALTANTE']].sort_values(by=['Nombre_estudiante','FALTANTE'], ascending=True), use_container_width=True, hide_index=True)
+            
             # crear un dataframe con el numero de materias por estudiante que no han alcanzado la nota minima de 9
-            df_faltantes = df[df.FALTANTE > 3.0].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).size().reset_index(name='Materias_Faltantes')
+            df_faltantes = df[df.FALTANTE > 0.0].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).size().reset_index(name='Materias Reprobadas para el Año')
             # order by Materias_Faltantes descending
-            df_faltantes = df_faltantes.sort_values(by='Materias_Faltantes', ascending=False)
-            st.dataframe(df_faltantes[['Nombre_estudiante','Materias_Faltantes']], use_container_width=True, hide_index=True)
+            df_faltantes = df_faltantes.sort_values(by='Materias Reprobadas para el Año', ascending=False)
+            st.dataframe(df_faltantes[['Nombre_estudiante','Materias Reprobadas para el Año']], use_container_width=True, hide_index=True)
 
+            st.dataframe(df[df.DOCUMENTO == st.session_state['usuario']][['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2', 'PERÍODO 3',"PENDIENTES",'FALTANTE']].sort_values(by=['FALTANTE'], ascending=False), use_container_width=True, hide_index=True)
+
+            dk = df[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
+            st.dataframe(dk, use_container_width=True, hide_index=True)
     # Estilos de botones en HTML + CSS
     st.markdown(
         """
