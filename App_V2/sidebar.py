@@ -110,27 +110,6 @@ def sidebar_config():
             if st.session_state.grupo1 == "701":
                 st.header("Informe de Notas")
                 st.markdown("""El presente informe permite ver las materias reprobadas en los tres periodos académicos, evidenciando si han sido superadas o no.""")
-                st.markdown(
-                    """
-                    <div style='
-                    background-color:#f0f6ff; 
-                    padding:12px;
-                    border-radius:10px;
-                    border: 1px solid #d0d0d0;
-                    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.0);
-                    text-align:left
-                    '>
-                    <span style='font-size:22px; font-weight:600'>  
-                    <span style='color:#d62728'>¡IMPORTANTE!</span>
-
-                    * El estudiante que al finalizar el tercer periodo tenga tres o más areas en desempeño bajo <span style='color:#1f77b4'>se le dara por reprobado su año escolar</span> 
-
-                    * Cronograma    
-                    </span>
-                    </div>                             
-                """,
-            unsafe_allow_html=True
-            )
                 
                 st.markdown(
                     """
