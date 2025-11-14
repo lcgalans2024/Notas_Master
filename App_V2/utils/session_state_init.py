@@ -21,6 +21,7 @@ def inicializar_session_state():
             "notas": "0",
             "estudiantes": "817657441",
             "notas_601_P2": "732983744",
+            "notas_601_P3": "2075067324",
             "notas_602_P2": "201335434",
             "notas_701_P1": "1779130150",
             "notas_701_P2": "1360433359",

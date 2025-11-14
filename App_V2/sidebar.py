@@ -46,7 +46,10 @@ def sidebar_config():
         tiene_recuperaciones = not st.session_state.df_recuperaciones[st.session_state.df_recuperaciones["DOCUMENTO"] == st.session_state['usuario']].empty
 
         # Construimos el menú condicionalmente
-        opciones_menu = ["📘 Consulta de notas"]
+        opciones_menu = []
+        # verificar si el usuario es del grupo 701
+        #if st.session_state.grupo1 in ["701","702","703","704"]:
+        #opciones_menu.append("📘 Consulta de notas")
         #if tiene_recuperaciones:
         #    opciones_menu.append("♻️ Recuperaciones")
 
@@ -55,7 +58,7 @@ def sidebar_config():
             opciones_menu.append("📝 Informes")
         
         #opciones_menu += ["📊 Comparativos", "📎 Material del área y comunicados"]
-        opciones_menu += ["📎 Material del área y comunicados"]
+        #opciones_menu += ["📎 Material del área y comunicados"]
 
         if "adm" in st.session_state:
             opciones_menu.append("♻️ Balances")
@@ -122,13 +125,54 @@ def sidebar_config():
 
                     * El estudiante que al finalizar el tercer periodo tenga tres o más areas en desempeño bajo <span style='color:#1f77b4'>se le dara por reprobado su año escolar</span> 
 
-                    * El estudiante tiene el compromiso de presentar actividades de superación en la fecha establecida por la institución (semanas 39 y 40). En la semana 39 se le informará al estudiante y a su acudiente las ÁREAS o
-                    asignaturas a superar, el plan de superación con fechas y horario.    
+                    * Cronograma    
                     </span>
                     </div>                             
                 """,
             unsafe_allow_html=True
             )
+                
+                st.markdown(
+                    """
+                    <div style='
+                        background-color:#f0f6ff; 
+                        padding:12px;
+                        border-radius:10px;
+                        border: 1px solid #d0d0d0;
+                        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.0);
+                        text-align:left
+                    '>
+                    <span style='font-size:22px; font-weight:600'>  
+                    <span style='color:#d62728'>¡IMPORTANTE!</span>
+                        </span>
+
+                    <ul style='font-size:18px;'>
+                        <li>El estudiante que al finalizar el tercer periodo tenga <strong>tres o más áreas en desempeño bajo</strong> <span style='color:#1f77b4'>será reprobado</span>.</li>
+                        <li><strong>Cronograma:</strong></li>
+                    </ul>
+                    <table style='width:100%; border-collapse:collapse; font-size:16px;'>
+                        <tr style='background-color:#dce6f7; font-weight:bold;'>
+                            <td style='padding:8px; border:1px solid #ccc;'>Fecha – Día</td>
+                            <td style='padding:8px; border:1px solid #ccc;'>Bloque 1 (6:00–7:50)</td>
+                            <td style='padding:8px; border:1px solid #ccc;'>Bloque 2 (8:00–9:50)</td>
+                            <td style='padding:8px; border:1px solid #ccc;'>Bloque 3 (10:00–12:00)</td>
+                        </tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>18/11/2025 – Martes</td><td style='padding:8px; border:1px solid #ccc;'>Educación Artística</td><td style='padding:8px; border:1px solid #ccc;'>Tecnología</td><td style='padding:8px; border:1px solid #ccc;'>Ética</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>19/11/2025 – Miércoles</td><td style='padding:8px; border:1px solid #ccc;'>Educación Física</td><td style='padding:8px; border:1px solid #ccc;'>Religión</td><td style='padding:8px; border:1px solid #ccc;'>Lengua Castellana</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>20/11/2025 – Jueves</td><td colspan='3' style='padding:8px; border:1px solid #ccc;'>🚫 No se programa – Noche de los Mejores</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>21/11/2025 – Viernes</td><td colspan='3' style='padding:8px; border:1px solid #ccc;'>🚫 No se programa – Autoevaluación Institucional</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>24/11/2025 – Lunes</td><td style='padding:8px; border:1px solid #ccc;'>Matemáticas</td><td style='padding:8px; border:1px solid #ccc;'>Inglés</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Naturales</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>25/11/2025 – Martes</td><td colspan='3' style='padding:8px; border:1px solid #ccc;'>🚫 No se programa – Entrega de Símbolos</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>26/11/2025 – Miércoles</td><td style='padding:8px; border:1px solid #ccc;'>Matemáticas (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Inglés (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Naturales (pendientes)</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>27/11/2025 – Jueves</td><td style='padding:8px; border:1px solid #ccc;'>Lengua Castellana (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Sociales (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Tecnología (pendientes)</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>28/11/2025 – Viernes</td><td style='padding:8px; border:1px solid #ccc;'>Educación Artística (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Ética (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Sociales (pendientes)</td></tr>
+                    </table>
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
                 # Mostrar el informe del estudiante
                 df = informe.mostrar_informe()
             
@@ -322,10 +366,26 @@ def sidebar_config():
             df_faltantes = df_faltantes.sort_values(by='Materias Reprobadas para el Año', ascending=False)
             st.dataframe(df_faltantes[['Nombre_estudiante','Materias Reprobadas para el Año']], use_container_width=True, hide_index=True)
 
+            st.write(f"Total {df_faltantes['Materias Reprobadas para el Año'].sum()}")
+
             st.dataframe(df[df.DOCUMENTO == st.session_state['usuario']][['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2', 'PERÍODO 3',"PENDIENTES",'FALTANTE']].sort_values(by=['FALTANTE'], ascending=False), use_container_width=True, hide_index=True)
 
             dk = df[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
             st.dataframe(dk, use_container_width=True, hide_index=True)
+            st.write(f"Total {dk['PENDIENTES'].sum()}")
+
+            materia = st.multiselect(
+            "Selecciona el grupo", 
+            df['MATERIA'].unique().tolist(),
+            default=df['MATERIA'].unique().tolist()
+            )
+
+            # Aplicar filtros
+            df1 = df[df['MATERIA'].isin(materia)]
+            df2 = df1[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
+            st.write(f"Total {df2['PENDIENTES'].sum()}")
+            st.dataframe(df2[df2.PENDIENTES > 0.0], use_container_width=True, hide_index=True)
+
     # Estilos de botones en HTML + CSS
     st.markdown(
         """
