@@ -7,7 +7,7 @@ import altair as alt
 import qrcode
 from io import BytesIO
 from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila, color_estado, color_calificacion, mostrar_tabla_informe, obtener_color
-from utils.load_data import load_hoja_google_consolidados,cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
+from utils.load_data import load_hoja_google_consolidados,procesar_consolidados2,cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
 def sidebar_config():
@@ -139,8 +139,8 @@ def sidebar_config():
                         <tr><td style='padding:8px; border:1px solid #ccc;'>18/11/2025 – Martes</td><td style='padding:8px; border:1px solid #ccc;'>Educación Artística</td><td style='padding:8px; border:1px solid #ccc;'>Tecnología</td><td style='padding:8px; border:1px solid #ccc;'>Ética</td></tr>
                         <tr><td style='padding:8px; border:1px solid #ccc;'>19/11/2025 – Miércoles</td><td style='padding:8px; border:1px solid #ccc;'>Educación Física</td><td style='padding:8px; border:1px solid #ccc;'>Religión</td><td style='padding:8px; border:1px solid #ccc;'>Lengua Castellana</td></tr>
                         <tr><td style='padding:8px; border:1px solid #ccc;'>20/11/2025 – Jueves</td><td colspan='3' style='padding:8px; border:1px solid #ccc;'>🚫 No se programa – Noche de los Mejores</td></tr>
-                        <tr><td style='padding:8px; border:1px solid #ccc;'>21/11/2025 – Viernes</td><td colspan='3' style='padding:8px; border:1px solid #ccc;'>🚫 No se programa – Autoevaluación Institucional</td></tr>
-                        <tr><td style='padding:8px; border:1px solid #ccc;'>24/11/2025 – Lunes</td><td style='padding:8px; border:1px solid #ccc;'>Matemáticas</td><td style='padding:8px; border:1px solid #ccc;'>Inglés</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Naturales</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>21/11/2025 – Viernes</td><td style='padding:8px; border:1px solid #ccc;'>Matemáticas</td><td style='padding:8px; border:1px solid #ccc;'>Inglés</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Naturales</td></tr>
+                        <tr><td style='padding:8px; border:1px solid #ccc;'>24/11/2025 – Lunes</td><td colspan='3' style='padding:8px; border:1px solid #ccc;'>🚫 No se programa – Autoevaluación Institucional</td></tr>
                         <tr><td style='padding:8px; border:1px solid #ccc;'>25/11/2025 – Martes</td><td colspan='3' style='padding:8px; border:1px solid #ccc;'>🚫 No se programa – Entrega de Símbolos</td></tr>
                         <tr><td style='padding:8px; border:1px solid #ccc;'>26/11/2025 – Miércoles</td><td style='padding:8px; border:1px solid #ccc;'>Matemáticas (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Inglés (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Naturales (pendientes)</td></tr>
                         <tr><td style='padding:8px; border:1px solid #ccc;'>27/11/2025 – Jueves</td><td style='padding:8px; border:1px solid #ccc;'>Lengua Castellana (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Ciencias Sociales (pendientes)</td><td style='padding:8px; border:1px solid #ccc;'>Tecnología (pendientes)</td></tr>
@@ -215,27 +215,6 @@ def sidebar_config():
                     #styled_df = df.style.apply(color_fila, axis=1)
                     #st.dataframe(df, use_container_width=True, hide_index=True)
 
-                # Aplicar el estilo de color a las filas según el estado
-                #styled_df = (st.session_state.consolidado_P1_P2_P3
-                #             .style
-                #             .format({"PERÍODO 1": "{:.1f}",
-                #                      "PERÍODO 2": "{:.1f}",
-                #                      "PERÍODO 3": "{:.1f}"
-                #                      })
-                #             .apply(color_estado, axis=1)
-                #            .set_table_styles([
-                #                {'selector': 'th', 'props': [
-                #                    ('text-align', 'center'),
-                #                    ('background-color', '#cce5ff')  # azul claro
-                #                ]},
-                #                {'selector': 'td', 'props': [('text-align', 'center')]}
-                #            ]
-                #            ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
-                #            )
-                ## Oculta las columnas en la visualización (pandas 2.0+)
-                #styled_df = styled_df.hide(['ESTADO_P1', 'ESTADO_P2', 'ESTADO_P3'], axis=1)
-                #st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
-
                 # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
                 prom_P1 = df_individual['PERÍODO 1'].mean().round(2)
                 # mostrar barra de progreso del promedio P1
@@ -309,11 +288,11 @@ def sidebar_config():
                     🎚️ **Superada**: (S)
                     """)
 
-                df_702 = informe.mostrar_informe2(st.session_state.ruta_estudiantes)
+                df_702 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,st.session_state.grupo1)
                 #st.dataframe(df_702, use_container_width=True, hide_index=True)
 
                 # mostrar tabla de informe con formato
-                mostrar_tabla_informe(df_702)
+                mostrar_tabla_informe(df_702[df_702.DOCUMENTO == st.session_state['usuario']][['MATERIA','PERÍODO 1','ESTADO_P1','PERÍODO 2','ESTADO_P2','PERÍODO 3','ESTADO_P3']])
 
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")
@@ -329,41 +308,105 @@ def sidebar_config():
         elif menu == "♻️ Balances":
             st.header("♻️ Balances")
             st.write("Funcionalidad en desarrollo...")
-            df = informe.mostrar_informe()
-            #st.dataframe(df, use_container_width=True, hide_index=True)
-            # Sumar las notas de los dos periodos y agregar columna con la diferencia a 9
-            df['NOTA_TOTAL'] = df['PERÍODO 1'].fillna(0) + df['PERÍODO 2'].fillna(0) + + df['PERÍODO 3'].fillna(0)
-            df['FALTANTE'] = df['NOTA_TOTAL'].apply(lambda x: max(0,9-x))
-            # Contar los periodos con nota menor a 3.0
-            df["PENDIENTES"] = (df[["PERÍODO 1", "PERÍODO 2", "PERÍODO 3"]] < 3.0).sum(axis=1)
-            # Eliminar documentos de estudiantes cancelados
-            df = df[~(df.DOCUMENTO.isin(['1035980132','1155713584','1015191755','7925234','1040575437']))]
-            
-            # crear un dataframe con el numero de materias por estudiante que no han alcanzado la nota minima de 9
-            df_faltantes = df[df.FALTANTE > 0.0].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).size().reset_index(name='Materias Reprobadas para el Año')
-            # order by Materias_Faltantes descending
-            df_faltantes = df_faltantes.sort_values(by='Materias Reprobadas para el Año', ascending=False)
-            st.dataframe(df_faltantes[['Nombre_estudiante','Materias Reprobadas para el Año']], use_container_width=True, hide_index=True)
 
-            st.write(f"Total {df_faltantes['Materias Reprobadas para el Año'].sum()}")
+            # Tabs principales del Dashboard
+            tabs = [
+                "Diregrupo",
+                "Matemáticas"
+            ]
 
-            st.dataframe(df[df.DOCUMENTO == st.session_state['usuario']][['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2', 'PERÍODO 3',"PENDIENTES",'FALTANTE']].sort_values(by=['FALTANTE'], ascending=False), use_container_width=True, hide_index=True)
+            if st.session_state.grupo1 == "701":
+                st.subheader("Diregrupo")
+                df = informe.mostrar_informe()
 
-            dk = df[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
-            st.dataframe(dk, use_container_width=True, hide_index=True)
-            st.write(f"Total {dk['PENDIENTES'].sum()}")
+                st.dataframe(df, use_container_width=True, hide_index=True)
+                # Sumar las notas de los dos periodos y agregar columna con la diferencia a 9
+                df['NOTA_TOTAL'] = df['PERÍODO 1'].fillna(0) + df['PERÍODO 2'].fillna(0) + + df['PERÍODO 3'].fillna(0)
+                df['FALTANTE'] = df['NOTA_TOTAL'].apply(lambda x: max(0,9-x))
+                # Contar los periodos con nota menor a 3.0
+                df["PENDIENTES"] = (df[["PERÍODO 1", "PERÍODO 2", "PERÍODO 3"]] < 3.0).sum(axis=1)
+                # Eliminar documentos de estudiantes cancelados
+                df = df[~(df.DOCUMENTO.isin(['1035980132','1155713584','1015191755','7925234','1040575437']))]
 
-            materia = st.multiselect(
-            "Selecciona el grupo", 
-            df['MATERIA'].unique().tolist(),
-            default=df['MATERIA'].unique().tolist()
-            )
+                # crear un dataframe con el numero de materias por estudiante que no han alcanzado la nota minima de 9
+                df_faltantes = df[df.FALTANTE > 0.0].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).size().reset_index(name='Materias Reprobadas para el Año')
+                # order by Materias_Faltantes descending
+                df_faltantes = df_faltantes.sort_values(by='Materias Reprobadas para el Año', ascending=False)
+                st.dataframe(df_faltantes[['Nombre_estudiante','Materias Reprobadas para el Año']], use_container_width=True, hide_index=True)
 
-            # Aplicar filtros
-            df1 = df[df['MATERIA'].isin(materia)]
-            df2 = df1[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
-            st.write(f"Total {df2['PENDIENTES'].sum()}")
-            st.dataframe(df2[df2.PENDIENTES > 0.0], use_container_width=True, hide_index=True)
+                st.write(f"Total {df_faltantes['Materias Reprobadas para el Año'].sum()}")
+
+                st.dataframe(df[df.DOCUMENTO == st.session_state['usuario']][['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2', 'PERÍODO 3',"PENDIENTES",'FALTANTE']].sort_values(by=['FALTANTE'], ascending=False), use_container_width=True, hide_index=True)
+
+                dk = df[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
+                st.dataframe(dk, use_container_width=True, hide_index=True)
+                st.write(f"Total {dk['PENDIENTES'].sum()}")
+
+                materia = st.multiselect(
+                "Selecciona el grupo", 
+                df['MATERIA'].unique().tolist(),
+                default=df['MATERIA'].unique().tolist()
+                )
+
+                # Aplicar filtros
+                df1 = df[df['MATERIA'].isin(materia)]
+                df2 = df1[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
+                st.write(f"Total {df2['PENDIENTES'].sum()}")
+                st.dataframe(df2[df2.PENDIENTES > 0.0], use_container_width=True, hide_index=True)
+
+            else:
+                st.subheader("Matemáticas")
+                # Cargar consolidados 702
+                st.session_state.consolidado_702 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,grupo = '702')
+                st.session_state.consolidado_702['GRUPO'] = '702'
+                # Cargar consolidados 703
+                st.session_state.consolidado_703 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,grupo = '703')
+                st.session_state.consolidado_703['GRUPO'] = '703'
+                # Cargar consolidados 704
+                st.session_state.consolidado_704 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,grupo = '704')
+                st.session_state.consolidado_704['GRUPO'] = '704'
+                st.dataframe(st.session_state.consolidado_702, use_container_width=True, hide_index=True)
+                st.dataframe(st.session_state.consolidado_703, use_container_width=True, hide_index=True)
+                st.dataframe(st.session_state.consolidado_704, use_container_width=True, hide_index=True)
+                # Concatenar
+                df_7 = pd.concat([st.session_state.consolidado_702,
+                                        st.session_state.consolidado_703,
+                                        st.session_state.consolidado_704
+                                        ])[['GRUPO','NOMBRE_ESTUDIANTE', 'PERÍODO 1','PERÍODO 2', 'PERÍODO 3']]
+                
+                p = st.multiselect(
+                "Selecciona el periodo", 
+                ['P1','P2','P3'],
+                default=['P1','P2','P3']
+                )
+                if len(p) == 1 and p[0] == 'P1':
+                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
+                                  ~(df_7['PERÍODO 2'] < 3.0) & 
+                                  ~(df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
+                elif len(p) == 1 and p[0] == 'P2':
+                    st.dataframe(df_7[~(df_7['PERÍODO 1'] < 3.0) & 
+                                  (df_7['PERÍODO 2'] < 3.0) & 
+                                  ~(df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
+                elif len(p) == 1 and p[0] == 'P3':
+                    st.dataframe(df_7[~(df_7['PERÍODO 1'] < 3.0) & 
+                                  ~(df_7['PERÍODO 2'] < 3.0) & 
+                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
+                elif len(p) == 2 and 'P1' in p and 'P2' in p:
+                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
+                                  (df_7['PERÍODO 2'] < 3.0) & 
+                                  ~(df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
+                elif len(p) == 2 and 'P1' in p and 'P3' in p:
+                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
+                                  ~(df_7['PERÍODO 2'] < 3.0) & 
+                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
+                elif len(p) == 2 and 'P2' in p and 'P3' in p:
+                    st.dataframe(df_7[~(df_7['PERÍODO 1'] < 3.0) & 
+                                  (df_7['PERÍODO 2'] < 3.0) & 
+                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
+                elif len(p) == 3:
+                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
+                                  (df_7['PERÍODO 2'] < 3.0) & 
+                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
 
     # Estilos de botones en HTML + CSS
     st.markdown(
