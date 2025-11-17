@@ -320,6 +320,9 @@ def sidebar_config():
                 df = informe.mostrar_informe()
 
                 st.dataframe(df, use_container_width=True, hide_index=True)
+                df_ponderado = df[['DOCUMENTO','NOMBRE_ESTUDIANTE','PERÍODO 1','PERÍODO 2','PERÍODO 3']].groupby(['DOCUMENTO','NOMBRE_ESTUDIANTE']).mean().round(2).reset_index()
+                df_ponderado['PONDERADO'] = df_ponderado['PERÍODO 1']*0.34 + df_ponderado['PERÍODO 2']*0.33 + df_ponderado['PERÍODO 3']*0.33
+                st.dataframe(df_ponderado, use_container_width=True, hide_index=True)
                 # Sumar las notas de los dos periodos y agregar columna con la diferencia a 9
                 df['NOTA_TOTAL'] = df['PERÍODO 1'].fillna(0) + df['PERÍODO 2'].fillna(0) + + df['PERÍODO 3'].fillna(0)
                 df['FALTANTE'] = df['NOTA_TOTAL'].apply(lambda x: max(0,9-x))
