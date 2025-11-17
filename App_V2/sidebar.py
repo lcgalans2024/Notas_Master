@@ -329,16 +329,16 @@ def sidebar_config():
                 df = df[~(df.DOCUMENTO.isin(['1035980132','1155713584','1015191755','7925234','1040575437']))]
 
                 # crear un dataframe con el numero de materias por estudiante que no han alcanzado la nota minima de 9
-                df_faltantes = df[df.FALTANTE > 0.0].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).size().reset_index(name='Materias Reprobadas para el Año')
+                df_faltantes = df[df.FALTANTE > 0.0].groupby(['MATRICULA','DOCUMENTO','NOMBRE_ESTUDIANTE']).size().reset_index(name='Materias Reprobadas para el Año')
                 # order by Materias_Faltantes descending
                 df_faltantes = df_faltantes.sort_values(by='Materias Reprobadas para el Año', ascending=False)
-                st.dataframe(df_faltantes[['Nombre_estudiante','Materias Reprobadas para el Año']], use_container_width=True, hide_index=True)
+                st.dataframe(df_faltantes[['NOMBRE_ESTUDIANTE','Materias Reprobadas para el Año']], use_container_width=True, hide_index=True)
 
                 st.write(f"Total {df_faltantes['Materias Reprobadas para el Año'].sum()}")
 
-                st.dataframe(df[df.DOCUMENTO == st.session_state['usuario']][['Nombre_estudiante', 'MATERIA','PERÍODO 1','PERÍODO 2', 'PERÍODO 3',"PENDIENTES",'FALTANTE']].sort_values(by=['FALTANTE'], ascending=False), use_container_width=True, hide_index=True)
+                st.dataframe(df[df.DOCUMENTO == st.session_state['usuario']][['NOMBRE_ESTUDIANTE', 'MATERIA','PERÍODO 1','PERÍODO 2', 'PERÍODO 3',"PENDIENTES",'FALTANTE']].sort_values(by=['FALTANTE'], ascending=False), use_container_width=True, hide_index=True)
 
-                dk = df[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
+                dk = df[['MATRICULA','DOCUMENTO','NOMBRE_ESTUDIANTE',"PENDIENTES"]].groupby(['MATRICULA','DOCUMENTO','NOMBRE_ESTUDIANTE']).sum().reset_index()
                 st.dataframe(dk, use_container_width=True, hide_index=True)
                 st.write(f"Total {dk['PENDIENTES'].sum()}")
 
@@ -350,12 +350,25 @@ def sidebar_config():
 
                 # Aplicar filtros
                 df1 = df[df['MATERIA'].isin(materia)]
-                df2 = df1[['Matricula','DOCUMENTO','Nombre_estudiante',"PENDIENTES"]].groupby(['Matricula','DOCUMENTO','Nombre_estudiante']).sum().reset_index()
+                df2 = df1[['MATRICULA','DOCUMENTO','NOMBRE_ESTUDIANTE',"PENDIENTES"]].groupby(['MATRICULA','DOCUMENTO','NOMBRE_ESTUDIANTE']).sum().reset_index()
                 st.write(f"Total {df2['PENDIENTES'].sum()}")
                 st.dataframe(df2[df2.PENDIENTES > 0.0], use_container_width=True, hide_index=True)
 
             else:
                 st.subheader("Matemáticas")
+                st.session_state.consolidado_P1_P2_P3['GRUPO'] = '701'
+                df_701 = st.session_state.consolidado_P1_P2_P3[st.session_state.consolidado_P1_P2_P3.MATERIA == 'MATEMÁTICAS'][['MATRICULA',
+                                                                                                                                'DOCUMENTO',
+                                                                                                                                'NOMBRE_ESTUDIANTE',
+                                                                                                                                'MATERIA',
+                                                                                                                                'PERÍODO 1',
+                                                                                                                                'ESTADO_P1',
+                                                                                                                                'PERÍODO 2',
+                                                                                                                                'ESTADO_P2',
+                                                                                                                                'PERÍODO 3',
+                                                                                                                                'ESTADO_P3',
+                                                                                                                                'GRUPO'
+                                                                                                                                ]]
                 # Cargar consolidados 702
                 st.session_state.consolidado_702 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,grupo = '702')
                 st.session_state.consolidado_702['GRUPO'] = '702'
@@ -365,48 +378,48 @@ def sidebar_config():
                 # Cargar consolidados 704
                 st.session_state.consolidado_704 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,grupo = '704')
                 st.session_state.consolidado_704['GRUPO'] = '704'
-                st.dataframe(st.session_state.consolidado_702, use_container_width=True, hide_index=True)
-                st.dataframe(st.session_state.consolidado_703, use_container_width=True, hide_index=True)
-                st.dataframe(st.session_state.consolidado_704, use_container_width=True, hide_index=True)
+                #st.dataframe(df_701, use_container_width=True, hide_index=True)
+                #st.dataframe(st.session_state.consolidado_702, use_container_width=True, hide_index=True)
+                #st.dataframe(st.session_state.consolidado_703, use_container_width=True, hide_index=True)
+                #st.dataframe(st.session_state.consolidado_704, use_container_width=True, hide_index=True)
                 # Concatenar
-                df_7 = pd.concat([st.session_state.consolidado_702,
-                                        st.session_state.consolidado_703,
-                                        st.session_state.consolidado_704
-                                        ])[['GRUPO','NOMBRE_ESTUDIANTE', 'PERÍODO 1','PERÍODO 2', 'PERÍODO 3']]
+                df_7 = pd.concat([df_701,
+                                  st.session_state.consolidado_702,
+                                  st.session_state.consolidado_703,
+                                  st.session_state.consolidado_704
+                                  ])[['GRUPO','NOMBRE_ESTUDIANTE', 'PERÍODO 1','PERÍODO 2', 'PERÍODO 3']]
                 
                 p = st.multiselect(
                 "Selecciona el periodo", 
                 ['P1','P2','P3'],
                 default=['P1','P2','P3']
                 )
-                if len(p) == 1 and p[0] == 'P1':
-                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
-                                  ~(df_7['PERÍODO 2'] < 3.0) & 
-                                  ~(df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
-                elif len(p) == 1 and p[0] == 'P2':
-                    st.dataframe(df_7[~(df_7['PERÍODO 1'] < 3.0) & 
-                                  (df_7['PERÍODO 2'] < 3.0) & 
-                                  ~(df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
-                elif len(p) == 1 and p[0] == 'P3':
-                    st.dataframe(df_7[~(df_7['PERÍODO 1'] < 3.0) & 
-                                  ~(df_7['PERÍODO 2'] < 3.0) & 
-                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
-                elif len(p) == 2 and 'P1' in p and 'P2' in p:
-                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
-                                  (df_7['PERÍODO 2'] < 3.0) & 
-                                  ~(df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
-                elif len(p) == 2 and 'P1' in p and 'P3' in p:
-                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
-                                  ~(df_7['PERÍODO 2'] < 3.0) & 
-                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
-                elif len(p) == 2 and 'P2' in p and 'P3' in p:
-                    st.dataframe(df_7[~(df_7['PERÍODO 1'] < 3.0) & 
-                                  (df_7['PERÍODO 2'] < 3.0) & 
-                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
-                elif len(p) == 3:
-                    st.dataframe(df_7[(df_7['PERÍODO 1'] < 3.0) & 
-                                  (df_7['PERÍODO 2'] < 3.0) & 
-                                  (df_7['PERÍODO 3'] < 3.0)], use_container_width=True, hide_index=True)
+                # Diccionario que mapea cada periodo a su respectiva columna
+                periodos = {
+                    'P1': 'PERÍODO 1',
+                    'P2': 'PERÍODO 2',
+                    'P3': 'PERÍODO 3'
+                }
+
+                # Asegúrate de que df_7 existe y contiene las columnas anteriores
+
+                if p:
+                    condiciones = []
+
+                    for key in periodos:
+                        if key in p:
+                            condiciones.append(df_7[periodos[key]] < 3.0)
+                        else:
+                            condiciones.append(df_7[periodos[key]] >= 3.0)
+
+                    # Combina todas las condiciones con operador "&"
+                    filtro_final = condiciones[0]
+                    for cond in condiciones[1:]:
+                        filtro_final &= cond
+
+                    df_filtrado = df_7[filtro_final]
+                    st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
+                st.write(df_filtrado.shape[0])
 
     # Estilos de botones en HTML + CSS
     st.markdown(

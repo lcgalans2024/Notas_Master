@@ -319,15 +319,16 @@ def procesar_consolidados(df):
     df3['No aprobados'] = df3['No aprobados'].astype(int)
     df3['No aprobados'] = df3['No aprobados']-1
     # Renombrar columnas
-    df3.rename(columns={'Nombre completo':'Nombre_estudiante'
+    df3.rename(columns={'Matricula':'MATRICULA'
+                        ,'Nombre completo':'NOMBRE_ESTUDIANTE'
                   ,'Nro Documento':'DOCUMENTO'
                   ,'Total faltas':'Total_faltas'
                   ,'No aprobados':'No_Aprobados'
                    } , inplace=True)
     
     # Derretir la tabla
-    melted_df = pd.melt(df3, id_vars=['Ord', 'Matricula', 'DOCUMENTO', 'Nombre_estudiante', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
-    melted_df.sort_values(['Nombre_estudiante'], inplace=True)
+    melted_df = pd.melt(df3, id_vars=['Ord', 'MATRICULA', 'DOCUMENTO', 'NOMBRE_ESTUDIANTE', 'Total_faltas', 'No_Aprobados'], var_name='MATERIA', value_name='NOTA')
+    melted_df.sort_values(['NOMBRE_ESTUDIANTE'], inplace=True)
 
     # Mapear MATERIA con el diccionario materias
     melted_df['MATERIA'] = melted_df['MATERIA'].map(st.session_state.materias)
@@ -404,8 +405,8 @@ def procesar_consolidados2(df):
 
     # Seleccionar columnas de interes
     df_clean = df_clean[[
-        'Ord',
-        'Est',
+        #'Ord',
+        #'Est',
         'MATRICULA',
         'NOMBRE_ESTUDIANTE',
         'MATERIA',
