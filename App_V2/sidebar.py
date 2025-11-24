@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import altair as alt
 import qrcode
+import io
 from io import BytesIO
-from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila, color_estado, color_calificacion, mostrar_tabla_informe, obtener_color
+from utils.visual_helpers import mostrar_tabla_notas, calcular_nota_acumulada, mostrar_barra_progreso, color_informe, color_fila, color_estado, color_calificacion, mostrar_tabla_informe, obtener_color, mostrar_tabla_informe_p4
 from utils.load_data import load_hoja_google_consolidados,procesar_consolidados2,cargar_estudiantes, agregar_documento, load_planilla_google, load_notas_google, load_recuperaciones_google, load_comparativos_google,construir_url
 from components import auth, consulta_notas, materiales, recuperaciones, informe#, comparativos
 
@@ -106,7 +107,9 @@ def sidebar_config():
                 fig = mostrar_barra_progreso(nota_acumulada)
                 st.pyplot(fig)
         elif (menu == "📝 Informes"):
-
+            ##################
+            INFORME = 'OFF'
+            ##################
             if st.session_state.grupo1 == "701":
                 st.header("Informe de Notas")
                 st.markdown("""El presente informe permite ver las materias reprobadas en los tres periodos académicos, evidenciando si han sido superadas o no.""")
@@ -151,13 +154,17 @@ def sidebar_config():
                     """,
                     unsafe_allow_html=True
                 )
+
+                DF = informe.mostrar_informe3()
+                
                 
                 # Mostrar el informe del estudiante
                 df = informe.mostrar_informe()
-            
+
                 # Agregar columna de email
                 if hasattr(st.session_state, "emails"):
                     df["EMAIL"] = df["MATERIA"].map(st.session_state.emails)
+                    DF["EMAIL"] = DF["MATERIA"].map(st.session_state.emails)
                     
                 else:
                     emails = {
@@ -174,17 +181,31 @@ def sidebar_config():
                     }
                     st.session_state.emails = emails
                     df["EMAIL"] = df["MATERIA"].map(emails)
-                
+                    DF["EMAIL"] = DF["MATERIA"].map(emails)
+
+                #st.dataframe(DF, use_container_width=True, hide_index=True)
+                #st.dataframe(df, use_container_width=True, hide_index=True)
                 # Obtener el dataframe individual del estudiante
                 df_individual = df[df['DOCUMENTO'] == st.session_state['usuario']].copy()
+                DF_individual = DF[DF['DOCUMENTO'] == st.session_state['usuario']].copy()
+
+                #st.dataframe(DF_individual, use_container_width=True, hide_index=True)
+
+                # Calcular promedio año
+                promedio_año = DF_individual["NOTA AÑO"].mean().round(2)
+                # Contar materias reprobadas
+                materias_reprobadas = DF_individual[DF_individual["NOTA AÑO"] < 3.0].shape[0]
+        
                 #df_individual["PROMEDIO AÑO"] = round((df_individual["PERÍODO 1"] + df_individual["PERÍODO 2"] + df_individual["PERÍODO 3"])/3,1)
                 #df_individual["ESTADO AÑO"] = np.where(df_individual["PROMEDIO AÑO"] >= 3.0, "APROBADA", "REPROBADA")
+                #st.write(st.session_state['usuario'])
                 #st.dataframe(df_individual, use_container_width=True, hide_index=True)
-
+                
                 # si dataframe no esta vacío
                 if df.shape[0] == 0:
                     st.warning("No hay datos disponibles para mostrar el informe.")
-                else:
+                
+                elif INFORME == 'ON':
                     # Dos columnas para las leyendas
                     col1, col2 = st.columns(2)
 
@@ -214,45 +235,74 @@ def sidebar_config():
                     # Aplicar el estilo de color a las filas según el estado
                     #styled_df = df.style.apply(color_fila, axis=1)
                     #st.dataframe(df, use_container_width=True, hide_index=True)
-
-                # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
-                prom_P1 = df_individual['PERÍODO 1'].mean().round(2)
-                # mostrar barra de progreso del promedio P1
-                fig = mostrar_barra_progreso(prom_P1, titulo='Promedio General PERÍODO 1')
-                #st.pyplot(fig)
-                prom_P2 = df_individual['PERÍODO 2'].mean().round(2)
-                # mostrar barra de progreso del promedio P2
-                fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
-                #st.pyplot(fig)
-                prom_P3 = df_individual['PERÍODO 3'].mean().round(2)
-                # mostrar barra de progreso del promedio P2
-                fig = mostrar_barra_progreso(prom_P3, titulo='Promedio General PERÍODO 3')
                 
-                # mostrar tabla de informe con formato
-                mostrar_tabla_informe(df_individual)
+                    # Calcular y mostrar el promedio general de PERÍODO 1 y PERÍODO 2
+                    prom_P1 = df_individual['PERÍODO 1'].mean().round(2)
+                    # mostrar barra de progreso del promedio P1
+                    fig = mostrar_barra_progreso(prom_P1, titulo='Promedio General PERÍODO 1')
+                    #st.pyplot(fig)
+                    prom_P2 = df_individual['PERÍODO 2'].mean().round(2)
+                    # mostrar barra de progreso del promedio P2
+                    fig = mostrar_barra_progreso(prom_P2, titulo='Promedio General PERÍODO 2')
+                    #st.pyplot(fig)
+                    prom_P3 = df_individual['PERÍODO 3'].mean().round(2)
+                    # mostrar barra de progreso del promedio P2
+                    fig = mostrar_barra_progreso(prom_P3, titulo='Promedio General PERÍODO 3')
 
-                # Crear grafico de barras para promedios por periodo
-                # Crear gráfico de barras para promedios por periodo
-                df_promedios = pd.DataFrame({
-                    "Periodo": ["PERÍODO 1", "PERÍODO 2", "PERÍODO 3"],
-                    "Promedio": [prom_P1, prom_P2, prom_P3]
-                })
+                    # mostrar tabla de informe con formato
+                    mostrar_tabla_informe(df_individual)
 
-                df_promedios["Color"] = df_promedios["Promedio"].apply(obtener_color)
+                    # Crear grafico de barras para promedios por periodo
+                    # Crear gráfico de barras para promedios por periodo
+                    df_promedios = pd.DataFrame({
+                        "Periodo": ["PERÍODO 1", "PERÍODO 2", "PERÍODO 3"],
+                        "Promedio": [prom_P1, prom_P2, prom_P3]
+                    })
 
-                fig_bar = px.bar(
-                    df_promedios,
-                    x="Promedio",
-                    y="Periodo",
-                    text="Promedio",
-                    color="Color",
-                    color_discrete_map="identity",  # Usa los colores tal cual,
-                    title="Desempeño por Periodo"
-                )
-                fig_bar.update_traces(texttemplate='%{text:.2f}', textposition='outside')
-                fig_bar.update_layout(xaxis_range=[0, 5], xaxis_title="Promedio", yaxis_title="Periodo")
+                    df_promedios["Color"] = df_promedios["Promedio"].apply(obtener_color)
 
-                st.plotly_chart(fig_bar)
+                    fig_bar = px.bar(
+                        df_promedios,
+                        x="Promedio",
+                        y="Periodo",
+                        text="Promedio",
+                        color="Color",
+                        color_discrete_map="identity",  # Usa los colores tal cual,
+                        title="Desempeño por Periodo"
+                    )
+                    fig_bar.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+                    fig_bar.update_layout(xaxis_range=[0, 5], xaxis_title="Promedio", yaxis_title="Periodo")
+
+                    st.plotly_chart(fig_bar)
+                # Informe P4
+                else:
+                    st.header("Resultado Final Año")
+                    # Leyenda de colores con emoji para desempeño
+                    st.markdown("""
+                            **Leyenda de colores para desempeño:**
+    
+                            🟩 **Verde**: Desempeño superior          
+                            🟨 **Amarillo**: Desempeño alto         
+                            🟧 **Naranja**: Desempeño basico         
+                            🟥 **Rojo**: Desempeño bajo  
+    
+                            """)
+    
+                    # mostrar tabla de informe P4 con formato
+                    mostrar_tabla_informe_p4(DF_individual)
+    
+                    #st.write(f"Promedio Año: {promedio_año}")
+                    
+                    #st.write(f"Materias Reprobadas: {materias_reprobadas}") 
+    
+                    # Agregar mensaje de promovido o no promovido
+                    if materias_reprobadas >= 3:
+                        st.error("Dada la situación actual, el estudiante " \
+                        #"no ha sido promovido al siguiente grado."
+                        "tiene su año académico comprometido."
+                        )
+                    else:
+                        st.success("El estudiante ha sido promovido al siguiente grado.")
                 
                 st.subheader("📧 Contacto docente")
 
@@ -264,35 +314,75 @@ def sidebar_config():
                         st.write(row['EMAIL'])
 
             elif st.session_state.grupo1 in ["702","703","704"]:
-                st.header("Resultado Periodos")
 
-                # Dos columnas para las leyendas
-                col1, col2 = st.columns(2)
-                with col1:
+                if INFORME == 'ON':
+                    st.header("Resultado Periodos")
+
+                    # Dos columnas para las leyendas
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        # Leyenda de colores con emoji para desempeño
+                        st.markdown("""
+                        **Leyenda de colores para desempeño:**
+
+                        🟩 **Verde**: Desempeño superior          
+                        🟨 **Amarillo**: Desempeño alto         
+                        🟧 **Naranja**: Desempeño basico         
+                        🟥 **Rojo**: Desempeño bajo  
+                        """)
+                    with col2:
+                        # Leyenda de colores con emoji para estado
+                        st.markdown("""
+                        **Leyenda de estado en la materia:**
+
+                        ✅ **Aprobado**: (G)  
+                        ⛔️ **Reprobado**: (R)  
+                        🎚️ **Superada**: (S)
+                        """)
+
+                    df_702 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,st.session_state.grupo1)
+                    #st.dataframe(df_702, use_container_width=True, hide_index=True)
+
+                    # mostrar tabla de informe con formato
+                    mostrar_tabla_informe(df_702[df_702.DOCUMENTO == st.session_state['usuario']][['MATERIA','PERÍODO 1','ESTADO_P1','PERÍODO 2','ESTADO_P2','PERÍODO 3','ESTADO_P3']])
+                
+                else:
+                    # Informe grupos P4
+                    st.header("Resultado Final Año")
+
                     # Leyenda de colores con emoji para desempeño
                     st.markdown("""
-                    **Leyenda de colores para desempeño:**
-                                
-                    🟩 **Verde**: Desempeño superior          
-                    🟨 **Amarillo**: Desempeño alto         
-                    🟧 **Naranja**: Desempeño basico         
-                    🟥 **Rojo**: Desempeño bajo  
-                    """)
-                with col2:
-                    # Leyenda de colores con emoji para estado
-                    st.markdown("""
-                    **Leyenda de estado en la materia:**
-                                
-                    ✅ **Aprobado**: (G)  
-                    ⛔️ **Reprobado**: (R)  
-                    🎚️ **Superada**: (S)
-                    """)
+                            **Leyenda de colores para desempeño:**
 
-                df_702 = informe.mostrar_informe2(st.session_state.ruta_estudiantes,st.session_state.grupo1)
-                #st.dataframe(df_702, use_container_width=True, hide_index=True)
+                            🟩 **Verde**: Desempeño superior          
+                            🟨 **Amarillo**: Desempeño alto         
+                            🟧 **Naranja**: Desempeño basico         
+                            🟥 **Rojo**: Desempeño bajo  
 
-                # mostrar tabla de informe con formato
-                mostrar_tabla_informe(df_702[df_702.DOCUMENTO == st.session_state['usuario']][['MATERIA','PERÍODO 1','ESTADO_P1','PERÍODO 2','ESTADO_P2','PERÍODO 3','ESTADO_P3']])
+                            """)
+                    df_grupos_P4 = informe.mostrar_informe_grupos_P4()
+                    #st.dataframe(df_grupos_P4, use_container_width=True, hide_index=True)
+                    # mostrar tabla de informe P4 con formato
+                    mostrar_tabla_informe_p4(df_grupos_P4[df_grupos_P4.DOCUMENTO == st.session_state['usuario']][['MATERIA','NOTA AÑO','ESTADO AÑO']])
+
+            ## Crear archivo Excel en memoria
+            #output = io.BytesIO()
+            ## Botón para descargar el DataFrame como CSV
+            #with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            #  df_individual[['NOMBRE_ESTUDIANTE','MATERIA','PERÍODO 1','PERÍODO 2','PERÍODO 3','ESTADO AÑO']].to_excel(writer, sheet_name=f"Resultados_{estudiante[:13]}", index=False)
+            #  writer.close()
+
+            #output.seek(0)
+
+            ## Botón de descarga
+
+            #st.download_button(
+            #  label="📥 Descargar resultados en Excel",
+            #  data=output,
+            #  file_name=f"Resultados_{estudiante[:13]}.xlsx",
+            #  mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            #  help="Descargar los datos filtrados como archivo Excel."
+            #)
 
         elif menu == "♻️ Recuperaciones":
             st.header("♻️ Recuperaciones")

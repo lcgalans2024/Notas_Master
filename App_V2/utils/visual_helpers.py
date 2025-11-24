@@ -154,6 +154,31 @@ def color_informe_desempeño3(row):
 
     # Retornar estilos: una columna vacía + 2 celdas por cada periodo
     return [''] + [color_map[cat_p1]] * 2 + [color_map[cat_p2]] * 2 + [color_map[cat_p3]] * 2# + ['']
+
+def color_informe_desempeño_p4(row):
+    color_map = {
+        'Sup': 'background-color: #00b050; color: black',  # Verde
+        'Alt': 'background-color: #ffff00; color: black',  # Amarillo claro
+        'Bas': 'background-color: #ffc000; color: black',  # Naranja
+        'Baj': 'background-color: #ff0000; color: white'   # Rojo
+    }
+
+    def categoria(nota):
+        """Clasifica la nota en una categoría de desempeño."""
+        if nota < 3.0:
+            return 'Baj'
+        elif nota < 4.0:
+            return 'Bas'
+        elif nota < 4.6:
+            return 'Alt'
+        else:
+            return 'Sup'
+
+    # Clasificar cada periodo
+    cat_p4 = categoria(row['NOTA AÑO'])
+
+    # Retornar estilos: una columna vacía + 2 celdas por cada periodo
+    return [''] + [color_map[cat_p4]] + [color_map[cat_p4]] 
     
 # Mostrar tabla de informe de notas periodos
 def mostrar_tabla_informe(df):
@@ -169,6 +194,35 @@ def mostrar_tabla_informe(df):
         .style
         .format({"PERÍODO 1": "{:.1f}", "PERÍODO 2": "{:.1f}", "PERÍODO 3": "{:.1f}"})
         .apply(color_informe_desempeño3, axis=1)
+        .set_table_styles([
+            {'selector': 'th', 'props': [
+                ('text-align', 'center'),
+                ('background-color', '#cce5ff')  # azul claro
+            ]},
+            {'selector': 'td', 'props': [('text-align', 'center')]}
+        ]
+        ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
+    )
+
+    st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+
+# Mostrar tabla de informe de periodo 4
+def mostrar_tabla_informe_p4(df):
+    """
+    Muestra el DataFrame de informe con colores según su estado.
+    """
+    styled_df = (
+        df[["MATERIA",
+            #"PERÍODO 1", "ESTADO_P1",
+            #"PERÍODO 2", "ESTADO_P2",
+            "NOTA AÑO", "ESTADO AÑO"
+            ]]
+        .style
+        .format({"NOTA AÑO": "{:.1f}"
+                 #, "PERÍODO 2": "{:.1f}"
+                 #, "PERÍODO 3": "{:.1f}"
+                 })
+        .apply(color_informe_desempeño_p4, axis=1)
         .set_table_styles([
             {'selector': 'th', 'props': [
                 ('text-align', 'center'),

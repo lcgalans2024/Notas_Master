@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import streamlit as st
 import gspread
 from gspread_dataframe import get_as_dataframe
@@ -420,3 +421,102 @@ def procesar_consolidados2(df):
     ]]
 
     return df_clean
+
+def procesar_consolidados_varios_periodos(df):
+    df.dropna(axis=1, how='all', inplace=True)
+    df.dropna(axis=0, how='all', inplace=True)
+    # pasar la primera fila como encabezado y eliminarla
+    #df.columns = df.iloc[0]
+    df.drop(index=[1],inplace=True)
+    df = df.iloc[:-3]
+    df.reset_index(inplace=True,drop=True)
+    df.drop(columns=['Ord','Total faltas','No aprobados'],inplace=True)
+    df = df.iloc[:,:53]
+    df = df[df['Est'] != 'C']
+    df.drop(columns=['Est'],inplace=True)
+    df.set_index([ 'Nombre completo','Matrícula'], inplace=True)
+
+    colIndex = pd.MultiIndex.from_product(
+    [['CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL','EDUCACIÓN ARTISTICA Y CULTURAL','EDUCACION ETICA  Y  EN VALORES HUMANOS', 'EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES',
+     'EDUCACION RELIGIOSA',
+     'LENGUA CASTELLANA',
+     'MATEMÁTICAS',
+     'TECNOLOGIA E INFORMÁTICA',
+     'LENGUA EXTRANJERA INGLES',
+     'CIENCIAS SOCIALES'], 
+     #["P1", "P2", "P3", "A","P","FN"]]
+     ["P1", "P2", "P3", "P4","FN"]]
+    )
+
+    df.columns = colIndex
+    df = df.iloc[1:,:]
+
+    # Reemplazar '#' solo en columnas tipo objeto (texto)
+    df = df.applymap(lambda x: x.lstrip('#') if isinstance(x, str) else x)
+    df = df.apply(pd.to_numeric, errors='ignore')
+
+    columnas_interes = ['P1', 'P2', 'P3', 'P4', 'FN']
+    df_largo = (
+        df.stack(level=0)  # Materias como variable
+        .loc[:, columnas_interes]  # Nos quedamos solo con esas columnas
+        .reset_index()
+        .rename(columns={"level_2": "MATERIA"})
+    )
+    # Renombrar columna "Matrícula" a "MATRICULA"
+    df_largo.rename(columns={"Matrícula": "MATRICULA"}, inplace=True)
+    # Convertir "MATRICULA" a int y luego a str
+    df_largo["MATRICULA"] = df_largo["MATRICULA"].astype(int).astype(str)
+
+    df_largo["ESTADO AÑO"] = np.where(df_largo["P4"] >= 3.0, "APROBADA", "REPROBADA")
+    # Renombrar columna "P4" a "NOTA AÑO"
+    df_largo.rename(columns={"P4": "NOTA AÑO"}, inplace=True)
+
+    return df_largo
+
+# Procesar consolidado de varios periodos (P1, P2, P3, P4, FN) para grupos
+def procesar_consolidados_P4_grupos(df):
+    #df.drop(columns=['Unnamed: 3'],inplace=True)
+    df.dropna(axis=1, how='all', inplace=True)
+    df.dropna(axis=0, how='all', inplace=True)
+    # pasar la primera fila como encabezado y eliminarla
+    #df.columns = df.iloc[0]
+    # renombramos de la columa 4 a la 9
+    df.columns.values[2:9] = ['MATRICULA','NOMBRE_ESTUDIANTE','PERÍODO 1', 'PERÍODO 2', 'PERÍODO 3', 'PERÍODO 4', 'FN']
+    #eliminar la primera fila
+    df = df[2:]
+    #df.drop(index=[7,8,9],inplace=True)
+    df = df.iloc[:-3]
+    df.reset_index(inplace=True,drop=True)
+    df = df[df['Est'] != 'C']
+    df.drop(columns=['Ord','Est','Total faltas','No aprobados'],inplace=True)
+    df = df.iloc[:,:-2]
+    #GRUPO = grupo
+    #df.insert(0, 'GRUPO', GRUPO)
+    #df.set_index(['Nombre completo','Matrícula'], inplace=True)
+    df["MATRICULA"] = df.MATRICULA.astype(int)
+    df["MATRICULA"] = df.MATRICULA.astype(str)
+
+    df["PERÍODO 1"] = df["PERÍODO 1"].astype(str)
+    df["PERÍODO 2"] = df["PERÍODO 2"].astype(str)
+    df["PERÍODO 3"] = df["PERÍODO 3"].astype(str)
+    df["PERÍODO 4"] = df["PERÍODO 4"].astype(str)
+    #df["FN"] = df["FN"].astype(str)
+
+    df["PERÍODO 1"] = df["PERÍODO 1"].str.replace('#', '', regex=False)
+    df["PERÍODO 2"] = df["PERÍODO 2"].str.replace('#', '', regex=False)
+    df["PERÍODO 3"] = df["PERÍODO 3"].str.replace('#', '', regex=False)
+    df["PERÍODO 4"] = df["PERÍODO 4"].str.replace('#', '', regex=False)
+    df["FN"] = df["FN"].str.replace(',', '.', regex=False)
+
+
+    df["PERÍODO 1"] = df["PERÍODO 1"].astype(float)
+    df["PERÍODO 2"] = df["PERÍODO 2"].astype(float)
+    df["PERÍODO 3"] = df["PERÍODO 3"].astype(float)
+    df["PERÍODO 4"] = df["PERÍODO 4"].astype(float)
+    df["FN"] = df["FN"].astype(float)
+
+    MATERIA = 'MATEMÁTICAS'
+    df.insert(2, 'MATERIA', MATERIA)
+    return df
+
+    
