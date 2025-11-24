@@ -302,7 +302,10 @@ def sidebar_config():
                         "tiene su año académico comprometido."
                         )
                     else:
-                        st.success("El estudiante ha sido promovido al siguiente grado.")
+                        st.success("El estudiante ha" \
+                        #"sido promovido al siguiente grado."
+                        "..."
+                        )
                 
                 st.subheader("📧 Contacto docente")
 
