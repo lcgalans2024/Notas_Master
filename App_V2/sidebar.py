@@ -255,8 +255,8 @@ def sidebar_config():
                     # Crear grafico de barras para promedios por periodo
                     # Crear gráfico de barras para promedios por periodo
                     df_promedios = pd.DataFrame({
-                        "Periodo": ["PERÍODO 1", "PERÍODO 2", "PERÍODO 3"],
-                        "Promedio": [prom_P1, prom_P2, prom_P3]
+                        "Periodo": ["PERÍODO 1", "PERÍODO 2", "PERÍODO 3","AÑO"],
+                        "Promedio": [prom_P1, prom_P2, prom_P3, promedio_año]
                     })
 
                     df_promedios["Color"] = df_promedios["Promedio"].apply(obtener_color)
@@ -293,7 +293,10 @@ def sidebar_config():
     
                     #st.write(f"Promedio Año: {promedio_año}")
                     
-                    #st.write(f"Materias Reprobadas: {materias_reprobadas}") 
+                    #st.write(f"Materias Reprobadas: {materias_reprobadas}")
+
+                    fig = mostrar_barra_progreso(promedio_año, titulo='Promedio General AÑO')
+                    st.pyplot(fig)
     
                     # Agregar mensaje de promovido o no promovido
                     if materias_reprobadas >= 3:
