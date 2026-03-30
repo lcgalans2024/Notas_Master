@@ -1,7 +1,7 @@
 import streamlit as st
 
 from config.sheets_config import SHEETS_CONFIG
-from services.auth_service import cerrar_sesion
+from services.auth_service import cerrar_sesion, refrescar_contexto_usuario_por_anio
 from services.google_sheets_service import (
     limpiar_cache_datos,
     obtener_periodos_disponibles_por_grupo,
@@ -9,9 +9,6 @@ from services.google_sheets_service import (
 
 
 def _obtener_opciones_menu() -> list[str]:
-    """
-    Retorna las opciones visibles del menú lateral.
-    """
     return [
         "Inicio",
         "Consulta de notas",
@@ -22,9 +19,6 @@ def _obtener_opciones_menu() -> list[str]:
 
 
 def _render_datos_usuario() -> None:
-    """
-    Muestra un resumen del usuario autenticado.
-    """
     nombre = st.session_state.get("nombre", "Usuario")
     grupo = st.session_state.get("grupo")
     rol = st.session_state.get("rol", "estudiante")
@@ -37,10 +31,6 @@ def _render_datos_usuario() -> None:
 
 
 def _resolver_periodos_disponibles(grupo: str | None) -> list[str]:
-    """
-    Obtiene los periodos realmente disponibles para el grupo autenticado.
-    Si no hay configuración específica, usa los periodos globales.
-    """
     if not grupo:
         return SHEETS_CONFIG.get("periodos_disponibles", ["P1", "P2", "P3", "P4"])
 
@@ -52,10 +42,33 @@ def _resolver_periodos_disponibles(grupo: str | None) -> list[str]:
     return periodos
 
 
+def _actualizar_contexto_si_cambia_anio(nuevo_anio: str) -> None:
+    """
+    Si el año académico cambia, actualiza el contexto del usuario
+    y refresca el grupo asociado a ese año.
+    """
+    anio_actual = st.session_state.get("anio_academico")
+
+    if str(nuevo_anio) == str(anio_actual):
+        return
+
+    st.session_state["anio_academico"] = str(nuevo_anio)
+
+    ok, mensaje = refrescar_contexto_usuario_por_anio(str(nuevo_anio))
+
+    if not ok:
+        st.warning(mensaje)
+        st.session_state["grupo"] = None
+    else:
+        grupo_actualizado = st.session_state.get("grupo")
+        periodos_disponibles = _resolver_periodos_disponibles(grupo_actualizado)
+
+        if periodos_disponibles:
+            if st.session_state.get("periodo") not in periodos_disponibles:
+                st.session_state["periodo"] = periodos_disponibles[0]
+
+
 def _render_filtros_generales() -> None:
-    """
-    Renderiza filtros generales de trabajo en la barra lateral.
-    """
     anios = SHEETS_CONFIG.get("anios_disponibles", [])
     grupo = st.session_state.get("grupo")
     anio_actual = st.session_state.get("anio_academico")
@@ -63,12 +76,14 @@ def _render_filtros_generales() -> None:
 
     if anios:
         index_anio = anios.index(anio_actual) if anio_actual in anios else 0
-        st.session_state["anio_academico"] = st.selectbox(
+        nuevo_anio = st.selectbox(
             "Año académico",
             options=anios,
             index=index_anio,
         )
+        _actualizar_contexto_si_cambia_anio(nuevo_anio)
 
+    grupo = st.session_state.get("grupo")
     periodos_disponibles = _resolver_periodos_disponibles(grupo)
 
     if periodos_disponibles:
@@ -90,9 +105,6 @@ def _render_filtros_generales() -> None:
 
 
 def _render_acciones() -> None:
-    """
-    Muestra acciones globales como refrescar datos o cerrar sesión.
-    """
     col1, col2 = st.columns(2)
 
     with col1:
@@ -108,14 +120,16 @@ def _render_acciones() -> None:
 
 
 def render_sidebar() -> str:
-    """
-    Renderiza la barra lateral completa y retorna la opción de menú seleccionada.
-    """
     with st.sidebar:
         st.title("Menú")
         st.divider()
 
+        st.subheader("Filtros")
+        _render_filtros_generales()
+
+        st.divider()
         _render_datos_usuario()
+
         st.divider()
 
         menu_opciones = _obtener_opciones_menu()
@@ -130,10 +144,6 @@ def render_sidebar() -> str:
         )
 
         st.session_state["menu"] = menu_seleccionado
-
-        st.divider()
-        st.subheader("Filtros")
-        _render_filtros_generales()
 
         st.divider()
         _render_acciones()

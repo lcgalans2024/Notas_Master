@@ -99,3 +99,38 @@ def existe_usuario(documento: str) -> bool:
     Indica si existe un usuario registrado con el documento dado.
     """
     return obtener_usuario_por_documento(documento) is not None
+
+def obtener_catalogo_usuarios_por_anio(anio_academico: str) -> pd.DataFrame:
+    """
+    Obtiene el catálogo de usuarios para un año académico específico.
+    """
+    return construir_catalogo_usuarios(str(anio_academico))
+
+
+def obtener_usuario_por_documento_y_anio(documento: str, anio_academico: str) -> dict | None:
+    """
+    Busca un usuario por documento en el catálogo del año académico indicado.
+    """
+    documento = normalizar_documento(documento)
+
+    if not documento:
+        return None
+
+    catalogo = obtener_catalogo_usuarios_por_anio(anio_academico)
+
+    if catalogo.empty:
+        return None
+
+    coincidencias = catalogo.loc[catalogo["documento"] == documento]
+
+    if coincidencias.empty:
+        return None
+
+    fila = coincidencias.iloc[0]
+
+    return {
+        "documento": str(fila["documento"]),
+        "nombre": str(fila["nombre"]),
+        "grupo": str(fila["grupo"]) if pd.notna(fila["grupo"]) else None,
+        "rol": str(fila.get("rol", "estudiante")),
+    }

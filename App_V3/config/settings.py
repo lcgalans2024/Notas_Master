@@ -54,6 +54,7 @@ APP_DEFAULTS = {
     "adm": False,
     "authenticated": False,
     "vista_actual": "Inicio",
+    "anio_usuario_contexto": None,
 }
 
 # -------------------------------------------------------------------
