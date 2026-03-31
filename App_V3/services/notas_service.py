@@ -50,6 +50,15 @@ def _detectar_columna_nombre(df: pd.DataFrame) -> str | None:
             return col
     return None
 
+def _detectar_actividades(df: pd.DataFrame) -> list[str]:
+    actividades = []
+    df = normalizar_columnas_dataframe(df)
+    index_campo = df[df['matricula'] == "Campo"].index[0]
+    df_actividades = df.iloc[index_campo:, :2].copy()
+    df_actividades.columns = df_actividades.iloc[0]
+    df_actividades = df_actividades[1:].dropna()
+    return index_campo, df_actividades
+
 
 def _preparar_base_notas(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -149,6 +158,11 @@ def obtener_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFr
     df_notas = cargar_notas(grupo=grupo, periodo=periodo)
     df_notas = _preparar_base_notas(df_notas)
 
+    #####################################
+    index_campo = _detectar_actividades(df_notas)
+    #if index_campo is not None:
+    #    st.session_state["actividades"] = df_notas.loc[index_campo].to_dict()
+
     if df_notas.empty:
         return pd.DataFrame()
 
@@ -158,6 +172,6 @@ def obtener_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFr
         return pd.DataFrame()
 
     df_estudiante = _seleccionar_columnas_visibles(df_estudiante)
-    df_estudiante = _formatear_nombres_columnas(df_estudiante)
+    #df_estudiante = _formatear_nombres_columnas(df_estudiante)
 
-    return df_estudiante.reset_index(drop=True)
+    return df_estudiante.reset_index(drop=True), index_campo

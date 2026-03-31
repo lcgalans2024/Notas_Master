@@ -3,7 +3,7 @@ import streamlit as st
 from components.alerts import render_empty_state, render_error_box, render_info_box
 from services.google_sheets_service import obtener_debug_notas
 from services.google_sheets_service import obtener_debug_notas, cargar_notas_debug
-from services.notas_service import obtener_notas_usuario
+from services.notas_service import obtener_notas_usuario, _detectar_actividades
 
 
 def _mostrar_encabezado() -> None:
@@ -56,10 +56,6 @@ def render_consulta_notas() -> None:
     grupo = st.session_state.get("grupo")
     periodo = st.session_state.get("periodo")
 
-    ######################################################################
-    debug_info = obtener_debug_notas(grupo=grupo, periodo=periodo)
-    st.write("Debug hoja de notas:", debug_info)
-    ######################################################################
     if not usuario:
         render_info_box("No hay un usuario autenticado en la sesión.")
         return
@@ -83,12 +79,15 @@ def render_consulta_notas() -> None:
 
         if debug_info["existe_configuracion"]:
             df_debug = cargar_notas_debug(grupo=grupo, periodo=periodo)
+            index_campo, df_actividades = _detectar_actividades(df_debug)
+            st.write("Índice de actividades detectado:", index_campo)
+            st.write("Actividades detectadas:", df_actividades)
             st.write("Dimensión:", df_debug.shape)
             st.write("Columnas:", df_debug.columns.tolist())
             st.dataframe(df_debug.head(), use_container_width=True)
     ##########################################################################
     try:
-        df_notas = obtener_notas_usuario(
+        df_notas, index_campo = obtener_notas_usuario(
             matricula=matricula,
             grupo=grupo,
             periodo=periodo,
@@ -104,4 +103,4 @@ def render_consulta_notas() -> None:
         )
         return
 
-    _mostrar_tabla_notas(df_notas)
+    _mostrar_tabla_notas(df_notas), index_campo
