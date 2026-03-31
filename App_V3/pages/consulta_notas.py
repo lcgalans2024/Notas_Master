@@ -1,6 +1,8 @@
 import streamlit as st
 
 from components.alerts import render_empty_state, render_error_box, render_info_box
+from services.google_sheets_service import obtener_debug_notas
+from services.google_sheets_service import obtener_debug_notas, cargar_notas_debug
 from services.notas_service import obtener_notas_usuario
 
 
@@ -50,9 +52,14 @@ def render_consulta_notas() -> None:
     st.divider()
 
     usuario = st.session_state.get("usuario")
+    matricula = st.session_state.get("matricula")
     grupo = st.session_state.get("grupo")
     periodo = st.session_state.get("periodo")
 
+    ######################################################################
+    debug_info = obtener_debug_notas(grupo=grupo, periodo=periodo)
+    st.write("Debug hoja de notas:", debug_info)
+    ######################################################################
     if not usuario:
         render_info_box("No hay un usuario autenticado en la sesión.")
         return
@@ -64,10 +71,25 @@ def render_consulta_notas() -> None:
     if not periodo:
         render_error_box("No fue posible identificar el periodo activo.")
         return
+    #########################################################################
+    with st.expander("Depuración de carga de notas"):
+        st.write("Usuario:", usuario)
+        st.write("Matrícula:", matricula)
+        st.write("Grupo:", grupo)
+        st.write("Periodo:", periodo)
 
+        debug_info = obtener_debug_notas(grupo=grupo, periodo=periodo)
+        st.write("Resolución de hoja:", debug_info)
+
+        if debug_info["existe_configuracion"]:
+            df_debug = cargar_notas_debug(grupo=grupo, periodo=periodo)
+            st.write("Dimensión:", df_debug.shape)
+            st.write("Columnas:", df_debug.columns.tolist())
+            st.dataframe(df_debug.head(), use_container_width=True)
+    ##########################################################################
     try:
         df_notas = obtener_notas_usuario(
-            documento=usuario,
+            matricula=matricula,
             grupo=grupo,
             periodo=periodo,
         )

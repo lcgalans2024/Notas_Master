@@ -20,6 +20,7 @@ def _obtener_opciones_menu() -> list[str]:
 
 def _render_datos_usuario() -> None:
     nombre = st.session_state.get("nombre", "Usuario")
+    matricula = st.session_state.get("matricula")
     grupo = st.session_state.get("grupo")
     rol = st.session_state.get("rol", "estudiante")
 
@@ -29,6 +30,8 @@ def _render_datos_usuario() -> None:
     if grupo:
         st.caption(f"Grupo: {grupo}")
 
+    if matricula:
+        st.caption(f"Matrícula: {matricula}")
 
 def _resolver_periodos_disponibles(grupo: str | None) -> list[str]:
     if not grupo:

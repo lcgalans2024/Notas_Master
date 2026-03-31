@@ -65,6 +65,23 @@ def normalizar_documento(documento) -> str:
 
     return texto
 
+def normalizar_matricula(matricula) -> str:
+    """
+    Normaliza matrículas:
+    - convierte a string,
+    - elimina espacios,
+    - elimina terminación '.0' típica de Excel/pandas.
+    """
+    texto = normalizar_texto_basico(matricula)
+
+    if not texto:
+        return ""
+
+    if texto.endswith(".0"):
+        texto = texto[:-2]
+
+    return texto
+
 
 def normalizar_nombre_persona(nombre) -> str:
     """
@@ -188,6 +205,7 @@ def homologar_columnas_estudiantes(df: pd.DataFrame) -> pd.DataFrame:
         "curso": "grupo",
 
         "grado": "grado",
+        "matrícula": "matricula",
         "matricula": "matricula",
         "tipo_doc": "tipo_doc",
     }
@@ -218,6 +236,9 @@ def normalizar_dataframe_estudiantes(df: pd.DataFrame) -> pd.DataFrame:
     if "documento" in df.columns:
         df["documento"] = df["documento"].apply(normalizar_documento)
 
+    if "matricula" in df.columns:
+        df["matricula"] = df["matricula"].apply(normalizar_matricula)
+
     if "nombre" in df.columns:
         df["nombre"] = df["nombre"].apply(normalizar_nombre_persona)
 
@@ -233,7 +254,8 @@ def normalizar_dataframe_notas(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = normalizar_columnas_dataframe(df)
 
-    posibles_documento = ["documento", "matricula", "numero_documento", "identificacion"]
+    posibles_documento = ["documento", "numero_documento", "identificacion"]
+    posibles_matricula = ["matricula", "matrícula"]
     posibles_nombre = ["nombre", "nombre_completo", "estudiante"]
     posibles_periodo = ["periodo"]
     posibles_puntaje = ["puntaje", "nota", "calificacion"]
@@ -241,6 +263,11 @@ def normalizar_dataframe_notas(df: pd.DataFrame) -> pd.DataFrame:
     for col in posibles_documento:
         if col in df.columns:
             df["documento"] = df[col].apply(normalizar_documento)
+            break
+
+    for col in posibles_matricula:
+        if col in df.columns:
+            df["matricula"] = df[col].apply(normalizar_matricula)
             break
 
     for col in posibles_nombre:

@@ -45,6 +45,7 @@ def autenticar_usuario(documento: str) -> tuple[bool, str]:
     st.session_state["usuario"] = usuario["documento"]
     st.session_state["nombre"] = usuario["nombre"]
     st.session_state["grupo"] = usuario.get("grupo")
+    st.session_state["matricula"] = usuario.get("matricula")
     st.session_state["rol"] = usuario.get("rol", "estudiante")
     st.session_state["datos_usuario"] = usuario
     st.session_state["authenticated"] = True
@@ -63,6 +64,7 @@ def cerrar_sesion() -> None:
         "usuario": None,
         "nombre": None,
         "grupo": None,
+        "matricula": None,
         "rol": None,
         "datos_usuario": None,
         "authenticated": False,
@@ -99,6 +101,7 @@ def refrescar_contexto_usuario_por_anio(anio_academico: str) -> tuple[bool, str]
 
     st.session_state["nombre"] = usuario["nombre"]
     st.session_state["grupo"] = usuario.get("grupo")
+    st.session_state["matricula"] = usuario.get("matricula")
     st.session_state["rol"] = usuario.get("rol", "estudiante")
     st.session_state["datos_usuario"] = usuario
     st.session_state["anio_usuario_contexto"] = str(anio_academico)

@@ -50,6 +50,7 @@ APP_DEFAULTS = {
     "periodo": "P1",
     "grupo": None,
     "usuario": None,
+    "matricula": None,
     "nombre": None,
     "adm": False,
     "authenticated": False,

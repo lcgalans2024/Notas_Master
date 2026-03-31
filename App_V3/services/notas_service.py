@@ -8,11 +8,13 @@ from utils.normalizers import (
     normalizar_columnas_dataframe,
     normalizar_dataframe_notas,
     normalizar_documento,
+    normalizar_matricula,
 )
 
 
 COLUMNAS_META_EXCLUIDAS = {
     "documento",
+    "matricula",
     "nombre",
     "grupo",
     "periodo",
@@ -27,7 +29,14 @@ COLUMNAS_META_EXCLUIDAS = {
 
 
 def _detectar_columna_documento(df: pd.DataFrame) -> str | None:
-    candidatos = ["documento", "matricula", "numero_documento", "identificacion"]
+    candidatos = ["documento", "numero_documento", "identificacion"]
+    for col in candidatos:
+        if col in df.columns:
+            return col
+    return None
+
+def _detectar_columna_matricula(df: pd.DataFrame) -> str | None:
+    candidatos = ["matricula", "matricula_estudiante", "matrícula"]
     for col in candidatos:
         if col in df.columns:
             return col
@@ -53,10 +62,14 @@ def _preparar_base_notas(df: pd.DataFrame) -> pd.DataFrame:
     df = normalizar_dataframe_notas(df).copy()
 
     col_doc = _detectar_columna_documento(df)
+    col_mat = _detectar_columna_matricula(df)
     col_nombre = _detectar_columna_nombre(df)
 
     if col_doc and col_doc != "documento":
         df["documento"] = df[col_doc].apply(normalizar_documento)
+
+    if col_mat and col_mat != "matricula":
+        df["matricula"] = df[col_mat].apply(normalizar_documento)
 
     if col_nombre and col_nombre != "nombre":
         df["nombre"] = df[col_nombre]
@@ -64,18 +77,21 @@ def _preparar_base_notas(df: pd.DataFrame) -> pd.DataFrame:
     if "documento" in df.columns:
         df["documento"] = df["documento"].apply(normalizar_documento)
 
+    if "matricula" in df.columns:
+        df["matricula"] = df["matricula"].apply(normalizar_matricula)
+
     return df
 
 
-def _filtrar_estudiante(df: pd.DataFrame, documento: str) -> pd.DataFrame:
+def _filtrar_estudiante(df: pd.DataFrame, matricula: str) -> pd.DataFrame:
     """
     Filtra el DataFrame para dejar únicamente el registro del estudiante consultado.
     """
-    if df.empty or "documento" not in df.columns:
+    if df.empty or "matricula" not in df.columns:
         return pd.DataFrame()
 
-    documento = normalizar_documento(documento)
-    filtrado = df.loc[df["documento"] == documento].copy()
+    matricula = normalizar_matricula(matricula)
+    filtrado = df.loc[df["matricula"] == matricula].copy()
 
     return filtrado.reset_index(drop=True)
 
@@ -87,7 +103,7 @@ def _seleccionar_columnas_visibles(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
 
-    columnas_fijas = [col for col in ["nombre", "documento"] if col in df.columns]
+    columnas_fijas = [col for col in ["nombre", "documento", "matricula"] if col in df.columns]
 
     columnas_notas = []
     for col in df.columns:
@@ -121,13 +137,13 @@ def _formatear_nombres_columnas(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=60, show_spinner=False)
-def obtener_notas_usuario(documento: str, grupo: str, periodo: str) -> pd.DataFrame:
+def obtener_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFrame:
     """
     Obtiene las notas del estudiante autenticado para un grupo y periodo dados.
 
     Retorna un DataFrame listo para visualización.
     """
-    if not documento or not grupo or not periodo:
+    if not matricula or not grupo or not periodo:
         return pd.DataFrame()
 
     df_notas = cargar_notas(grupo=grupo, periodo=periodo)
@@ -136,7 +152,7 @@ def obtener_notas_usuario(documento: str, grupo: str, periodo: str) -> pd.DataFr
     if df_notas.empty:
         return pd.DataFrame()
 
-    df_estudiante = _filtrar_estudiante(df_notas, documento=documento)
+    df_estudiante = _filtrar_estudiante(df_notas, matricula=matricula)
 
     if df_estudiante.empty:
         return pd.DataFrame()

@@ -7,6 +7,7 @@ from services.google_sheets_service import cargar_estudiantes
 from utils.normalizers import (
     normalizar_dataframe_estudiantes,
     normalizar_documento,
+    normalizar_matricula,
 )
 
 
@@ -17,6 +18,7 @@ def construir_catalogo_usuarios(anio_academico: str) -> pd.DataFrame:
 
     Retorna un DataFrame normalizado con, como mínimo:
     - documento
+    - matricula
     - nombre
     - grupo
     - rol
@@ -24,11 +26,11 @@ def construir_catalogo_usuarios(anio_academico: str) -> pd.DataFrame:
     df_estudiantes = cargar_estudiantes(anio_academico)
 
     if df_estudiantes is None or df_estudiantes.empty:
-        return pd.DataFrame(columns=["documento", "nombre", "grupo", "rol"])
+        return pd.DataFrame(columns=["documento", "matricula", "nombre", "grupo", "rol"])
 
     df_estudiantes = normalizar_dataframe_estudiantes(df_estudiantes)
 
-    columnas_requeridas = {"documento", "nombre", "grupo"}
+    columnas_requeridas = {"documento", "matricula", "nombre", "grupo"}
     faltantes = columnas_requeridas - set(df_estudiantes.columns)
 
     if faltantes:
@@ -38,12 +40,13 @@ def construir_catalogo_usuarios(anio_academico: str) -> pd.DataFrame:
         )
 
     catalogo = (
-        df_estudiantes[["documento", "nombre", "grupo"]]
+        df_estudiantes[["documento", "matricula", "nombre", "grupo"]]
         .dropna(subset=["documento"])
         .copy()
     )
 
     catalogo["documento"] = catalogo["documento"].apply(normalizar_documento)
+    catalogo["matricula"] = catalogo["matricula"].apply(normalizar_matricula)
     catalogo["grupo"] = catalogo["grupo"].astype(str).str.strip()
 
     catalogo = (
@@ -88,6 +91,7 @@ def obtener_usuario_por_documento(documento: str) -> dict | None:
 
     return {
         "documento": str(fila["documento"]),
+        "matricula": str(fila["matricula"]),
         "nombre": str(fila["nombre"]),
         "grupo": str(fila["grupo"]) if pd.notna(fila["grupo"]) else None,
         "rol": str(fila.get("rol", "estudiante")),
@@ -130,6 +134,7 @@ def obtener_usuario_por_documento_y_anio(documento: str, anio_academico: str) ->
 
     return {
         "documento": str(fila["documento"]),
+        "matricula": str(fila["matricula"]),
         "nombre": str(fila["nombre"]),
         "grupo": str(fila["grupo"]) if pd.notna(fila["grupo"]) else None,
         "rol": str(fila.get("rol", "estudiante")),

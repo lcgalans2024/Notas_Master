@@ -36,6 +36,7 @@ def resetear_sesion_usuario() -> None:
     """
     claves_usuario = [
         "usuario",
+        "matricula",
         "nombre",
         "grupo",
         "adm",

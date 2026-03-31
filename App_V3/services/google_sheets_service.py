@@ -184,3 +184,30 @@ def obtener_resumen_configuracion() -> dict[str, Any]:
         "gid_materiales": SHEETS_CONFIG.get("gid_materiales"),
         "gid_recuperaciones": SHEETS_CONFIG.get("gid_recuperaciones"),
     }
+
+def obtener_debug_notas(grupo: str, periodo: str) -> dict:
+    """
+    Devuelve información de depuración sobre la hoja de notas
+    que se intentará consultar.
+    """
+    clave = f"notas_{grupo}_{periodo}"
+    gid = SHEETS_CONFIG.get("gids_notas", {}).get(clave)
+
+    return {
+        "grupo": grupo,
+        "periodo": periodo,
+        "clave_buscada": clave,
+        "gid_encontrado": gid,
+        "sheet_id": SHEETS_CONFIG.get("sheet_id_periodos"),
+        "existe_configuracion": gid is not None,
+        "url_csv": construir_url_csv(
+            SHEETS_CONFIG.get("sheet_id_periodos"),
+            gid
+        ) if gid is not None else None,
+    }
+
+def cargar_notas_debug(grupo: str, periodo: str) -> pd.DataFrame:
+    """
+    Carga notas sin ocultar el resultado, útil para depuración manual.
+    """
+    return cargar_notas(grupo=grupo, periodo=periodo)
