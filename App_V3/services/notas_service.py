@@ -5,12 +5,18 @@ import streamlit as st
 
 from services.google_sheets_service import cargar_notas
 from utils.normalizers import (
+    normalizar_texto_basico,
     normalizar_columnas_dataframe,
     normalizar_dataframe_notas,
     normalizar_documento,
     normalizar_matricula,
+    homologar_columnas_estudiantes,
 )
-
+from utils.dataframe_utils import (melt_seguro,
+                                   seleccionar_columnas_existentes,
+                                   convertir_a_numerico_si_es_posible
+                                   
+)
 
 COLUMNAS_META_EXCLUIDAS = {
     "documento",
@@ -26,6 +32,17 @@ COLUMNAS_META_EXCLUIDAS = {
     "definitiva",
     "resultado",
 }
+
+def _agregar_dimension(tarea):
+    if tarea.startswith('1'):
+        return 'HACER'
+    elif tarea.startswith('2'):
+        return 'SABER'
+    elif tarea.startswith('3'):
+        return 'AUTOEVALUACIÓN'
+    elif tarea.startswith('4'):
+        return 'PRUEBA_PERIODO'
+    return None
 
 
 def _detectar_columna_documento(df: pd.DataFrame) -> str | None:
@@ -50,16 +67,6 @@ def _detectar_columna_nombre(df: pd.DataFrame) -> str | None:
             return col
     return None
 
-def _detectar_actividades(df: pd.DataFrame) -> list[str]:
-    actividades = []
-    df = normalizar_columnas_dataframe(df)
-    index_campo = df[df['matricula'] == "Campo"].index[0]
-    df_actividades = df.iloc[index_campo:, :2].copy()
-    df_actividades.columns = df_actividades.iloc[0]
-    df_actividades = df_actividades[1:].dropna()
-    return index_campo, df_actividades
-
-
 def _preparar_base_notas(df: pd.DataFrame) -> pd.DataFrame:
     """
     Limpia y homologa la base de notas para trabajarla internamente.
@@ -67,7 +74,8 @@ def _preparar_base_notas(df: pd.DataFrame) -> pd.DataFrame:
     if df is None or df.empty:
         return pd.DataFrame()
 
-    df = normalizar_columnas_dataframe(df)
+    df = homologar_columnas_estudiantes(df)
+    #col_validas = _obtener_columnas_validas(df)
     df = normalizar_dataframe_notas(df).copy()
 
     col_doc = _detectar_columna_documento(df)
@@ -81,7 +89,7 @@ def _preparar_base_notas(df: pd.DataFrame) -> pd.DataFrame:
         df["matricula"] = df[col_mat].apply(normalizar_documento)
 
     if col_nombre and col_nombre != "nombre":
-        df["nombre"] = df[col_nombre]
+        df["nombre"] = df[col_nombre]#.apply(lambda x: str(x).strip())
 
     if "documento" in df.columns:
         df["documento"] = df["documento"].apply(normalizar_documento)
@@ -91,6 +99,37 @@ def _preparar_base_notas(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def _detectar_actividades(df: pd.DataFrame) -> list[str]:
+    actividades = []
+    df = normalizar_columnas_dataframe(df)
+    index_campo = df[df['matricula'] == "Campo"].index[0]
+    df_actividades = df.iloc[index_campo:, :2].copy()
+    df_actividades.columns = df_actividades.iloc[0]
+    df_actividades = df_actividades[1:].dropna()
+    df_actividades['Campo'] = df_actividades['Campo'].apply(normalizar_texto_basico)
+    df_actividades['Campo'] = df_actividades['Campo'].str.replace('_', '.')
+    return index_campo, df_actividades
+
+def _diccionario_actividades(df: pd.DataFrame) -> dict:
+    index_campo, df_actividades = _detectar_actividades(df)
+    dict_actividades = df_actividades.set_index('Campo')['Nombre Actividad'].to_dict()
+    return dict_actividades
+
+def _obtener_columnas_validas(df: pd.DataFrame) -> list[str]:
+    dict_actividades = _diccionario_actividades(df)
+    fijas_final = ['3.1', '3.2', '4.1']
+    impares_no_usadas = ['1.1', '1.3', '1.5', '1.7', '1.9', '1.11', '1.13', '1.15', '1.17', '1.19', '2.1', '2.3', '2.5', '2.7', '2.9']
+    columnas_validas = [
+        clave for clave, valor in dict_actividades.items()
+        if isinstance(valor, str) and valor.strip() != "" and clave not in fijas_final and clave not in impares_no_usadas
+    ]
+    return columnas_validas + fijas_final, dict_actividades
+
+def _filtrar_notas_columnas_validas(df: pd.DataFrame) -> pd.DataFrame:
+    columnas_validas, dict_actividades = _obtener_columnas_validas(df)
+    columnas_a_conservar = ["matricula", "nombre"] + columnas_validas
+    columnas_existentes = [col for col in columnas_a_conservar if col in df.columns]
+    return df[columnas_existentes].copy(), dict_actividades
 
 def _filtrar_estudiante(df: pd.DataFrame, matricula: str) -> pd.DataFrame:
     """
@@ -100,9 +139,12 @@ def _filtrar_estudiante(df: pd.DataFrame, matricula: str) -> pd.DataFrame:
         return pd.DataFrame()
 
     matricula = normalizar_matricula(matricula)
+    df, dict_actividades = _filtrar_notas_columnas_validas(df)
+    #reemlazar None por cadena vacía para evitar problemas en la comparación
+    df = df.fillna("")
     filtrado = df.loc[df["matricula"] == matricula].copy()
 
-    return filtrado.reset_index(drop=True)
+    return filtrado.reset_index(drop=True), dict_actividades
 
 
 def _seleccionar_columnas_visibles(df: pd.DataFrame) -> pd.DataFrame:
@@ -158,20 +200,29 @@ def obtener_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFr
     df_notas = cargar_notas(grupo=grupo, periodo=periodo)
     df_notas = _preparar_base_notas(df_notas)
 
-    #####################################
-    index_campo = _detectar_actividades(df_notas)
-    #if index_campo is not None:
-    #    st.session_state["actividades"] = df_notas.loc[index_campo].to_dict()
-
     if df_notas.empty:
         return pd.DataFrame()
 
-    df_estudiante = _filtrar_estudiante(df_notas, matricula=matricula)
+    df_estudiante, dict_actividades = _filtrar_estudiante(df_notas, matricula=matricula)
 
     if df_estudiante.empty:
         return pd.DataFrame()
 
-    df_estudiante = _seleccionar_columnas_visibles(df_estudiante)
-    #df_estudiante = _formatear_nombres_columnas(df_estudiante)
+    return df_estudiante.reset_index(drop=True), dict_actividades
 
-    return df_estudiante.reset_index(drop=True), index_campo
+def melt_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFrame:
+    """
+    Obtiene las notas del estudiante autenticado para un grupo y periodo dados.
+
+    Retorna un DataFrame listo para visualización.
+    """
+    df_notas, dict_actividades = obtener_notas_usuario(matricula, grupo, periodo)
+    df_notas_melted = melt_seguro(df_notas, id_vars=["nombre","matricula"], var_name="id_actividad", value_name="Calificación")
+    df_notas_melted = convertir_a_numerico_si_es_posible(df_notas_melted, "Calificación")
+    # Agregar los códigos de actividad por sus nombres descriptivos usando el diccionario
+    df_notas_melted['Actividad'] = df_notas_melted['id_actividad'].map(dict_actividades).fillna(df_notas_melted['id_actividad'])
+    # agregar columna de dimensión según el código de actividad
+    df_notas_melted['Proceso'] = df_notas_melted['id_actividad'].apply(_agregar_dimension)
+
+
+    return df_notas_melted
