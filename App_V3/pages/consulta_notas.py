@@ -1,7 +1,7 @@
 import streamlit as st
 
 from components.alerts import render_empty_state, render_error_box, render_info_box
-from components.visual_helpers import mostrar_tabla_notas
+from components.visual_helpers import mostrar_tabla_notas, mostrar_barra_progreso
 from utils.dataframe_utils import (seleccionar_columnas_existentes, 
                                    verificar_columnas_requeridas, 
                                    renombrar_columnas_si_existen, 
@@ -18,7 +18,16 @@ _obtener_columnas_validas,
 _preparar_base_notas,
 _filtrar_notas_columnas_validas
  para depuración en la carga de notas."""
-from services.notas_service import obtener_notas_usuario, melt_notas_usuario, _detectar_actividades,_diccionario_actividades,_obtener_columnas_validas, _preparar_base_notas, _filtrar_notas_columnas_validas
+from services.notas_service import (obtener_notas_usuario,
+                                    calcular_nota_acumulada,
+                                     
+                                    melt_notas_usuario, 
+                                    _detectar_actividades,
+                                    _diccionario_actividades,
+                                    _obtener_columnas_validas,
+                                    _preparar_base_notas,
+                                    _filtrar_notas_columnas_validas
+                                    )
 
 
 def _mostrar_encabezado() -> None:
@@ -38,15 +47,14 @@ def _mostrar_resumen_usuario() -> None:
     periodo = st.session_state.get("periodo", "No definido")
     anio = st.session_state.get("anio_academico", "No definido")
 
+    st.metric("Estudiante", nombre)
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Estudiante", nombre)
-
-    with col2:
         st.metric("Grupo", grupo)
 
-    with col3:
+    with col2:
         st.metric("Periodo", f"{periodo} · {anio}")
 
 
@@ -82,6 +90,37 @@ def render_consulta_notas() -> None:
     if not periodo:
         render_error_box("No fue posible identificar el periodo activo.")
         return
+    
+    try:
+        df_notas = melt_notas_usuario(
+            matricula=matricula,
+            grupo=grupo,
+            periodo=periodo,
+        )
+    except Exception as exc:
+        render_error_box(f"Ocurrió un error al consultar las notas: {exc}")
+        return
+
+    if df_notas is None or df_notas.empty:
+        render_empty_state(
+            title="No hay notas disponibles",
+            message="Aún no se encontraron calificaciones registradas para este estudiante en el periodo seleccionado.",
+        )
+        return
+
+
+    tabla_notas = seleccionar_columnas_existentes(df_notas, ["Proceso","Actividad", "Calificación"])
+
+    #_mostrar_tabla_notas(tabla_notas)
+
+    mostrar_tabla_notas(tabla_notas)
+
+    ponderacion , nota_acumulada, promedio_ponderado = calcular_nota_acumulada(df_notas)
+    #st.write(f"Nota acumulada: {nota_acumulada} (ponderación actual: {ponderacion*100:.0f}%)")
+
+    fig = mostrar_barra_progreso(nota_acumulada, titulo =f'Nota Acumulada al {ponderacion*100:.0f}% de los procesos evaluados')
+    st.pyplot(fig, use_container_width=True)
+
     #########################################################################
     with st.expander("Depuración de carga de notas"):
         st.write("Usuario:", usuario)
@@ -112,26 +151,3 @@ def render_consulta_notas() -> None:
             #st.write("Columnas filtradas:", df_notas_filtradas_col.columns.tolist())
             st.dataframe(df_notas_filtradas_col.head(), use_container_width=True)
     ##########################################################################
-    try:
-        df_notas = melt_notas_usuario(
-            matricula=matricula,
-            grupo=grupo,
-            periodo=periodo,
-        )
-    except Exception as exc:
-        render_error_box(f"Ocurrió un error al consultar las notas: {exc}")
-        return
-
-    if df_notas is None or df_notas.empty:
-        render_empty_state(
-            title="No hay notas disponibles",
-            message="Aún no se encontraron calificaciones registradas para este estudiante en el periodo seleccionado.",
-        )
-        return
-
-
-    tabla_notas = seleccionar_columnas_existentes(df_notas, ["Proceso","Actividad", "Calificación"])
-
-    _mostrar_tabla_notas(tabla_notas)
-
-    mostrar_tabla_notas(tabla_notas)
