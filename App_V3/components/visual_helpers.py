@@ -271,7 +271,7 @@ def mostrar_tabla_notas(df):
 
 # Create a horizontal bar plot representing score
 @st.cache_data
-def barra_progreso(nota_max,nota,meta,titulo='Nota'):
+def _barra_progreso(nota_max,nota,meta,titulo='Nota'):
     fig, ax = plt.subplots(figsize=(8, 2))
     # Create the bar
     ax.broken_barh([(0, nota_max)], (0.5, 1), facecolors='lightgray')
@@ -335,7 +335,7 @@ def mostrar_barra_progreso(nota_acumulada, titulo ='Nota Acumulada'):
 
     #fig = barra_progreso(nota_max, nota_acumulada, meta, titulo)
     #st.pyplot(fig, use_container_width=True)
-    return barra_progreso(nota_max, nota_acumulada, meta, titulo)
+    return _barra_progreso(nota_max, nota_acumulada, meta, titulo)
 
 def mostrar_pdf(file_path):
     with open(file_path, "rb") as f:
