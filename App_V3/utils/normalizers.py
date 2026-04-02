@@ -38,12 +38,12 @@ def normalizar_nombre_columna(nombre_columna) -> str:
     Normaliza nombres de columnas para facilitar homologación:
     - quita acentos,
     - pasa a minúsculas,
-    - reemplaza espacios y símbolos por guion bajo,
+    - reemplaza espacios y símbolos por guion bajo, excepto puntos (para actividades),
     - elimina guiones bajos repetidos.
     """
     texto = normalizar_texto_basico(nombre_columna)
     texto = quitar_acentos(texto).lower()
-    texto = re.sub(r"[^a-z0-9]+", "_", texto)
+    texto = re.sub(r"[^a-z0-9\.]+", "_", texto)
     texto = re.sub(r"_+", "_", texto).strip("_")
     return texto
 
@@ -200,6 +200,7 @@ def homologar_columnas_estudiantes(df: pd.DataFrame) -> pd.DataFrame:
         "nombre_completo": "nombre",
         "estudiante": "nombre",
         "nombres_y_apellidos": "nombre",
+        "nombre_estudiante": "nombre",
 
         "grupo": "grupo",
         "curso": "grupo",
@@ -256,7 +257,7 @@ def normalizar_dataframe_notas(df: pd.DataFrame) -> pd.DataFrame:
 
     posibles_documento = ["documento", "numero_documento", "identificacion"]
     posibles_matricula = ["matricula", "matrícula"]
-    posibles_nombre = ["nombre", "nombre_completo", "estudiante"]
+    posibles_nombre = ["nombre", "nombre_completo", "estudiante", "nombre_estudiante"]
     posibles_periodo = ["periodo"]
     posibles_puntaje = ["puntaje", "nota", "calificacion"]
 
