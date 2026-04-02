@@ -1,9 +1,24 @@
 import streamlit as st
 
 from components.alerts import render_empty_state, render_error_box, render_info_box
+from components.visual_helpers import mostrar_tabla_notas
+from utils.dataframe_utils import (seleccionar_columnas_existentes, 
+                                   verificar_columnas_requeridas, 
+                                   renombrar_columnas_si_existen, 
+                                   merge_seguro,
+                                   melt_seguro,
+                                   
+                                   )
 from services.google_sheets_service import obtener_debug_notas
 from services.google_sheets_service import obtener_debug_notas, cargar_notas_debug
-from services.notas_service import obtener_notas_usuario, _detectar_actividades
+"""Se agregan funciones:
+_detectar_actividades,
+_diccionario_actividades,
+_obtener_columnas_validas,
+_preparar_base_notas,
+_filtrar_notas_columnas_validas
+ para depuración en la carga de notas."""
+from services.notas_service import obtener_notas_usuario, melt_notas_usuario, _detectar_actividades,_diccionario_actividades,_obtener_columnas_validas, _preparar_base_notas, _filtrar_notas_columnas_validas
 
 
 def _mostrar_encabezado() -> None:
@@ -79,15 +94,26 @@ def render_consulta_notas() -> None:
 
         if debug_info["existe_configuracion"]:
             df_debug = cargar_notas_debug(grupo=grupo, periodo=periodo)
-            index_campo, df_actividades = _detectar_actividades(df_debug)
-            st.write("Índice de actividades detectado:", index_campo)
-            st.write("Actividades detectadas:", df_actividades)
+            df_debug_preparado = _preparar_base_notas(df_debug)
             st.write("Dimensión:", df_debug.shape)
             st.write("Columnas:", df_debug.columns.tolist())
+            index_campo, df_actividades = _detectar_actividades(df_debug_preparado)
+            st.write("Índice de actividades detectado:", index_campo)
+            st.write("Actividades detectadas:", df_actividades)
+            dict_actividades = _diccionario_actividades(df_debug_preparado)
+            st.write("Diccionario de actividades:", dict_actividades.items())
+            columnas_validas = _obtener_columnas_validas(df_debug_preparado)[0]
+            st.write("Columnas válidas:", columnas_validas)
             st.dataframe(df_debug.head(), use_container_width=True)
+            st.write("Columnas antes de preparación:", df_debug.columns.tolist())
+            st.dataframe(df_debug_preparado.head(), use_container_width=True)
+            st.write("Columnas después de preparación:", df_debug_preparado.columns.tolist())
+            df_notas_filtradas_col = _filtrar_notas_columnas_validas(df_debug_preparado)[0]
+            #st.write("Columnas filtradas:", df_notas_filtradas_col.columns.tolist())
+            st.dataframe(df_notas_filtradas_col.head(), use_container_width=True)
     ##########################################################################
     try:
-        df_notas, index_campo = obtener_notas_usuario(
+        df_notas = melt_notas_usuario(
             matricula=matricula,
             grupo=grupo,
             periodo=periodo,
@@ -103,4 +129,9 @@ def render_consulta_notas() -> None:
         )
         return
 
-    _mostrar_tabla_notas(df_notas), index_campo
+
+    tabla_notas = seleccionar_columnas_existentes(df_notas, ["Proceso","Actividad", "Calificación"])
+
+    _mostrar_tabla_notas(tabla_notas)
+
+    mostrar_tabla_notas(tabla_notas)
