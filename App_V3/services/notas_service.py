@@ -210,6 +210,37 @@ def obtener_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFr
 
     return df_estudiante.reset_index(drop=True), dict_actividades
 
+def calcular_nota_acumulada(df_usuario):
+    """
+    Calcula la nota acumulada del estudiante.
+    """
+    # Definir los pesos para cada proceso
+    pesos = {
+        'HACER': 0.3,
+        'SABER': 0.3,
+        'AUTOEVALUACIÓN': 0.2,
+        'PRUEBA_PERIODO': 0.2
+    }
+
+    # Calcular el promedio ponderado
+    acumulado = 0
+    ponderacion = 0
+    # Carcular el length de cada proceso para determinar la ponderación real
+    proceso_lengths = df_usuario['Proceso'].value_counts()
+
+    for proceso in pesos.keys():
+        promedio_proceso = df_usuario.loc[df_usuario['Proceso'] == proceso, 'Calificación'].sum() / proceso_lengths.get(proceso, 1)
+        if df_usuario[df_usuario["Proceso"] == proceso]["Calificación"].notnull().sum() > 0:
+            acumulado += promedio_proceso * pesos[proceso]
+            ponderacion += pesos[proceso]      
+    
+        if ponderacion == 0:
+            return 0
+        else:
+            promedio_ponderado = acumulado / ponderacion
+
+    return ponderacion, round(acumulado, 1), round(promedio_ponderado, 1)
+
 def melt_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFrame:
     """
     Obtiene las notas del estudiante autenticado para un grupo y periodo dados.
