@@ -1,11 +1,15 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import base64
+import pandas as pd
 
 # Función de formato condicional
 @st.cache_data(ttl=60)
 def color_calificacion(val):
-    if float(val) >= 4.5:
+    # si val es string pintar sin color
+    if pd.isna(val):
+        return ""
+    elif float(val) >= 4.5:
         color = 'background-color: #00b050; color: black'  # Verde
     elif float(val) >= 4:
         color = 'background-color: #ffff00; color: black'  # Amarillo claro
@@ -246,9 +250,9 @@ def mostrar_tabla_notas(df):
     df["Calificación"] = df["Calificación"].round(1)#.apply(lambda x: f"{x:.1f}")
 
     styled_df = (
-        df[["PROCESO", "ACTIVIDAD", "Calificación"]]
+        df[["Proceso", "Actividad", "Calificación"]]
         .style
-        .format({"Calificación": "{:.1f}"})
+        .format({"Calificación": "{:.1f}"}, na_rep="")
         .applymap(color_calificacion, subset=["Calificación"])
         .set_table_styles([
             {'selector': 'th', 'props': [
@@ -259,6 +263,7 @@ def mostrar_tabla_notas(df):
         ]
         ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
     )
+    
 
     #styled_df = st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
