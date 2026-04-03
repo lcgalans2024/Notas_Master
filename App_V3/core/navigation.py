@@ -8,6 +8,10 @@ from pages.consulta_notas import render_consulta_notas
 from pages.informe import render_informe
 from pages.materiales import render_materiales
 from pages.recuperaciones import render_recuperaciones
+from pages.autoevaluacion import render_autoevaluacion
+#######################################################
+from pages.test_google_connection import render_test_google_connection
+######################################################################
 
 
 def _render_pagina_seleccionada(menu: str) -> None:
@@ -21,6 +25,8 @@ def _render_pagina_seleccionada(menu: str) -> None:
         "Informe académico": render_informe,
         "Material del área": render_materiales,
         "Recuperaciones": render_recuperaciones,
+        "Autoevaluación": render_autoevaluacion,
+        "Test Google Connection": render_test_google_connection,
     }
 
     render_func = paginas.get(menu, render_inicio)

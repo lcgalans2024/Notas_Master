@@ -109,7 +109,7 @@ def cargar_notas(grupo: str, periodo: str) -> pd.DataFrame:
     """
     Carga la hoja de notas correspondiente al grupo y periodo indicados.
     """
-    sheet_id = _obtener_sheet_id_periodos()
+    sheet_id = _obtener_sheet_id_principal()
     gid = _obtener_gid_notas(grupo, periodo)
     url = construir_url_csv(sheet_id, gid)
     return leer_hoja_csv(url)

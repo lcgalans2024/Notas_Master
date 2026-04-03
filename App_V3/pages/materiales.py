@@ -1,7 +1,9 @@
 import streamlit as st
 
 from components.alerts import render_empty_state, render_error_box
-from services.materiales_service import obtener_materiales_usuario
+from services.materiales_service import (obtener_materiales_usuario,
+                                         mostrar_actividades,
+)
 
 
 def _mostrar_encabezado() -> None:
@@ -22,15 +24,14 @@ def _mostrar_resumen_usuario() -> None:
     grupo = st.session_state.get("grupo", "No definido")
     anio = st.session_state.get("anio_academico", "No definido")
 
+    st.metric("Estudiante", nombre)
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Estudiante", nombre)
-
-    with col2:
         st.metric("Grupo", grupo)
 
-    with col3:
+    with col2:
         st.metric("Año académico", anio)
 
 
@@ -57,20 +58,4 @@ def render_materiales() -> None:
         render_error_box("No fue posible identificar el grupo asociado al usuario.")
         return
 
-    try:
-        df_materiales = obtener_materiales_usuario(
-            grupo=grupo,
-            anio_academico=anio,
-        )
-    except Exception as exc:
-        render_error_box(f"Ocurrió un error al consultar los materiales: {exc}")
-        return
-
-    if df_materiales is None or df_materiales.empty:
-        render_empty_state(
-            title="No hay materiales disponibles",
-            message="No se encontraron materiales publicados para este grupo en este momento.",
-        )
-        return
-
-    _mostrar_materiales(df_materiales)
+    mostrar_actividades()

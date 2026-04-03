@@ -4,13 +4,22 @@ SHEETS_CONFIG = {
     # ======================================================
     # ID principal del Google Sheet
     # ======================================================
-    "sheet_id_principal": "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS",
+    #"sheet_id_principal": "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS",
+    "sheet_id_principal": "15ELuuOC2jO_bQzl9pDqhiMfE4EunZRw2f89p-0-dORE",
+
 
     # ======================================================
     # En esta primera versión usamos el mismo archivo
     # también para las hojas de notas por grupo/periodo
     # ======================================================
     "sheet_id_periodos": "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS",
+
+    # ======================================================
+    # Hoja de respuesta de autoevaluación
+    # ======================================================
+    "sheet_id_autoevaluacion": "1eZ7NtWyFr0Terc0sBLkVIZ5iQfsfLnm6oYT7--itdhQ",
+    "gid_autoevaluacion": "0",
+
 
     # ======================================================
     # Hojas de estudiantes por año académico

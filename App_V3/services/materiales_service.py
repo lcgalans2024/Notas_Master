@@ -120,3 +120,141 @@ def obtener_materiales_usuario(grupo: str, anio_academico: str | None = None) ->
     df_materiales = _formatear_columnas(df_materiales)
 
     return df_materiales.reset_index(drop=True)
+
+def mostrar_actividades() -> None:
+    """
+    Función principal para mostrar las actividades en la página.
+    """
+    st.title("Actividades")
+
+    grupo = st.session_state.get("grupo")
+    anio_academico = st.session_state.get("anio_academico")
+    periodo = st.session_state.get("periodo")
+
+    if not grupo:
+        st.warning("No se ha identificado tu grupo. Por favor, asegúrate de que tu perfil esté completo.")
+        return
+    
+    elif grupo == "801":
+        st.info("Los materiales para el periodo P1 estarán disponibles próximamente.")
+
+        if periodo == "P1":
+            ##############################################################
+            st.markdown("- Criterios de divisibilidad")
+            try:
+                with open("App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+            return st.write("Acá vamos a mostrar un mensaje bonito con un ícono de construcción 🚧")
+    elif grupo == "802":
+        st.info("Los materiales para el periodo P1 estarán disponibles próximamente.")
+
+        if periodo == "P1":
+            ##############################################################
+            st.markdown("- Criterios de divisibilidad")
+            try:
+                with open("App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+    elif grupo == "803":
+        st.info("Los materiales para el periodo P1 estarán disponibles próximamente.")
+
+        if periodo == "P1":
+            ##############################################################
+            st.markdown("- Criterios de divisibilidad")
+            try:
+                with open("App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+    elif grupo == "804":
+        st.info("Los materiales para el periodo P1 estarán disponibles próximamente.")
+
+        if periodo == "P1":
+            ##############################################################
+            st.markdown("- Criterios de divisibilidad")
+            try:
+                with open("App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+    elif grupo == "805":
+        st.info("Los materiales para el periodo P1 estarán disponibles próximamente.")
+
+        if periodo == "P1":
+            ##############################################################
+            st.markdown("- Criterios de divisibilidad")
+            try:
+                with open("App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad criterios.pdf",
+                        mime="application/pdf"
+                    )
+
+    try:
+        df_materiales = obtener_materiales_usuario(grupo=grupo, anio_academico=anio_academico)
+    except Exception as exc:
+        st.error(f"Ocurrió un error al cargar los materiales: {exc}")
+        return
+
+    if df_materiales.empty:
+        st.info("No hay materiales disponibles para tu grupo en este momento.")
+        return
+
+    st.write("Materiales disponibles:")

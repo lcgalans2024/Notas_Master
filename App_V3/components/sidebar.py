@@ -15,6 +15,8 @@ def _obtener_opciones_menu() -> list[str]:
         "Informe académico",
         "Material del área",
         "Recuperaciones",
+        "Autoevaluación",
+        "Test Google Connection",
     ]
 
 
