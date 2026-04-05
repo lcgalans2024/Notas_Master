@@ -7,6 +7,10 @@ from services.google_sheets_service import (
     obtener_periodos_disponibles_por_grupo,
 )
 
+PAGINAS_DESHABILITADAS = {
+    "Informe académico": "Esta sección estará disponible próximamente.",
+}
+
 
 def _obtener_opciones_menu() -> list[str]:
     return [
@@ -16,7 +20,7 @@ def _obtener_opciones_menu() -> list[str]:
         "Material del área",
         "Recuperaciones",
         "Autoevaluación",
-        "Test Google Connection",
+        #"Test Google Connection",
     ]
 
 
@@ -32,8 +36,8 @@ def _render_datos_usuario() -> None:
     if grupo:
         st.caption(f"Grupo: {grupo}")
 
-    if matricula:
-        st.caption(f"Matrícula: {matricula}")
+    #if matricula:
+    #    st.caption(f"Matrícula: {matricula}")
 
 def _resolver_periodos_disponibles(grupo: str | None) -> list[str]:
     if not grupo:

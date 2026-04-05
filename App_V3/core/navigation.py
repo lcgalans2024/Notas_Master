@@ -13,6 +13,11 @@ from pages.autoevaluacion import render_autoevaluacion
 from pages.test_google_connection import render_test_google_connection
 ######################################################################
 
+PAGINAS_DESHABILITADAS = {
+    "Informe académico": "Esta sección no se encuentra disponible.",
+    "Recuperaciones": "Esta sección no se encuentra disponible.",
+}
+
 
 def _render_pagina_seleccionada(menu: str) -> None:
     """
@@ -46,6 +51,10 @@ def render_app() -> None:
 
     if not menu_seleccionado:
         st.info(MESSAGES["login_required"])
+        return
+    
+    if menu_seleccionado in PAGINAS_DESHABILITADAS:
+        st.warning(PAGINAS_DESHABILITADAS[menu_seleccionado])
         return
 
     _render_pagina_seleccionada(menu_seleccionado)
