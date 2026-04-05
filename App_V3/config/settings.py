@@ -46,7 +46,7 @@ IMAGE_PATHS = {
 # Parámetros globales de funcionamiento
 # -------------------------------------------------------------------
 APP_DEFAULTS = {
-    "anio_academico": "2025",
+    "anio_academico": "2026",
     "periodo": "P1",
     "grupo": None,
     "usuario": None,

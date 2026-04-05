@@ -122,32 +122,32 @@ def render_consulta_notas() -> None:
     st.pyplot(fig, use_container_width=True)
 
     #########################################################################
-    with st.expander("Depuración de carga de notas"):
-        st.write("Usuario:", usuario)
-        st.write("Matrícula:", matricula)
-        st.write("Grupo:", grupo)
-        st.write("Periodo:", periodo)
-
-        debug_info = obtener_debug_notas(grupo=grupo, periodo=periodo)
-        st.write("Resolución de hoja:", debug_info)
-
-        if debug_info["existe_configuracion"]:
-            df_debug = cargar_notas_debug(grupo=grupo, periodo=periodo)
-            df_debug_preparado = _preparar_base_notas(df_debug)
-            st.write("Dimensión:", df_debug.shape)
-            st.write("Columnas:", df_debug.columns.tolist())
-            index_campo, df_actividades = _detectar_actividades(df_debug_preparado)
-            st.write("Índice de actividades detectado:", index_campo)
-            st.write("Actividades detectadas:", df_actividades)
-            dict_actividades = _diccionario_actividades(df_debug_preparado)
-            st.write("Diccionario de actividades:", dict_actividades.items())
-            columnas_validas = _obtener_columnas_validas(df_debug_preparado)[0]
-            st.write("Columnas válidas:", columnas_validas)
-            st.dataframe(df_debug.head(), use_container_width=True)
-            st.write("Columnas antes de preparación:", df_debug.columns.tolist())
-            st.dataframe(df_debug_preparado.head(), use_container_width=True)
-            st.write("Columnas después de preparación:", df_debug_preparado.columns.tolist())
-            df_notas_filtradas_col = _filtrar_notas_columnas_validas(df_debug_preparado)[0]
-            #st.write("Columnas filtradas:", df_notas_filtradas_col.columns.tolist())
-            st.dataframe(df_notas_filtradas_col.head(), use_container_width=True)
+    #with st.expander("Depuración de carga de notas"):
+    #    st.write("Usuario:", usuario)
+    #    st.write("Matrícula:", matricula)
+    #    st.write("Grupo:", grupo)
+    #    st.write("Periodo:", periodo)
+#
+    #    debug_info = obtener_debug_notas(grupo=grupo, periodo=periodo)
+    #    st.write("Resolución de hoja:", debug_info)
+#
+    #    if debug_info["existe_configuracion"]:
+    #        df_debug = cargar_notas_debug(grupo=grupo, periodo=periodo)
+    #        df_debug_preparado = _preparar_base_notas(df_debug)
+    #        st.write("Dimensión:", df_debug.shape)
+    #        st.write("Columnas:", df_debug.columns.tolist())
+    #        index_campo, df_actividades = _detectar_actividades(df_debug_preparado)
+    #        st.write("Índice de actividades detectado:", index_campo)
+    #        st.write("Actividades detectadas:", df_actividades)
+    #        dict_actividades = _diccionario_actividades(df_debug_preparado)
+    #        st.write("Diccionario de actividades:", dict_actividades.items())
+    #        columnas_validas = _obtener_columnas_validas(df_debug_preparado)[0]
+    #        st.write("Columnas válidas:", columnas_validas)
+    #        st.dataframe(df_debug.head(), use_container_width=True)
+    #        st.write("Columnas antes de preparación:", df_debug.columns.tolist())
+    #        st.dataframe(df_debug_preparado.head(), use_container_width=True)
+    #        st.write("Columnas después de preparación:", df_debug_preparado.columns.tolist())
+    #        df_notas_filtradas_col = _filtrar_notas_columnas_validas(df_debug_preparado)[0]
+    #        #st.write("Columnas filtradas:", df_notas_filtradas_col.columns.tolist())
+    #        st.dataframe(df_notas_filtradas_col.head(), use_container_width=True)
     ##########################################################################
