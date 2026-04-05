@@ -3,6 +3,7 @@ import streamlit as st
 from components.alerts import render_empty_state, render_error_box
 from services.materiales_service import (obtener_materiales_usuario,
                                          mostrar_actividades,
+                                         mostrar_recursos,
 )
 
 
@@ -58,4 +59,9 @@ def render_materiales() -> None:
         render_error_box("No fue posible identificar el grupo asociado al usuario.")
         return
 
-    mostrar_actividades()
+    # crear pestañas para actividades y recursos
+    tab_actividades, tab_recursos = st.tabs(["Actividades", "Recursos"])
+    with tab_actividades:
+        mostrar_actividades()
+    with tab_recursos:
+        mostrar_recursos()
