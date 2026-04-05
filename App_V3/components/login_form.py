@@ -17,6 +17,7 @@ def render_login_form() -> None:
         documento = st.text_input(
             "Documento del estudiante",
             placeholder="Ingresa el número de documento",
+            type="password",
         ).strip()
 
         col1, col2 = st.columns([1, 3])
