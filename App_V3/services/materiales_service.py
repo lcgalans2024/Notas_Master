@@ -325,23 +325,100 @@ def mostrar_actividades() -> None:
 
         if periodo == "P1":
             ##############################################################
-            st.markdown("- Criterios de divisibilidad")
+            st.markdown("###### - Taller de activación: números enteros")
             try:
-                with open("App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                with open("App_V3/docs/actividades/TALLER DE ACTIVACIÓN ENTEROS.pdf", "rb") as file:
                     st.download_button(
                         label="- [📥 Descargar Actividad](#)",
                         data=file,
-                        file_name="Actividad criterios.pdf",
+                        file_name="TALLER DE ACTIVACIÓN ENTEROS.pdf",
                         mime="application/pdf"
                     )
             except:
-                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/TALLER DE ACTIVACIÓN ENTEROS.pdf", "rb") as file:
                     st.download_button(
                         label="- [📥 Descargar Actividad](#)",
                         data=file,
-                        file_name="Actividad criterios.pdf",
+                        file_name="TALLER DE ACTIVACIÓN ENTEROS.pdf",
                         mime="application/pdf"
                     )
+            ##############################################################
+            st.markdown("###### - Ficha: Razones")
+            try:
+                with open("App_V3/docs/actividades/Razones G_ASF7B.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Razones G_ASF7B.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Razones G_ASF7B.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Razones G_ASF7B.pdf",
+                        mime="application/pdf"
+                    )
+            ##############################################################
+            st.markdown("###### - Ficha: Conjuntos numéricos")
+            try:
+                with open("App_V3/docs/actividades/Actividad conjuntos numericos.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad conjuntos numericos.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad conjuntos numericos.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad conjuntos numericos.pdf",
+                        mime="application/pdf"
+                    )
+            ##############################################################
+            st.markdown("###### - Ficha: tablas de frecuencia")
+            try:
+                with open("App_V3/docs/actividades/Actividad_tablas_frecuencia_ASF7_B4_A5_8.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad_tablas_frecuencia_ASF7_B4_A5_8.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad_tablas_frecuencia_ASF7_B4_A5_8.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad_tablas_frecuencia_ASF7_B4_A5_8.pdf",
+                        mime="application/pdf"
+                    )
+            ##############################################################
+            st.markdown("###### - Expresiones algebraicas")
+            descripción = "Se debe tener en el cuaderno el resumen de la pagina 59, " \
+            "luego se deben escribir y resolver las actividades 72 a 88 de la guía adjunta."
+            st.write(descripción)
+            try:
+                with open("App_V3/docs/actividades/GuiaExpresionesAlgebraicas51_59.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Guía](#)",
+                        data=file,
+                        file_name="GuiaExpresionesAlgebraicas51_59.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/GuiaExpresionesAlgebraicas51_59.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Guía](#)",
+                        data=file,
+                        file_name="GuiaExpresionesAlgebraicas51_59.pdf",
+                        mime="application/pdf"
+                    )
+            return 
+    ################################################################################################################################
     elif grupo == "804":
         st.info("Los materiales para el periodo P1 estarán disponibles próximamente.")
 
