@@ -16,7 +16,7 @@ from pages.test_google_connection import render_test_google_connection
 PAGINAS_DESHABILITADAS = {
     "Informe académico": "Esta sección no se encuentra disponible.",
     "Recuperaciones": "Esta sección no se encuentra disponible.",
-    "Autoevaluación": "Esta sección no se encuentra disponible.",
+    #"Autoevaluación": "Esta sección no se encuentra disponible.",
 }
 
 
