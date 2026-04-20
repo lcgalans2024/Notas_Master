@@ -39,6 +39,7 @@ def resetear_sesion_usuario() -> None:
         "matricula",
         "nombre",
         "grupo",
+        "rol",
         "adm",
         "authenticated",
         "datos_usuario",

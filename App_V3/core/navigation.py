@@ -9,6 +9,7 @@ from pages.informe import render_informe
 from pages.materiales import render_materiales
 from pages.recuperaciones import render_recuperaciones
 from pages.autoevaluacion import render_autoevaluacion
+from pages.admin import render_admin
 #######################################################
 from pages.test_google_connection import render_test_google_connection
 ######################################################################
@@ -18,7 +19,6 @@ PAGINAS_DESHABILITADAS = {
     "Recuperaciones": "Esta sección no se encuentra disponible.",
     #"Autoevaluación": "Esta sección no se encuentra disponible.",
 }
-
 
 def _render_pagina_seleccionada(menu: str) -> None:
     """
@@ -33,6 +33,7 @@ def _render_pagina_seleccionada(menu: str) -> None:
         "Recuperaciones": render_recuperaciones,
         "Autoevaluación": render_autoevaluacion,
         "Test Google Connection": render_test_google_connection,
+        "Administración": render_admin,
     }
 
     render_func = paginas.get(menu, render_inicio)
@@ -56,6 +57,12 @@ def render_app() -> None:
     
     if menu_seleccionado in PAGINAS_DESHABILITADAS:
         st.warning(PAGINAS_DESHABILITADAS[menu_seleccionado])
+        return
+    
+    PAGINAS_SOLO_ADMIN = {"Administración"}
+
+    if menu_seleccionado in PAGINAS_SOLO_ADMIN and st.session_state.get("rol") != "admin":
+        st.error("No tienes permisos para acceder a esta sección.")
         return
 
     _render_pagina_seleccionada(menu_seleccionado)

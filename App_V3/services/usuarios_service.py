@@ -139,3 +139,33 @@ def obtener_usuario_por_documento_y_anio(documento: str, anio_academico: str) ->
         "grupo": str(fila["grupo"]) if pd.notna(fila["grupo"]) else None,
         "rol": str(fila.get("rol", "estudiante")),
     }
+
+def obtener_estudiantes_por_grupo_y_anio(grupo: str, anio_academico: str) -> pd.DataFrame:
+    """
+    Retorna los estudiantes del grupo y año académico indicados.
+    """
+    df_estudiantes = cargar_estudiantes(anio_academico)
+
+    if df_estudiantes is None or df_estudiantes.empty:
+        return pd.DataFrame()
+
+    df_estudiantes = normalizar_dataframe_estudiantes(df_estudiantes)
+
+    columnas_requeridas = {"documento", "nombre", "grupo"}
+    faltantes = columnas_requeridas - set(df_estudiantes.columns)
+
+    if faltantes:
+        raise ValueError(
+            "La base de estudiantes no contiene las columnas requeridas: "
+            f"{', '.join(sorted(faltantes))}"
+        )
+
+    grupo = str(grupo).strip()
+
+    df_filtrado = df_estudiantes.loc[
+        df_estudiantes["grupo"].astype(str).str.strip() == grupo
+    ].copy()
+
+    columnas_visibles = [col for col in ["documento", "nombre", "grupo", "matricula"] if col in df_filtrado.columns]
+
+    return df_filtrado[columnas_visibles].drop_duplicates().reset_index(drop=True)

@@ -13,7 +13,9 @@ PAGINAS_DESHABILITADAS = {
 
 
 def _obtener_opciones_menu() -> list[str]:
-    return [
+    rol = st.session_state.get("rol", "estudiante")
+
+    opciones_estudiante = [
         "Inicio",
         "Consulta de notas",
         "Informe académico",
@@ -23,8 +25,23 @@ def _obtener_opciones_menu() -> list[str]:
         #"Test Google Connection",
     ]
 
+    opciones_admin = [
+        "Inicio",
+        "Consulta de notas",
+        "Informe académico",
+        "Material del área",
+        "Recuperaciones",
+        "Autoevaluación",
+        "Administración",
+    ]
+
+    return opciones_admin if rol == "admin" else opciones_estudiante
+
 
 def _render_datos_usuario() -> None:
+    """
+    Muestra un resumen del usuario autenticado.
+    """
     nombre = st.session_state.get("nombre", "Usuario")
     matricula = st.session_state.get("matricula")
     grupo = st.session_state.get("grupo")
@@ -34,7 +51,10 @@ def _render_datos_usuario() -> None:
     st.caption(f"Rol: {rol}")
 
     if grupo:
-        st.caption(f"Grupo: {grupo}")
+        if rol == "admin":
+            st.caption(f"Grupo seleccionado: {grupo}")
+        else:
+            st.caption(f"Grupo: {grupo}")
 
     #if matricula:
     #    st.caption(f"Matrícula: {matricula}")
@@ -53,15 +73,20 @@ def _resolver_periodos_disponibles(grupo: str | None) -> list[str]:
 
 def _actualizar_contexto_si_cambia_anio(nuevo_anio: str) -> None:
     """
-    Si el año académico cambia, actualiza el contexto del usuario
-    y refresca el grupo asociado a ese año.
+    Si el año académico cambia:
+    - estudiante: actualiza contexto y grupo desde la base
+    - admin: solo actualiza el año
     """
     anio_actual = st.session_state.get("anio_academico")
+    rol = st.session_state.get("rol", "estudiante")
 
     if str(nuevo_anio) == str(anio_actual):
         return
 
     st.session_state["anio_academico"] = str(nuevo_anio)
+
+    if rol == "admin":
+        return
 
     ok, mensaje = refrescar_contexto_usuario_por_anio(str(nuevo_anio))
 
@@ -78,11 +103,20 @@ def _actualizar_contexto_si_cambia_anio(nuevo_anio: str) -> None:
 
 
 def _render_filtros_generales() -> None:
+    """
+    Renderiza filtros generales de trabajo en la barra lateral.
+    - Estudiante: usa su grupo asociado.
+    - Admin: puede seleccionar manualmente el grupo.
+    """
     anios = SHEETS_CONFIG.get("anios_disponibles", [])
-    grupo = st.session_state.get("grupo")
+    grupos_disponibles = SHEETS_CONFIG.get("grupos_disponibles", [])
+    rol = st.session_state.get("rol", "estudiante")
+
     anio_actual = st.session_state.get("anio_academico")
     periodo_actual = st.session_state.get("periodo")
+    grupo_actual = st.session_state.get("grupo")
 
+    # Año académico
     if anios:
         index_anio = anios.index(anio_actual) if anio_actual in anios else 0
         nuevo_anio = st.selectbox(
@@ -92,8 +126,30 @@ def _render_filtros_generales() -> None:
         )
         _actualizar_contexto_si_cambia_anio(nuevo_anio)
 
-    grupo = st.session_state.get("grupo")
-    periodos_disponibles = _resolver_periodos_disponibles(grupo)
+    # Grupo
+    if rol == "admin":
+        grupos_disponibles = [str(g) for g in grupos_disponibles]
+
+        if grupos_disponibles:
+            if grupo_actual not in grupos_disponibles:
+                grupo_actual = grupos_disponibles[0]
+                st.session_state["grupo"] = grupo_actual
+
+            index_grupo = (
+                grupos_disponibles.index(grupo_actual)
+                if grupo_actual in grupos_disponibles
+                else 0
+            )
+
+            st.session_state["grupo"] = st.selectbox(
+                "Grupo",
+                options=grupos_disponibles,
+                index=index_grupo,
+            )
+
+    # Resolver periodos según el grupo ya definitivo
+    grupo_definitivo = st.session_state.get("grupo")
+    periodos_disponibles = _resolver_periodos_disponibles(grupo_definitivo)
 
     if periodos_disponibles:
         if periodo_actual not in periodos_disponibles:

@@ -2,6 +2,7 @@ import streamlit as st
 
 from components.alerts import render_empty_state, render_error_box, render_info_box
 from components.visual_helpers import mostrar_tabla_notas, mostrar_barra_progreso
+from services.usuarios_service import obtener_estudiantes_por_grupo_y_anio
 from utils.dataframe_utils import (seleccionar_columnas_existentes, 
                                    verificar_columnas_requeridas, 
                                    renombrar_columnas_si_existen, 
@@ -38,14 +39,22 @@ def _mostrar_encabezado() -> None:
     st.caption("Consulta las calificaciones registradas para el periodo seleccionado.")
 
 
-def _mostrar_resumen_usuario() -> None:
+def _mostrar_resumen_usuario(matricula_consultada: str | None = None, nombre_consultado: str | None = None) -> None:
     """
     Muestra información básica del estudiante autenticado.
     """
+    rol = st.session_state.get("rol", "estudiante")
     nombre = st.session_state.get("nombre", "Usuario")
     grupo = st.session_state.get("grupo", "No definido")
     periodo = st.session_state.get("periodo", "No definido")
     anio = st.session_state.get("anio_academico", "No definido")
+
+    if rol == "admin":
+        nombre = nombre_consultado or "No seleccionado"
+        matricula = matricula_consultada or "No seleccionado"
+    else:
+        nombre = st.session_state.get("nombre", "Usuario")
+        matricula = st.session_state.get("matricula", "No definido")
 
     st.metric("Estudiante", nombre)
 
@@ -56,6 +65,47 @@ def _mostrar_resumen_usuario() -> None:
 
     with col2:
         st.metric("Periodo", f"{periodo} · {anio}")
+
+def _seleccionar_estudiante_admin() -> tuple[str | None, str | None]:
+    """
+    Permite al admin seleccionar un estudiante del grupo y año activos.
+    """
+    grupo = st.session_state.get("grupo")
+    anio = st.session_state.get("anio_academico")
+
+    if not grupo:
+        render_error_box("Debes seleccionar un grupo para consultar estudiantes.")
+        return None, None
+
+    try:
+        df_estudiantes = obtener_estudiantes_por_grupo_y_anio(grupo=grupo, anio_academico=anio)
+    except Exception as exc:
+        render_error_box(f"No fue posible cargar los estudiantes del grupo: {exc}")
+        return None, None
+
+    if df_estudiantes.empty:
+        render_empty_state(
+            title="Sin estudiantes disponibles",
+            message="No se encontraron estudiantes para el grupo y año seleccionados.",
+        )
+        return None, None
+
+    df_estudiantes = df_estudiantes.copy()
+    df_estudiantes["label"] = df_estudiantes.apply(
+        lambda row: f"{row['nombre']} | {row['matricula']}",
+        axis=1,
+    )
+
+    opciones = df_estudiantes["label"].tolist()
+
+    seleccion = st.selectbox(
+        "Selecciona un estudiante",
+        options=opciones,
+    )
+
+    fila = df_estudiantes.loc[df_estudiantes["label"] == seleccion].iloc[0]
+
+    return str(fila["matricula"]), str(fila["nombre"])
 
 
 def _mostrar_tabla_notas(df_notas) -> None:
@@ -71,9 +121,9 @@ def render_consulta_notas() -> None:
     Renderiza la página de consulta de notas del usuario autenticado.
     """
     _mostrar_encabezado()
-    _mostrar_resumen_usuario()
-    st.divider()
+    #_mostrar_resumen_usuario()
 
+    rol = st.session_state.get("rol", "estudiante")
     usuario = st.session_state.get("usuario")
     matricula = st.session_state.get("matricula")
     grupo = st.session_state.get("grupo")
@@ -91,9 +141,31 @@ def render_consulta_notas() -> None:
         render_error_box("No fue posible identificar el periodo activo.")
         return
     
+    documento_consultado = None
+    matricula_consultada = None
+    nombre_consultado = None
+
+    if rol == "admin":
+        matricula_consultada, nombre_consultado = _seleccionar_estudiante_admin()
+
+        if not matricula_consultada:
+            return
+    else:
+        matricula_consultada = st.session_state.get("matricula")
+        nombre_consultado = st.session_state.get("nombre")
+
+        if not matricula_consultada:
+            render_info_box("No hay un usuario autenticado en la sesión.")
+            return
+
+    _mostrar_resumen_usuario(
+        matricula_consultada = matricula_consultada,
+        nombre_consultado = nombre_consultado,
+    )
+    st.divider()
     try:
         df_notas = melt_notas_usuario(
-            matricula=matricula,
+            matricula=matricula_consultada,
             grupo=grupo,
             periodo=periodo,
         )

@@ -6,6 +6,7 @@ from services.usuarios_service import (
     obtener_usuario_por_documento,
     obtener_usuario_por_documento_y_anio,
 )
+from services.roles_service import obtener_rol_usuario, es_admin
 
 
 def normalizar_documento(documento: str) -> str:
@@ -33,20 +34,44 @@ def autenticar_usuario(documento: str) -> tuple[bool, str]:
 
     if not documento:
         return False, "Debes ingresar un documento válido."
+    
+    # Caso 1: administrador
+    if es_admin(documento):
+        st.session_state["usuario"] = documento
+        st.session_state["nombre"] = "Administrador"
+        st.session_state["grupo"] = None
+        st.session_state["rol"] = "admin"
+        st.session_state["datos_usuario"] = {
+            "documento": documento,
+            "nombre": "Administrador",
+            "grupo": None,
+            "rol": "admin",
+        }
+        st.session_state["authenticated"] = True
+        st.session_state["menu"] = "Inicio"
+        st.session_state["vista_actual"] = "Inicio"
+        st.session_state["anio_usuario_contexto"] = st.session_state.get("anio_academico")
+
+        return True, "Ingreso exitoso como administrador."
+
+    # Caso 2: estudiante
 
     try:
         usuario = obtener_usuario_por_documento(documento)
+        
     except Exception as exc:
         return False, f"No fue posible validar el usuario. Detalle: {exc}"
 
     if not usuario:
         return False, "No se encontró información asociada a ese documento."
 
+    rol = obtener_rol_usuario(usuario["documento"])
+
     st.session_state["usuario"] = usuario["documento"]
     st.session_state["nombre"] = usuario["nombre"]
     st.session_state["grupo"] = usuario.get("grupo")
     st.session_state["matricula"] = usuario.get("matricula")
-    st.session_state["rol"] = usuario.get("rol", "estudiante")
+    st.session_state["rol"] = rol#usuario.get("rol", "estudiante")
     st.session_state["datos_usuario"] = usuario
     st.session_state["authenticated"] = True
     st.session_state["menu"] = "Inicio"
@@ -99,10 +124,12 @@ def refrescar_contexto_usuario_por_anio(anio_academico: str) -> tuple[bool, str]
             f"para el año {anio_academico}."
         )
 
+    rol = obtener_rol_usuario(usuario["documento"])
+
     st.session_state["nombre"] = usuario["nombre"]
     st.session_state["grupo"] = usuario.get("grupo")
     st.session_state["matricula"] = usuario.get("matricula")
-    st.session_state["rol"] = usuario.get("rol", "estudiante")
+    st.session_state["rol"] = rol#usuario.get("rol", "estudiante")
     st.session_state["datos_usuario"] = usuario
     st.session_state["anio_usuario_contexto"] = str(anio_academico)
 

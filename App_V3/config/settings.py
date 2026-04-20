@@ -52,6 +52,7 @@ APP_DEFAULTS = {
     "usuario": None,
     "matricula": None,
     "nombre": None,
+    "rol": "estudiante",
     "adm": False,
     "authenticated": False,
     "vista_actual": "Inicio",
