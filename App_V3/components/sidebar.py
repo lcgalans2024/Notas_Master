@@ -25,6 +25,16 @@ def _obtener_opciones_menu() -> list[str]:
         #"Test Google Connection",
     ]
 
+    opciones_monitor = [
+        "Inicio",
+        "Consulta de notas",
+        "Informe académico",
+        "Material del área",
+        "Recuperaciones",
+        "Autoevaluación",
+        "Inasistencia",
+    ]
+
     opciones_admin = [
         "Inicio",
         "Consulta de notas",
@@ -32,10 +42,16 @@ def _obtener_opciones_menu() -> list[str]:
         "Material del área",
         "Recuperaciones",
         "Autoevaluación",
+        "Inasistencia",
         "Administración",
     ]
 
-    return opciones_admin if rol == "admin" else opciones_estudiante
+    if rol == "admin":
+        return opciones_admin
+    if rol == "monitor":
+        return opciones_monitor
+
+    return opciones_estudiante
 
 
 def _render_datos_usuario() -> None:

@@ -35,8 +35,22 @@ def autenticar_usuario(documento: str) -> tuple[bool, str]:
     if not documento:
         return False, "Debes ingresar un documento válido."
     
-    # Caso 1: administrador
-    if es_admin(documento):
+    try:
+        usuario = obtener_usuario_por_documento(documento)
+        
+    except Exception as exc:
+        return False, f"No fue posible validar el usuario. Detalle: {exc}"
+
+    
+    
+    rol_detectado = obtener_rol_usuario(usuario["matricula"] if usuario else documento)
+
+    # Caso 1: usuario bloqueado
+    if rol_detectado == "bloqueado":
+        return False, "Tu usuario se encuentra inactivo o sin permisos de acceso."
+    
+    # Caso 2: administrador
+    if rol_detectado == "admin":
         st.session_state["usuario"] = documento
         st.session_state["nombre"] = "Administrador"
         st.session_state["grupo"] = None
@@ -54,18 +68,12 @@ def autenticar_usuario(documento: str) -> tuple[bool, str]:
 
         return True, "Ingreso exitoso como administrador."
 
-    # Caso 2: estudiante
-
-    try:
-        usuario = obtener_usuario_por_documento(documento)
-        
-    except Exception as exc:
-        return False, f"No fue posible validar el usuario. Detalle: {exc}"
+    # Caso 3: estudiante
 
     if not usuario:
         return False, "No se encontró información asociada a ese documento."
 
-    rol = obtener_rol_usuario(usuario["documento"])
+    rol = rol_detectado
 
     st.session_state["usuario"] = usuario["documento"]
     st.session_state["nombre"] = usuario["nombre"]
@@ -90,7 +98,7 @@ def cerrar_sesion() -> None:
         "nombre": None,
         "grupo": None,
         "matricula": None,
-        "rol": None,
+        "rol": "estudiante",
         "datos_usuario": None,
         "authenticated": False,
         "menu": "Inicio",
@@ -109,9 +117,15 @@ def refrescar_contexto_usuario_por_anio(anio_academico: str) -> tuple[bool, str]
     Actualiza nombre, grupo y datos_usuario en session_state.
     """
     documento = st.session_state.get("usuario")
+    rol = st.session_state.get("rol", "estudiante")
 
     if not documento:
         return False, "No hay un usuario autenticado para refrescar."
+    
+    # Admin no depende de grupo desde estudiantes
+    if rol == "admin":
+        st.session_state["anio_usuario_contexto"] = str(anio_academico)
+        return True, "Contexto de administrador actualizado correctamente."
 
     try:
         usuario = obtener_usuario_por_documento_y_anio(documento, anio_academico)
@@ -124,7 +138,7 @@ def refrescar_contexto_usuario_por_anio(anio_academico: str) -> tuple[bool, str]
             f"para el año {anio_academico}."
         )
 
-    rol = obtener_rol_usuario(usuario["documento"])
+    #rol = obtener_rol_usuario(usuario["documento"])
 
     st.session_state["nombre"] = usuario["nombre"]
     st.session_state["grupo"] = usuario.get("grupo")

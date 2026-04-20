@@ -136,6 +136,20 @@ def cargar_recuperaciones() -> pd.DataFrame:
     url = construir_url_csv(sheet_id, gid)
     return leer_hoja_csv(url)
 
+@st.cache_data(ttl=120, show_spinner=False)
+def cargar_roles() -> pd.DataFrame:
+    """
+    Carga la hoja de roles.
+    """
+    sheet_id = _obtener_sheet_id_principal()
+    gid = SHEETS_CONFIG.get("gid_roles")
+
+    if gid in (None, "", "None"):
+        raise KeyError("No se ha configurado la hoja de roles en 'gid_roles'.")
+
+    url = construir_url_csv(sheet_id, gid)
+    return leer_hoja_csv(url)
+
 
 def existe_configuracion_notas(grupo: str, periodo: str) -> bool:
     """

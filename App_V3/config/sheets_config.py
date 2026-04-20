@@ -62,6 +62,7 @@ SHEETS_CONFIG = {
     # ======================================================
     "gid_recuperaciones": "1791404525",
     "gid_materiales": None,
+    "gid_roles": "767080748",
 
     # ======================================================
     # Catálogos base de trabajo

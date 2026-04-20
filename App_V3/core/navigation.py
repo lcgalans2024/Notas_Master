@@ -10,6 +10,7 @@ from pages.materiales import render_materiales
 from pages.recuperaciones import render_recuperaciones
 from pages.autoevaluacion import render_autoevaluacion
 from pages.admin import render_admin
+from pages.inasistencia import render_inasistencia
 #######################################################
 from pages.test_google_connection import render_test_google_connection
 ######################################################################
@@ -34,6 +35,7 @@ def _render_pagina_seleccionada(menu: str) -> None:
         "Autoevaluación": render_autoevaluacion,
         "Test Google Connection": render_test_google_connection,
         "Administración": render_admin,
+        "Inasistencia": render_inasistencia,
     }
 
     render_func = paginas.get(menu, render_inicio)
@@ -60,9 +62,16 @@ def render_app() -> None:
         return
     
     PAGINAS_SOLO_ADMIN = {"Administración"}
+    PAGINAS_GESTION = {"Inasistencia"}
 
-    if menu_seleccionado in PAGINAS_SOLO_ADMIN and st.session_state.get("rol") != "admin":
-        st.error("No tienes permisos para acceder a esta sección.")
+    rol = st.session_state.get("rol", "estudiante")
+
+    if menu_seleccionado in PAGINAS_SOLO_ADMIN and rol != "admin":
+        st.error("No tienes permisos de administrador para acceder a esta sección.")
+        return
+
+    if menu_seleccionado in PAGINAS_GESTION and rol not in {"admin", "monitor"}:
+        st.error("No tienes permisos de gestor para acceder a esta sección.")
         return
 
     _render_pagina_seleccionada(menu_seleccionado)
