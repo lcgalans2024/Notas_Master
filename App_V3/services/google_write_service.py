@@ -245,6 +245,7 @@ def guardar_inasistencia(
 
     row_values = [
         payload.get("fecha"),
+        payload.get("periodo"),
         payload.get("semana_periodo"),
         payload.get("area"),
         payload.get("grupo"),

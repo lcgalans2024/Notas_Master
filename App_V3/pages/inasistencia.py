@@ -107,6 +107,8 @@ def _mostrar_historial_inasistencias(grupo: str) -> None:
     columnas_visibles = [
         col for col in [
             "fecha",
+            "periodo",
+            "semana_periodo",
             "grupo",
             "matricula",
             "estudiante",
@@ -224,22 +226,37 @@ def render_inasistencia() -> None:
     )
 
     with st.form("form_inasistencia"):
-        fecha = st.date_input("Fecha", value=date.today())
-        semana_periodo = st.selectbox("Semana del periodo", SEMANAS_PERIODO)
-        area = st.selectbox("Área", AREAS_DISPONIBLES)
-        grupo_form = st.text_input("Grupo", value=str(grupo), disabled=True)
+        col1, col2, col3, col4, col5 = st.columns(5)
+
+        with col1:
+            fecha = st.date_input("Fecha", value=date.today())
+        with col2:
+            periodo = st.text_input("Periodo", value=st.session_state.get("periodo"), disabled=True)
+        with col3:
+            semana_periodo = st.selectbox("Semana del periodo", SEMANAS_PERIODO)
+        with col4:
+            if grupo == "801":
+                area = st.text_input("Área", value="Todas", disabled=True)
+            else:
+                area = st.selectbox("Área", AREAS_DISPONIBLES)
+        with col5:
+            grupo_form = st.text_input("Grupo", value=str(grupo), disabled=True)
 
         seleccion_estudiante = st.selectbox(
             "Estudiante",
             options=df_estudiantes["label"].tolist(),
         )
 
+        col1, col2, col3, col4 = st.columns(4)
+
         fila = df_estudiantes.loc[df_estudiantes["label"] == seleccion_estudiante].iloc[0]
         matricula = str(fila["matricula"])
         estudiante = str(fila["nombre"])
 
-        st.text_input("Matrícula", value=matricula, disabled=True)
-        st.text_input("Estudiante", value=estudiante, disabled=True)
+        with col1:
+            st.text_input("Matrícula", value=matricula, disabled=True)
+        with col2:
+            st.text_input("Estudiante", value=estudiante, disabled=True)
 
         observaciones = st.text_area(
             "Observaciones",
@@ -274,6 +291,7 @@ def render_inasistencia() -> None:
     try:
         payload = {
             "fecha": str(fecha),
+            "periodo": str(periodo),
             "semana_periodo": semana_periodo,
             "area": area,
             "grupo": str(grupo),
