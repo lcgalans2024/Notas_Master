@@ -231,3 +231,119 @@ def escribir_autoevaluacion_en_hoja_notas(
         valor=nota_final,
         nombre_columna_matricula=nombre_columna_matricula,
     )
+
+def guardar_inasistencia(
+    sheet_id: str,
+    worksheet_name: str,
+    payload: dict,
+) -> None:
+    """
+    Guarda un registro de inasistencia en Google Sheets.
+    """
+    fecha_registro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    row_values = [
+        payload.get("fecha"),
+        payload.get("semana_periodo"),
+        payload.get("area"),
+        payload.get("grupo"),
+        payload.get("matricula"),
+        payload.get("estudiante"),
+        payload.get("observaciones"),
+        payload.get("registrado_por_documento"),
+        payload.get("registrado_por_nombre"),
+        payload.get("rol_registrador"),
+        fecha_registro,
+        "activo",
+    ]
+
+    append_row_to_worksheet(
+        sheet_id=sheet_id,
+        worksheet_name=worksheet_name,
+        row_values=row_values,
+    )
+
+def existe_inasistencia_registrada(
+    sheet_id: str,
+    worksheet_name: str,
+    fecha: str,
+    grupo: str,
+    matricula: str,
+    area: str,
+) -> bool:
+    """
+    Verifica si ya existe un registro de inasistencia con la misma combinación:
+    fecha + grupo + matrícula + área
+    """
+    registros = get_all_records_from_worksheet(sheet_id, worksheet_name)
+
+    fecha = str(fecha).strip()
+    grupo = str(grupo).strip()
+    matricula = str(matricula).strip()
+    area = str(area).strip().lower()
+
+    for fila in registros:
+        if (
+            str(fila.get("fecha", "")).strip() == fecha
+            and str(fila.get("grupo", "")).strip() == grupo
+            and str(fila.get("matricula", "")).strip() == matricula
+            and str(fila.get("area", "")).strip().lower() == area
+        ):
+            return True
+
+    return False
+
+def anular_inasistencia_por_claves(
+    sheet_id: str,
+    worksheet_name: str,
+    fecha: str,
+    grupo: str,
+    matricula: str,
+    area: str,
+) -> None:
+    """
+    Marca como 'anulado' un registro de inasistencia
+    identificado por fecha + grupo + matrícula + área.
+    """
+    worksheet = obtener_worksheet(sheet_id, worksheet_name)
+    valores = worksheet.get_all_values()
+
+    if not valores:
+        raise ValueError("La hoja está vacía.")
+
+    encabezados = valores[0]
+
+    columnas_requeridas = ["fecha", "grupo", "matricula", "area", "estado"]
+    indices = {}
+
+    for col in columnas_requeridas:
+        if col not in encabezados:
+            raise KeyError(f"No se encontró la columna '{col}' en la hoja '{worksheet_name}'.")
+        indices[col] = encabezados.index(col) + 1
+
+    fecha = str(fecha).strip()
+    grupo = str(grupo).strip()
+    matricula = str(matricula).strip()
+    area = str(area).strip().lower()
+
+    fila_objetivo = None
+
+    for i, fila in enumerate(valores[1:], start=2):
+        val_fecha = fila[indices["fecha"] - 1] if len(fila) >= indices["fecha"] else ""
+        val_grupo = fila[indices["grupo"] - 1] if len(fila) >= indices["grupo"] else ""
+        val_matricula = fila[indices["matricula"] - 1] if len(fila) >= indices["matricula"] else ""
+        val_area = fila[indices["area"] - 1] if len(fila) >= indices["area"] else ""
+
+        if (
+            str(val_fecha).strip() == fecha
+            and str(val_grupo).strip() == grupo
+            and str(val_matricula).strip() == matricula
+            and str(val_area).strip().lower() == area
+        ):
+            fila_objetivo = i
+            break
+
+    if fila_objetivo is None:
+        raise ValueError("No se encontró el registro de inasistencia a anular.")
+
+    worksheet.update_cell(fila_objetivo, indices["estado"], "anulado")

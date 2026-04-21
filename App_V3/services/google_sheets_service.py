@@ -225,3 +225,17 @@ def cargar_notas_debug(grupo: str, periodo: str) -> pd.DataFrame:
     Carga notas sin ocultar el resultado, útil para depuración manual.
     """
     return cargar_notas(grupo=grupo, periodo=periodo)
+
+@st.cache_data(ttl=120, show_spinner=False)
+def cargar_inasistencias() -> pd.DataFrame:
+    """
+    Carga la hoja de inasistencias desde el spreadsheet principal.
+    """
+    sheet_id = _obtener_sheet_id_principal()
+    gid = SHEETS_CONFIG.get("gid_inasistencia")
+
+    if gid in (None, "", "None"):
+        raise KeyError("No se ha configurado la hoja de inasistencia en 'gid_inasistencia'.")
+
+    url = construir_url_csv(sheet_id, gid)
+    return leer_hoja_csv(url)
