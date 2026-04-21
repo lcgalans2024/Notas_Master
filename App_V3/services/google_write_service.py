@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import gspread
 import streamlit as st
@@ -109,7 +110,7 @@ def guardar_autoevaluacion(
     - criterio_1 ... criterio_10
     - nota_final
     """
-    fecha_registro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_registro = datetime.now(ZoneInfo("America/Bogota")).strftime("%Y-%m-%d %H:%M:%S")
 
     row_values = [
         payload.get("documento"),
@@ -240,7 +241,7 @@ def guardar_inasistencia(
     """
     Guarda un registro de inasistencia en Google Sheets.
     """
-    fecha_registro = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha_registro = datetime.now(ZoneInfo("America/Bogota")).strftime("%Y-%m-%d %H:%M:%S")
 
     row_values = [
         payload.get("fecha"),
