@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from datetime import date
 
 from components.alerts import (
@@ -25,6 +26,7 @@ AREAS_DISPONIBLES = [
 ]
 
 SEMANAS_PERIODO = [
+    "Selecciona una semana",
     "Semana 1",
     "Semana 2",
     "Semana 3",
@@ -225,6 +227,18 @@ def render_inasistencia() -> None:
         "Verifica cuidadosamente los datos antes de guardar el registro."
     )
 
+    if st.session_state.get("reset_form_inasistencia", False):
+        st.session_state["semana_periodo_inasistencia"] = "Selecciona una semana"
+        st.session_state["reset_form_inasistencia"] = False
+
+    if st.session_state.get("mostrar_balloons_inasistencia", False):
+        st.balloons()
+        st.session_state["mostrar_balloons_inasistencia"] = False
+
+    df_inasistencias = cargar_inasistencias()
+    st.divider()
+    st.dataframe(df_inasistencias.head(20), use_container_width=True, hide_index=True)
+
     with st.form("form_inasistencia"):
         col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -233,7 +247,12 @@ def render_inasistencia() -> None:
         with col2:
             periodo = st.text_input("Periodo", value=st.session_state.get("periodo"), disabled=True)
         with col3:
-            semana_periodo = st.selectbox("Semana del periodo", SEMANAS_PERIODO)
+            semana_periodo = st.selectbox(
+                "Semana del periodo",
+                SEMANAS_PERIODO,
+                key="semana_periodo_inasistencia",
+                index=0,
+                )
         with col4:
             if grupo == "801":
                 area = st.text_input("Área", value="Todas", disabled=True)
@@ -265,22 +284,36 @@ def render_inasistencia() -> None:
 
         enviado = st.form_submit_button("Guardar registro", use_container_width=True)
 
-    st.divider()
-    _mostrar_historial_inasistencias(grupo=str(grupo))
+    with st.expander("Ver historial de inasistencias del grupo", expanded=True):
+            #df_inasistencias = cargar_inasistencias()  # Recargar para mostrar el registro recién agregado
+            df_hoy = df_inasistencias.copy()
+            df_hoy["fecha"] = pd.to_datetime(df_hoy["fecha"], errors="coerce").dt.date
+            df_hoy = df_hoy.loc[(df_hoy["fecha"] == fecha) & (df_hoy["grupo"] == int(grupo_form))].copy()
+    
+            if not df_hoy.empty:
+                st.dataframe(df_hoy[["fecha", "grupo", "matricula", "estudiante", "area", "observaciones"]], use_container_width=True, hide_index=True)
+            else:
+                st.write("No hay registros de inasistencia para hoy.")
 
-    st.divider()
-    _render_anulacion_inasistencias(grupo=str(grupo))
-    if not enviado:
+            st.divider()
+            _render_anulacion_inasistencias(grupo=str(grupo))
+
+    if semana_periodo == "Selecciona una semana":
+        render_error_box("Debes seleccionar la semana del periodo para continuar.")
+        return 
+     
+    try:
+        ya_existe = existe_inasistencia_registrada(
+            sheet_id=INASISTENCIA_SHEET_ID,
+            worksheet_name=INASISTENCIA_WORKSHEET,
+            fecha=str(fecha),
+            grupo=str(grupo),
+            matricula=str(matricula),
+            area=str(area),
+        )
+    except Exception as exc:
+        render_error_box(f"Ocurrió un error al verificar registros existentes: {exc}")
         return
-
-    ya_existe = existe_inasistencia_registrada(
-        sheet_id=INASISTENCIA_SHEET_ID,
-        worksheet_name=INASISTENCIA_WORKSHEET,
-        fecha=str(fecha),
-        grupo=str(grupo),
-        matricula=str(matricula),
-        area=str(area),
-    )
 
     if ya_existe:
         render_error_box(
@@ -310,10 +343,20 @@ def render_inasistencia() -> None:
         )
 
         render_success_box("La inasistencia fue registrada correctamente.")
-        st.rerun()
+        st.session_state["mostrar_balloons_inasistencia"] = True
+        st.session_state["reset_form_inasistencia"] = True
+        df_inasistencias = cargar_inasistencias()
+        if enviado:
+            st.cache_data.clear()
+            st.rerun()
+        #st.rerun()        
 
     except Exception as exc:
         render_error_box(f"Ocurrió un error al guardar la inasistencia: {exc}")
+
+    
+    
+    
 
 
     
