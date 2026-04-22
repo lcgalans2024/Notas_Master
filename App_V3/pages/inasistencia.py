@@ -235,6 +235,7 @@ def render_inasistencia() -> None:
         st.balloons()
         st.session_state["mostrar_balloons_inasistencia"] = False
 
+
     with st.form("form_inasistencia"):
         col1, col2, col3, col4, col5 = st.columns(5)
 
@@ -281,7 +282,7 @@ def render_inasistencia() -> None:
         enviado = st.form_submit_button("Guardar registro", use_container_width=True)
 
     with st.expander("Ver historial de inasistencias del grupo", expanded=True):
-            #df_inasistencias = cargar_inasistencias()  # Recargar para mostrar el registro recién agregado
+            df_inasistencias = cargar_inasistencias()  # Recargar para mostrar el registro recién agregado
             df_hoy = df_inasistencias.copy()
             df_hoy["fecha"] = pd.to_datetime(df_hoy["fecha"], errors="coerce").dt.date
             df_hoy = df_hoy.loc[(df_hoy["fecha"] == fecha) & (df_hoy["grupo"] == int(grupo_form))].copy()
@@ -341,7 +342,6 @@ def render_inasistencia() -> None:
         render_success_box("La inasistencia fue registrada correctamente.")
         st.session_state["mostrar_balloons_inasistencia"] = True
         st.session_state["reset_form_inasistencia"] = True
-        df_inasistencias = cargar_inasistencias()
         if enviado:
             st.cache_data.clear()
             st.rerun()
