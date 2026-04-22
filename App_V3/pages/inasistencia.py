@@ -14,7 +14,9 @@ from services.google_write_service import (
     anular_inasistencia_por_claves,
 )
 from services.usuarios_service import obtener_estudiantes_por_grupo_y_anio
-from services.google_sheets_service import cargar_inasistencias
+from services.google_sheets_service import (limpiar_cache_datos,
+                                            cargar_inasistencias,
+                                            )
 
 
 INASISTENCIA_SHEET_ID = SHEETS_CONFIG["sheet_id_principal"]
@@ -129,6 +131,45 @@ def _mostrar_historial_inasistencias(grupo: str) -> None:
 
     st.subheader("Historial reciente de inasistencias")
     st.dataframe(df_grupo.head(20), use_container_width=True, hide_index=True)
+
+def _render_mostrar_inasistencia_hoy(grupo: str) -> None:
+    """
+    Muestra los registros de inasistencia del grupo seleccionado para el día actual.
+    """
+    try:
+        df_inasistencias = cargar_inasistencias()
+    except Exception as exc:
+        render_error_box(f"No fue posible cargar las inasistencias para hoy: {exc}")
+        return
+
+    if df_inasistencias is None or df_inasistencias.empty:
+        render_info_box("Aún no hay registros de inasistencia.")
+        return
+
+    columnas_esperadas = {"fecha", "grupo", "matricula", "estudiante", "area"}
+    faltantes = columnas_esperadas - set(df_inasistencias.columns)
+
+    if faltantes:
+        render_error_box(
+            f"La hoja de inasistencia no contiene las columnas esperadas: {', '.join(sorted(faltantes))}"
+        )
+        return
+
+    df_hoy = df_inasistencias.copy()
+    df_hoy["fecha"] = pd.to_datetime(df_hoy["fecha"], errors="coerce").dt.date
+    df_hoy["grupo"] = df_hoy["grupo"].astype(str).str.strip()
+
+    if "estado" in df_hoy.columns:
+        df_hoy["estado"] = df_hoy["estado"].astype(str).str.strip().str.lower()
+        df_hoy = df_hoy.loc[df_hoy["estado"] != "anulado"].copy()
+
+    df_hoy = df_hoy.loc[
+        (df_hoy["fecha"] == date.today()) & (df_hoy["grupo"] == str(grupo).strip())
+    ].copy()
+
+    st.subheader("Inasistencias registrada hoy")
+    if not df_hoy.empty:
+        st.dataframe(df_hoy[["fecha", "grupo", "matricula", "estudiante", "area", "observaciones"]], use_container_width=True, hide_index=True)
 
 def _render_anulacion_inasistencias(grupo: str) -> None:
     """
@@ -282,18 +323,11 @@ def render_inasistencia() -> None:
         enviado = st.form_submit_button("Guardar registro", use_container_width=True)
 
     with st.expander("Ver historial de inasistencias del grupo", expanded=True):
-            df_inasistencias = cargar_inasistencias()  # Recargar para mostrar el registro recién agregado
-            df_hoy = df_inasistencias.copy()
-            df_hoy["fecha"] = pd.to_datetime(df_hoy["fecha"], errors="coerce").dt.date
-            df_hoy = df_hoy.loc[(df_hoy["fecha"] == fecha) & (df_hoy["grupo"] == int(grupo_form))].copy()
-    
-            if not df_hoy.empty:
-                st.dataframe(df_hoy[["fecha", "grupo", "matricula", "estudiante", "area", "observaciones"]], use_container_width=True, hide_index=True)
-            else:
-                st.write("No hay registros de inasistencia para hoy.")
 
-            st.divider()
-            _render_anulacion_inasistencias(grupo=str(grupo))
+        _render_mostrar_inasistencia_hoy(grupo=str(grupo))
+
+        st.divider()
+        _render_anulacion_inasistencias(grupo=str(grupo))
 
     if semana_periodo == "Selecciona una semana":
         render_error_box("Debes seleccionar la semana del periodo para continuar.")
@@ -343,9 +377,8 @@ def render_inasistencia() -> None:
         st.session_state["mostrar_balloons_inasistencia"] = True
         st.session_state["reset_form_inasistencia"] = True
         if enviado:
-            st.cache_data.clear()
-            st.rerun()
-        #st.rerun()        
+            limpiar_cache_datos()
+            st.rerun()       
 
     except Exception as exc:
         render_error_box(f"Ocurrió un error al guardar la inasistencia: {exc}")
