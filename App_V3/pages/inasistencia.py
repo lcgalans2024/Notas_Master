@@ -235,10 +235,6 @@ def render_inasistencia() -> None:
         st.balloons()
         st.session_state["mostrar_balloons_inasistencia"] = False
 
-    df_inasistencias = cargar_inasistencias()
-    st.divider()
-    st.dataframe(df_inasistencias.head(20), use_container_width=True, hide_index=True)
-
     with st.form("form_inasistencia"):
         col1, col2, col3, col4, col5 = st.columns(5)
 
