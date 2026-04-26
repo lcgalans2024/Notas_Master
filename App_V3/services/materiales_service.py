@@ -504,24 +504,60 @@ def mostrar_actividades() -> None:
 
         if periodo == "P1":
             ##############################################################
-            st.markdown("- Criterios de divisibilidad")
+            st.markdown("###### - Actividad: tablas de frecuencia")
             try:
-                with open("App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                with open("App_V3/docs/actividades/Actividad_tablas_frecuencia_ASF7_B4_A4_8.pdf", "rb") as file:
                     st.download_button(
                         label="- [📥 Descargar Actividad](#)",
                         data=file,
-                        file_name="Actividad criterios.pdf",
+                        file_name="Actividad_tablas_frecuencia_ASF7_B4_A4_8.pdf",
                         mime="application/pdf"
                     )
             except:
-                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad criterios.pdf", "rb") as file:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad_tablas_frecuencia_ASF7_B4_A4_8.pdf", "rb") as file:
                     st.download_button(
                         label="- [📥 Descargar Actividad](#)",
                         data=file,
-                        file_name="Actividad criterios.pdf",
+                        file_name="Actividad_tablas_frecuencia_ASF7_B4_A4_8.pdf",
                         mime="application/pdf"
                     )
-
+            ##############################################################
+            st.markdown("###### - Actividad: tablas distribución de frecuencia")
+            try:
+                with open("App_V3/docs/actividades/Actividad tablas distribución de frecuencia.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad tablas distribución de frecuencia.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad tablas distribución de frecuencia.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad tablas distribución de frecuencia.pdf",
+                        mime="application/pdf"
+                    )
+            ##############################################################
+            st.markdown("###### - Actividad: datos agrupados")
+            try:
+                with open("App_V3/docs/actividades/Actividad Datos Agrupados.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad Datos Agrupados.pdf",
+                        mime="application/pdf"
+                    )
+            except:
+                with open("D:/Repositorios/Notas_Master/App_V3/docs/actividades/Actividad Datos Agrupados.pdf", "rb") as file:
+                    st.download_button(
+                        label="- [📥 Descargar Actividad](#)",
+                        data=file,
+                        file_name="Actividad Datos Agrupados.pdf",
+                        mime="application/pdf"
+                    )
+            return
     try:
         df_materiales = obtener_materiales_usuario(grupo=grupo, anio_academico=anio_academico)
     except Exception as exc:

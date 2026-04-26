@@ -44,6 +44,7 @@ def _obtener_opciones_menu() -> list[str]:
         "Autoevaluación",
         "Inasistencia",
         "Administración",
+        "Test Google Connection",
     ]
 
     if rol == "admin":
