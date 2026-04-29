@@ -270,6 +270,8 @@ def render_inasistencia() -> None:
 
     if st.session_state.get("reset_form_inasistencia", False):
         st.session_state["semana_periodo_inasistencia"] = "Selecciona una semana"
+        st.session_state["estudiantes_inasistencia"] = []
+        st.session_state["observaciones_inasistencia"] = ""
         st.session_state["reset_form_inasistencia"] = False
 
     if st.session_state.get("mostrar_balloons_inasistencia", False):
@@ -299,29 +301,91 @@ def render_inasistencia() -> None:
         with col5:
             grupo_form = st.text_input("Grupo", value=str(grupo), disabled=True)
 
-        seleccion_estudiante = st.selectbox(
-            "Estudiante",
-            options=df_estudiantes["label"].tolist(),
-        )
-
-        col1, col2, col3, col4 = st.columns(4)
-
-        fila = df_estudiantes.loc[df_estudiantes["label"] == seleccion_estudiante].iloc[0]
-        matricula = str(fila["matricula"])
-        estudiante = str(fila["nombre"])
-
-        with col1:
-            st.text_input("Matrícula", value=matricula, disabled=True)
-        with col2:
-            st.text_input("Estudiante", value=estudiante, disabled=True)
-
+        seleccion_estudiante = st.multiselect(
+        "Estudiantes inasistentes",
+        options=df_estudiantes["label"].tolist(),
+        key="estudiantes_inasistencia",
+    )
+        
         observaciones = st.text_area(
             "Observaciones",
             placeholder="Escribe aquí la observación correspondiente...",
         )
 
         enviado = st.form_submit_button("Guardar registro", use_container_width=True)
+        
+        if enviado:
+            if semana_periodo == "Selecciona una semana":
+                render_error_box("Debes seleccionar la semana del periodo para continuar.")
+                return
+            
+            if not seleccion_estudiante:
+                render_error_box("Debes seleccionar al menos un estudiante para registrar la inasistencia.")
+                return
 
+            guardados = 0
+            duplicados = []
+
+            try:
+                for estudiante in seleccion_estudiante:
+                    fila = df_estudiantes.loc[df_estudiantes["label"] == estudiante].iloc[0]
+                    matricula = str(fila["matricula"])
+                    estudiante = str(fila["nombre"])
+
+                    ya_existe = existe_inasistencia_registrada(
+                        sheet_id=INASISTENCIA_SHEET_ID,
+                        worksheet_name=INASISTENCIA_WORKSHEET,
+                        fecha=str(fecha),
+                        grupo=str(grupo),
+                        matricula=str(matricula),
+                        area=str(area),
+                    )
+
+                    if ya_existe:
+                        duplicados.append(estudiante)
+                        continue
+
+                    payload = {
+                        "fecha": str(fecha),
+                        "periodo": str(periodo),
+                        "semana_periodo": semana_periodo,
+                        "area": area,
+                        "grupo": str(grupo),
+                        "matricula": matricula,
+                        "estudiante": estudiante,
+                        "observaciones": observaciones.strip(),
+                        "registrado_por_documento": str(usuario),
+                        "registrado_por_nombre": str(nombre_usuario),
+                        "rol_registrador": str(rol),
+                    }
+
+                    if len(duplicados) == 0:
+                        guardar_inasistencia(
+                            sheet_id=INASISTENCIA_SHEET_ID,
+                            worksheet_name=INASISTENCIA_WORKSHEET,
+                            payload=payload,
+                        )
+
+                        guardados += 1
+
+                if duplicados:
+                        render_info_box(
+                            "No se registro la inasistencia porque algunos estudiantes ya tenían inasistencia "
+                            f"registrada para esa fecha y área: {', '.join(duplicados)}"
+                        )
+
+                if len(duplicados) == 0:
+                    render_success_box(
+                        f"Se guardaron correctamente {guardados} registros de inasistencia."
+                    )
+                    st.session_state["mostrar_balloons_inasistencia"] = True
+                    st.session_state["reset_form_inasistencia"] = True
+                    limpiar_cache_datos()
+                    st.rerun()
+
+            except Exception as exc:
+                render_error_box(f"Ocurrió un error al verificar registros existentes: {exc}")
+                return            
     with st.expander("Ver historial de inasistencias del grupo", expanded=True):
 
         _render_mostrar_inasistencia_hoy(grupo=str(grupo))
@@ -329,59 +393,19 @@ def render_inasistencia() -> None:
         st.divider()
         _render_anulacion_inasistencias(grupo=str(grupo))
 
-    if semana_periodo == "Selecciona una semana":
-        render_error_box("Debes seleccionar la semana del periodo para continuar.")
-        return 
-     
-    try:
-        ya_existe = existe_inasistencia_registrada(
-            sheet_id=INASISTENCIA_SHEET_ID,
-            worksheet_name=INASISTENCIA_WORKSHEET,
-            fecha=str(fecha),
-            grupo=str(grupo),
-            matricula=str(matricula),
-            area=str(area),
-        )
-    except Exception as exc:
-        render_error_box(f"Ocurrió un error al verificar registros existentes: {exc}")
-        return
+    #try:
+    #    render_success_box("La inasistencia fue registrada correctamente.")
+    #    st.session_state["mostrar_balloons_inasistencia"] = True
+    #    st.session_state["reset_form_inasistencia"] = True
+    #    if enviado:
+    #        limpiar_cache_datos()
+    #        st.rerun()       
+#
+    #
+    #except Exception as exc:
+    #    render_error_box(f"Ocurrió un error al guardar la inasistencia: {exc}")
 
-    if ya_existe:
-        render_error_box(
-            "Ya existe un registro de inasistencia para este estudiante en esa fecha y área."
-        )
-        return
-
-    try:
-        payload = {
-            "fecha": str(fecha),
-            "periodo": str(periodo),
-            "semana_periodo": semana_periodo,
-            "area": area,
-            "grupo": str(grupo),
-            "matricula": matricula,
-            "estudiante": estudiante,
-            "observaciones": observaciones.strip(),
-            "registrado_por_documento": str(usuario),
-            "registrado_por_nombre": str(nombre_usuario),
-            "rol_registrador": str(rol),
-        }
-
-        guardar_inasistencia(
-            sheet_id=INASISTENCIA_SHEET_ID,
-            worksheet_name=INASISTENCIA_WORKSHEET,
-            payload=payload,
-        )
-
-        render_success_box("La inasistencia fue registrada correctamente.")
-        st.session_state["mostrar_balloons_inasistencia"] = True
-        st.session_state["reset_form_inasistencia"] = True
-        if enviado:
-            limpiar_cache_datos()
-            st.rerun()       
-
-    except Exception as exc:
-        render_error_box(f"Ocurrió un error al guardar la inasistencia: {exc}")
+    #st.dataframe(df_estudiantes[["matricula", "nombre"]], use_container_width=True, hide_index=True)
 
     
     
