@@ -45,6 +45,7 @@ def _obtener_opciones_menu() -> list[str]:
         "Inasistencia",
         "Administración",
         "Test Google Connection",
+        "Balance",
     ]
 
     if rol == "admin":
@@ -118,6 +119,10 @@ def _actualizar_contexto_si_cambia_anio(nuevo_anio: str) -> None:
             if st.session_state.get("periodo") not in periodos_disponibles:
                 st.session_state["periodo"] = periodos_disponibles[0]
 
+def _obtener_grupos_disponibles_por_anio(anio_academico: str) -> list[str]:
+    grupos_disponibles = SHEETS_CONFIG.get("grupos_disponibles", {})
+    return grupos_disponibles.get(str(anio_academico), [])
+
 
 def _render_filtros_generales() -> None:
     """
@@ -126,7 +131,6 @@ def _render_filtros_generales() -> None:
     - Admin: puede seleccionar manualmente el grupo.
     """
     anios = SHEETS_CONFIG.get("anios_disponibles", [])
-    grupos_disponibles = SHEETS_CONFIG.get("grupos_disponibles", [])
     rol = st.session_state.get("rol", "estudiante")
 
     anio_actual = st.session_state.get("anio_academico")
@@ -145,7 +149,8 @@ def _render_filtros_generales() -> None:
 
     # Grupo
     if rol == "admin":
-        grupos_disponibles = [str(g) for g in grupos_disponibles]
+        grupos_disponibles = _obtener_grupos_disponibles_por_anio(nuevo_anio)
+        
 
         if grupos_disponibles:
             if grupo_actual not in grupos_disponibles:

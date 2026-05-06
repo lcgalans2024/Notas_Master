@@ -6,8 +6,10 @@ SHEETS_CONFIG = {
     # ======================================================
     #"sheet_id_principal": "1J-CZASJTrqhLXlmkFY_DavyG2aQ5HBaS",
     "sheet_id_principal": "15ELuuOC2jO_bQzl9pDqhiMfE4EunZRw2f89p-0-dORE",
-
-
+    # ======================================================
+    # ID consolidados por grupo y periodo
+    # ======================================================
+    "sheet_id_consolidados": "1-o01rW92IhES6rVF1Wm21ll7N5Y7R6-4",
     # ======================================================
     # En esta primera versión usamos el mismo archivo
     # también para las hojas de notas por grupo/periodo
@@ -61,6 +63,22 @@ SHEETS_CONFIG = {
         "notas_804_P2": "1751435765",
         "notas_805_P2": "797512472",
     },
+    # ======================================================
+    # Hojas consolidado por grupo y periodo
+    # ======================================================
+    "gids_consolidados": {
+        "notas": "0",
+        "601": "847053289",
+        "602": "2080976296",
+        "701_P1": "1097370573",
+        "701_P2": "2026688764",
+        "701_P3": "1058168610",
+        "701_P4": "1261760485",
+        "702_P1": "826727624",
+        "702": "1314501183",
+        "702_P4": "110407363",
+        "801_P1": "2083814543",
+    },
 
     # ======================================================
     # Hojas auxiliares
@@ -75,19 +93,24 @@ SHEETS_CONFIG = {
     # ======================================================
     "anios_disponibles": ["2025", "2026"],
     "periodos_disponibles": ["P1", "P2", "P3", "P4"],
-    "grupos_disponibles": [
-        "601",
-        "602",
-        "701",
-        "702",
-        "703",
-        "704",
-        "801",
-        "802",
-        "803",
-        "804",
-        "805",
-    ],
+    # grupodisponibles se mantiene como referencia, pero la idea es que cada año académico tenga sus propios grupos asociados en la base de datos.
+    "grupos_disponibles": {
+        "2025": [
+            "601",
+            "602",
+            "701",
+            "702",
+            "703",
+            "704",
+        ],
+        "2026": [
+            "801",
+            "802",
+            "803",
+            "804",
+            "805",
+        ],
+    },
 
     # ======================================================
     # Información auxiliar

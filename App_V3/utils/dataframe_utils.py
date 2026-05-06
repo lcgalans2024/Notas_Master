@@ -161,3 +161,42 @@ dict_orden_actividades = {
 dict_orden_procesos = {
             'HACER':1, 'SABER':2, 'AUTOEVALUACIÓN':3, 'PRUEBA_PERIODO':4
         }
+
+def eliminar_columnas_vacías(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Elimina columnas que están completamente vacías (todas las filas son NaN).
+    """
+    return df.dropna(axis=1, how='all')
+
+def eliminar_filas_vacías(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Elimina filas que están completamente vacías (todas las columnas son NaN).
+    """
+    return df.dropna(axis=0, how='all')
+
+def eliminar_primeras_filas(df: pd.DataFrame, n: int) -> pd.DataFrame:
+    """
+    Elimina las primeras n filas del DataFrame.
+    """
+    return df.iloc[n:].reset_index(drop=True)
+
+def eliminar_columnas_por_nombre(df: pd.DataFrame, nombres: list[str]) -> pd.DataFrame:
+    """
+    Elimina columnas que coincidan exactamente con los nombres proporcionados.
+    """
+    return df.drop(columns=[col for col in nombres if col in df.columns], errors='ignore')
+
+def eliminar_filas_por_valor_en_columna(df: pd.DataFrame, columna: str, valor) -> pd.DataFrame:
+    """
+    Elimina filas donde la columna especificada tenga el valor dado.
+    """
+    if columna in df.columns:
+        return df[df[columna] != valor].reset_index(drop=True)
+    return df
+
+# Eliminar columnas que contienen "Unnamed" en su nombre, común en archivos CSV exportados desde Excel o Google Sheets
+def eliminar_columnas_unnamed(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Elimina columnas cuyo nombre contiene "Unnamed", común en CSV exportados de Excel/Google Sheets.
+    """
+    return df.loc[:, ~df.columns.str.contains("Unnamed", case=False, na=False)] 

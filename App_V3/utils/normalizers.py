@@ -195,6 +195,7 @@ def homologar_columnas_estudiantes(df: pd.DataFrame) -> pd.DataFrame:
         "numero_documento": "documento",
         "n_documento": "documento",
         "identificacion": "documento",
+        "nro_documento": "documento",
 
         "nombre": "nombre",
         "nombre_completo": "nombre",

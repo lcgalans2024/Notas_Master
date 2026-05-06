@@ -4,7 +4,15 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 from services.notas_service import (cargar_notas, _preparar_base_notas)
-from services.google_sheets_service import _obtener_sheet_id_principal, _obtener_gid_notas, construir_url_csv, leer_hoja_csv
+from utils.dataframe_utils import (eliminar_columnas_vacías,
+                                   eliminar_filas_vacías,
+                                   eliminar_primeras_filas)
+from services.google_sheets_service import (_obtener_sheet_id_principal,
+                                            _obtener_gid_notas,
+                                            construir_url_csv,
+                                            leer_hoja_csv,
+                                            cargar_consolidado
+                                            )
 
 
 def render_test_google_connection() -> None:
@@ -38,6 +46,15 @@ def render_test_google_connection() -> None:
         df_notas = _preparar_base_notas(df_notas)
         st.write(f"Notas para el grupo {grupo} y periodo {periodo}:")
         st.dataframe(df_notas)
+
+        # Cargar consolidado
+        df_consolidado = cargar_consolidado(grupo, periodo)
+        st.write(f"Consolidado para el grupo {grupo} y periodo {periodo}:")
+        # Eliminar columnas vacías antes de mostrar el consolidado
+        df_consolidado = eliminar_columnas_vacías(df_consolidado)
+        df_consolidado = eliminar_filas_vacías(df_consolidado)
+        df_consolidado = eliminar_primeras_filas(df_consolidado, n=1)
+        st.dataframe(df_consolidado)
 
 
     except Exception as exc:

@@ -150,6 +150,23 @@ def cargar_roles() -> pd.DataFrame:
     url = construir_url_csv(sheet_id, gid)
     return leer_hoja_csv(url)
 
+def cargar_consolidado(grupo: str, periodo: str) -> pd.DataFrame:
+    """
+    Carga la hoja de consolidado para un grupo y periodo específicos.
+    """
+    sheet_id = SHEETS_CONFIG.get("sheet_id_consolidados")
+    clave = f"{grupo}_{periodo}"
+    gid = SHEETS_CONFIG.get("gids_consolidados", {}).get(clave)
+
+    if gid is None:
+        raise KeyError(
+            f"No existe configuración de consolidado para grupo='{grupo}' y periodo='{periodo}'. "
+            f"Clave buscada: '{clave}'."
+        )
+
+    url = construir_url_csv(sheet_id, gid)
+    return leer_hoja_csv(url)
+
 
 def existe_configuracion_notas(grupo: str, periodo: str) -> bool:
     """
