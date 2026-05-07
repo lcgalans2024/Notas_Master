@@ -8,12 +8,18 @@ from utils.dataframe_utils import (eliminar_columnas_vacías,
                                       eliminar_primeras_filas,
                                       eliminar_columnas_por_nombre,
                                       eliminar_filas_por_valor_en_columna,
-                                      eliminar_columnas_unnamed)
+                                      eliminar_columnas_unnamed,
+                                      melt_seguro,
+                                      )
 
 from utils.normalizers import (homologar_columnas_estudiantes,
                                normalizar_columnas_dataframe, normalizar_documento,
                                normalizar_matricula, normalizar_nombre_persona,
                                normalizar_puntaje)
+
+from components.visual_helpers import (color_calificacion,
+)
+
 
 """
 Funciones para balance de notas:
@@ -54,4 +60,5 @@ def preparar_balance_notas(df: pd.DataFrame) -> pd.DataFrame:
     # calcular promedio de las columnas de notas (todas excepto documento, matricula y nombre) y agregar una columna "promedio"
     columnas_notas = [col for col in df.columns if col not in ["documento", "matricula", "nombre","total_faltas", "no_aprobados"]]
     df["Nota_promedio"] = df[columnas_notas].mean(axis=1)
+    
     return df

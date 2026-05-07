@@ -79,3 +79,19 @@ MESSAGES = {
     "loading": "Cargando información...",
     "error_general": "Ocurrió un error al procesar la información.",
 }
+
+# -------------------------------------------------------------------
+# Diccionarios de mapeo y homologación
+# -------------------------------------------------------------------
+MATERIAS = {
+            "CNS": "CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL",
+            "ART": "EDUCACIÓN ARTISTICA Y CULTURAL",
+            "ETI": "EDUCACION ETICA  Y  EN VALORES HUMANOS",
+            "EDF": "EDUCACIÓN FÍSICA, RECREACIÓN Y DEPORTES",
+            "LEI": "LENGUA EXTRANJERA INGLES",
+            "MAT": "MATEMÁTICAS",
+            "CIE": "CIENCIAS SOCIALES",
+            "TEC": "TECNOLOGIA E INFORMÁTICA",
+            "REL": "EDUCACION RELIGIOSA",
+            "LEN": "LENGUA CASTELLANA"
+        }
