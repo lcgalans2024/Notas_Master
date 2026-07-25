@@ -10,8 +10,9 @@ from utils.dataframe_utils import (seleccionar_columnas_existentes,
                                    melt_seguro,
                                    
                                    )
-from services.google_sheets_service import obtener_debug_notas
-from services.google_sheets_service import obtener_debug_notas, cargar_notas_debug
+
+from services.google_sheets_service import (obtener_debug_notas,
+                                            cargar_notas_debug)
 """Se agregan funciones:
 _detectar_actividades,
 _diccionario_actividades,

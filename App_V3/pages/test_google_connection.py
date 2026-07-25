@@ -3,7 +3,12 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 
-from services.notas_service import (cargar_notas, _preparar_base_notas)
+from services.notas_service import (cargar_notas, 
+                                    _preparar_base_notas,
+                                    melt_notas_usuario,
+                                    obtener_notas_usuario,
+                                    melt_seguro,
+                                    )
 from utils.dataframe_utils import (eliminar_columnas_vacías,
                                    eliminar_filas_vacías,
                                    eliminar_primeras_filas)
@@ -12,6 +17,7 @@ from services.google_sheets_service import (_obtener_sheet_id_principal,
                                             construir_url_csv,
                                             leer_hoja_csv,
                                             cargar_consolidado
+                                            
                                             )
 
 
@@ -45,6 +51,37 @@ def render_test_google_connection() -> None:
         df_notas = cargar_notas(grupo, periodo)
         df_notas = _preparar_base_notas(df_notas)
         st.write(f"Notas para el grupo {grupo} y periodo {periodo}:")
+        st.dataframe(df_notas)
+
+        # Datos usuario
+        rol = st.session_state.get("rol", "estudiante")
+        usuario = st.session_state.get("usuario")
+        matricula = "260072"
+        grupo = "801"
+        periodo = "P2"
+
+        # Mostrar información del usuario
+        st.write(f"Rol: {rol}")
+        st.write(f"Usuario: {usuario}")
+        st.write(f"Matrícula: {matricula}")
+
+        st.write("notas del usuario y dict_actividades...")
+        df_notas, dict_actividades = obtener_notas_usuario(matricula, grupo, periodo)
+        st.dataframe(df_notas)
+        st.write(dict_actividades)
+       
+
+        st.write("Melted DataFrame:")
+        df_notas_melted = melt_seguro(df_notas, id_vars=["nombre","matricula"], var_name="id_actividad", value_name="Calificación")
+        st.dataframe(df_notas_melted)
+
+        #df_notas = melt_notas_usuario(
+        #            matricula=matricula,
+        #            grupo=grupo,
+        #            periodo=periodo,
+        #        )
+
+        st.write(f"Notas del estudiante {matricula} para el grupo {grupo} y periodo {periodo}:")
         st.dataframe(df_notas)
 
         # Cargar consolidado

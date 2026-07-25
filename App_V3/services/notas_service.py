@@ -143,6 +143,10 @@ def _filtrar_estudiante(df: pd.DataFrame, matricula: str) -> pd.DataFrame:
     #reemlazar None por cadena vacía para evitar problemas en la comparación
     df = df.fillna("")
     filtrado = df.loc[df["matricula"] == matricula].copy()
+    # Eliminar columna 1.20 si valor menor a 5.0
+    if filtrado["1.20"].notnull().any() and (filtrado["1.20"] < 5.0).any():
+        filtrado.drop(columns=["1.20"], inplace=True)
+        
 
     return filtrado.reset_index(drop=True), dict_actividades
 
@@ -216,9 +220,9 @@ def calcular_nota_acumulada(df_usuario):
     """
     # Definir los pesos para cada proceso
     pesos = {
-        'HACER': 0.3,
-        'SABER': 0.3,
-        'AUTOEVALUACIÓN': 0.2,
+        'HACER': 0.35,
+        'SABER': 0.35,
+        'AUTOEVALUACIÓN': 0.1,
         'PRUEBA_PERIODO': 0.2
     }
 
