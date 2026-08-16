@@ -114,7 +114,7 @@ def render_balance() -> None:
 
 
             # Calcular métricas de balance de notas para el estudiante seleccionado
-            df_estudiante = metricas_balance_por_estudiante(df_balance_varios, estudiante_seleccionado[0] if estudiante_seleccionado else None)
+            df_estudiante = metricas_balance_por_estudiante(df_balance_varios, estudiante_seleccionado if estudiante_seleccionado else None)
             st.write("Métricas de balance de notas para el estudiante seleccionado:")
             st.dataframe(df_estudiante)
         
