@@ -2,7 +2,8 @@ import streamlit as st
 from services.balance_service import (preparar_balance_notas,
                                       preparar_balance_varios_periodos,
                                       metricas_balance,
-                                      metricas_balance_por_estudiante
+                                      metricas_balance_por_estudiante,
+                                      mostrar_metricas_estudiante
                                       )
 from services.google_sheets_service import (cargar_consolidado,
                                             cargar_consolidado_año,
@@ -70,52 +71,53 @@ def render_balance() -> None:
 
     with tab2:
         st.subheader("Balance por varios periodos")
-        # Cargar consolidado para varios periodos
+
         df_consolidado_varios = cargar_consolidado_año(grupo, ano)
-        df_balance_varios = preparar_balance_varios_periodos(df_consolidado_varios)
-        st.write(f"Balance de notas para el grupo {grupo} y año {ano}:")
+        df_balance_varios = preparar_balance_varios_periodos(
+            df_consolidado_varios
+        )
+
+        st.write(
+            f"Balance de notas para el grupo {grupo} y año {ano}:"
+        )
         st.dataframe(df_balance_varios)
-        # Filtrar unicos por matricula
-        df_balance_varios_unicos = df_balance_varios.drop_duplicates(subset=["matricula"])
-        df_balance_varios_unicos = df_balance_varios_unicos[["matricula", "nombre", "promedio_p1", "reprobadas_p1", "superadas_p1","estado_p1"]]
-        # Indice de superadas y reprobadas por periodo
-        df_balance_varios_unicos["indice_superadas_p1"] = [1 if x == 0 else y/x for x, y in df_balance_varios_unicos[["reprobadas_p1", "superadas_p1"]].values]
-        st.write("Balance de notas para el grupo " + grupo + " y año " + ano + " (unicos por estudiante):")
-        def color_fila(row):
-            if row["reprobadas_p1"] > 5:
-                return ["background-color: #ffcccc"] * len(row)
-            elif row["superadas_p1"] > 0:
-                return ["background-color: #ccffcc"] * len(row)
-            else:
-                return [""] * len(row)
-        st.dataframe(df_balance_varios_unicos.style.apply(color_fila, axis=1))
-        # Metricas de balance de notas para varios periodos
+
+        df_balance_varios_unicos = (
+            df_balance_varios
+            .drop_duplicates(subset=["matricula"])
+            [
+                [
+                    "matricula",
+                    "nombre",
+                    "promedio_p1",
+                    "reprobadas_p1",
+                    "superadas_p1",
+                    "estado_p1"
+                ]
+            ]
+            .copy()
+        )
+
+        df_balance_varios_unicos["indice_superadas_p1"] = [
+            1 if x == 0 else y / x
+            for x, y in df_balance_varios_unicos[
+                ["reprobadas_p1", "superadas_p1"]
+            ].values
+        ]
+
+        # redondear indice_superadas_p1 a 2 decimales
+        df_balance_varios_unicos["indice_superadas_p1"] = df_balance_varios_unicos["indice_superadas_p1"].round(2)
+
+        st.dataframe(df_balance_varios_unicos)
+
+        st.header("Métricas generales de grupo")
+
         metricas = metricas_balance(df_balance_varios_unicos)
-        st.write("Métricas de balance de notas para varios periodos:")
-        for key, value in metricas.items():
-            st.write(f"{key}: {value}")
 
-        # Metricas de balance de notas para un estudiante específico
-        #df_balance_varios_unicos = df_balance_varios_unicos.sort_values(by="promedio_p1", ascending=False)
-        estudiante_seleccionado = st.selectbox("Selecciona un estudiante para ver sus métricas:", df_balance_varios_unicos["nombre"].unique())
-        if estudiante_seleccionado:
-            df_estudiante = df_balance_varios_unicos[df_balance_varios_unicos["nombre"].isin([estudiante_seleccionado])]
-            #st.write("Métricas de balance de notas para el estudiante seleccionado:")
-            #st.dataframe(df_estudiante)
-            # Crear tarjetas
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric(label="Promedio P1", value=df_estudiante["promedio_p1"].values[0])
-            with col2:
-                st.metric(label="Reprobadas P1", value=df_estudiante["reprobadas_p1"].values[0])
-            with col3:
-                st.metric(label="Superadas P1", value=df_estudiante["superadas_p1"].values[0])
-            style_metric_cards(border_color="#3A74E7")
-
-
-            # Calcular métricas de balance de notas para el estudiante seleccionado
-            df_estudiante = metricas_balance_por_estudiante(df_balance_varios, estudiante_seleccionado if estudiante_seleccionado else None)
-            st.write("Métricas de balance de notas para el estudiante seleccionado:")
-            st.dataframe(df_estudiante)
+        # Esta sección se vuelve independiente
+        mostrar_metricas_estudiante(
+            df_balance_varios_unicos,
+            df_balance_varios
+        )
         
         

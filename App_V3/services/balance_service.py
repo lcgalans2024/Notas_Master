@@ -20,6 +20,8 @@ from utils.normalizers import (homologar_columnas_estudiantes,
 from components.visual_helpers import (color_calificacion,
 )
 
+from streamlit_extras.metric_cards import style_metric_cards
+
 
 """
 Funciones para balance de notas:
@@ -108,7 +110,7 @@ def metricas_balance(df: pd.DataFrame) -> dict:
     promedio_no_aprobados_p1 = round(promedio_no_aprobados_p1, 2) if not pd.isna(promedio_no_aprobados_p1) else 0.0
     indice_reprobacion_p1 = df[df["reprobadas_p1"] > 0].shape[0] / total_estudiantes if total_estudiantes > 0 else 0.0
 
-    return {
+    metricas = {
         "total_estudiantes": total_estudiantes,
         "promedio_p1": promedio_p1,
         "promedio_p2": promedio_p2,
@@ -118,6 +120,35 @@ def metricas_balance(df: pd.DataFrame) -> dict:
         "indice_reprobacion_p1": indice_reprobacion_p1
     }
 
+    col1, col2, col3 = st.columns(3)
+            
+    with col1:
+        st.metric(
+            label="Total de estudiantes",
+            value=f"{metricas['total_estudiantes']:.0f}"
+        )
+
+    with col2:
+        st.metric(
+            label="Promedio de grupo P1",
+            value=f"{metricas['promedio_p1']:.1f}"
+        )
+
+    with col3:
+        st.metric(
+            label="Indice de reprobación P1",
+            value=f"{metricas['indice_reprobacion_p1']:.2f}"
+        )
+
+    style_metric_cards(border_color="#3A74E7")
+
+    # dataframe con los estudiantes que tienen reprobadas_p1 > 0, mostrando solo las columnas matricula, nombre, reprobadas_p1, superadas_p1, estado_p1, ordenado por reprobadas_p1 descendente 
+    df_reprobados_p1 = df[df["reprobadas_p1"] > 3][["matricula", "nombre", "reprobadas_p1", "superadas_p1", "indice_superadas_p1"]].copy()
+    df_reprobados_p1 = df_reprobados_p1.sort_values(by="reprobadas_p1", ascending=False)
+    st.dataframe(df_reprobados_p1)
+
+    return metricas
+
 def metricas_balance_por_estudiante(df: pd.DataFrame, estudiante: str) -> pd.DataFrame:
     # Calcula métricas básicas del balance de notas por estudiante.
 
@@ -125,3 +156,59 @@ def metricas_balance_por_estudiante(df: pd.DataFrame, estudiante: str) -> pd.Dat
     df_estudiante = df[df["nombre"] == estudiante][["materia", "p1", "p2", "estado_p1","estado_p2"]].copy()
 
     return df_estudiante
+
+@st.fragment
+def mostrar_metricas_estudiante(df_balance_varios_unicos, df_balance_varios):
+
+    estudiantes = (
+        df_balance_varios_unicos["nombre"]
+        .dropna()
+        .unique()
+        .tolist()
+    )
+
+    estudiante_varios = st.selectbox(
+        "Selecciona un estudiante para ver sus métricas:",
+        estudiantes,
+        key="balance_estudiante_varios"
+    )
+
+    df_estudiante = df_balance_varios_unicos[
+        df_balance_varios_unicos["nombre"] == estudiante_varios
+    ]
+
+    if df_estudiante.empty:
+        st.warning("No se encontraron datos para el estudiante seleccionado.")
+        return
+
+    estudiante = df_estudiante.iloc[0]
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric(
+            label="Promedio P1",
+            value=f"{estudiante['promedio_p1']:.1f}"
+        )
+
+    with col2:
+        st.metric(
+            label="Reprobadas P1",
+            value=int(estudiante["reprobadas_p1"])
+        )
+
+    with col3:
+        st.metric(
+            label="Superadas P1",
+            value=int(estudiante["superadas_p1"])
+        )
+
+    style_metric_cards(border_color="#3A74E7")
+
+    df_metricas = metricas_balance_por_estudiante(
+        df_balance_varios,
+        estudiante_varios
+    )
+
+    st.write("Métricas de balance del estudiante seleccionado:")
+    st.dataframe(df_metricas)
