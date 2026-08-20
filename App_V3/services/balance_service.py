@@ -106,6 +106,8 @@ def metricas_balance(df: pd.DataFrame) -> dict:
     #promedio_p4 = df["promedio_p4"].mean()
     #promedio_p4 = round(promedio_p4, 2) if not pd.isna(promedio_p4) else 0.0
     #aprobados_p1 = df[df["estado_p1"] == "A"].shape[0]
+    total_reprobadas_p1 = df["reprobadas_p1"].sum()
+    total_superadas_p1 = df["superadas_p1"].sum()
     promedio_no_aprobados_p1 = df[df["reprobadas_p1"] > 0]["reprobadas_p1"].mean()
     promedio_no_aprobados_p1 = round(promedio_no_aprobados_p1, 2) if not pd.isna(promedio_no_aprobados_p1) else 0.0
     indice_reprobacion_p1 = df[df["reprobadas_p1"] > 0].shape[0] / total_estudiantes if total_estudiantes > 0 else 0.0
@@ -117,10 +119,12 @@ def metricas_balance(df: pd.DataFrame) -> dict:
         #"promedio_p3": promedio_p3,
         #"promedio_p4": promedio_p4,
         "promedio_no_aprobados_p1": promedio_no_aprobados_p1,
-        "indice_reprobacion_p1": indice_reprobacion_p1
+        "indice_reprobacion_p1": indice_reprobacion_p1,
+        "total_reprobadas_p1": total_reprobadas_p1,
+        "total_superadas_p1": total_superadas_p1,
     }
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4, col5 = st.columns(5)
             
     with col1:
         st.metric(
@@ -138,6 +142,18 @@ def metricas_balance(df: pd.DataFrame) -> dict:
         st.metric(
             label="Indice de reprobación P1",
             value=f"{metricas['indice_reprobacion_p1']:.2f}"
+        )
+
+    with col4:
+        st.metric(
+            label="Total de reprobadas P1",
+            value=f"{metricas['total_reprobadas_p1']:.0f}"
+        )
+
+    with col5:
+        st.metric(
+            label="Total de superadas P1",
+            value=f"{metricas['total_superadas_p1']:.0f}"
         )
 
     style_metric_cards(border_color="#3A74E7")
