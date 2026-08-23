@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import numpy as np
 import streamlit as st
 
 from utils.dataframe_utils import (eliminar_columnas_vacías,
@@ -64,6 +65,210 @@ def preparar_balance_notas(df: pd.DataFrame) -> pd.DataFrame:
     df["Nota_promedio"] = df[columnas_notas].mean(axis=1)
     
     return df
+#######################################################------------------#############################################################
+# Crear función para signar desempeño, si P4 < 3.0 entonces "Bj", si P4 <4.0 entonces "Ba", si P4 < 4.5 entonces "Al" si no "Sp"
+def asignar_desempeno(nota):
+    if nota < 3.0:
+        return "Bj"
+    elif nota < 4.0:
+        return "Ba"
+    elif nota < 4.6:
+        return "Al"
+    else:
+        return "Sp"
+    
+
+def _obtener_fila_columna_texto(df, texto):
+    mask = df.astype(str).apply(lambda x: x.str.lower().str.contains(texto, na=False))
+    fila, columna = np.where(mask)
+    return fila[0], columna[0]
+
+# función para obtener el primer y último índice no nulo de una columna específica
+def obtener_indices_no_nulos(df, columna):
+    col = df.iloc[:, columna]
+    primer_indice = col.first_valid_index()
+    ultimo_indice = col.last_valid_index()
+    return primer_indice, ultimo_indice
+
+# función para eliminar columnas con nombre "FN" y "A"
+def eliminar_columnas(df: pd.DataFrame,list_cols=['FN', 'A', 'P']) -> pd.DataFrame:
+    return df.drop(columns=[col for col in df.columns if col[1] in list_cols], errors='ignore')
+#==========================================================================================================
+# Función para filtrar el DataFrame por un rango de filas y columnas
+def _procesar_consolidado_varios_periodos(df):
+    """ Permite recortar y estructurar el archivo consolidado varios periodos,
+    identificando la fecha de generación del archivo la columna nombre completlo para seleccionar
+    unicamente los estudiantes y la información en las respectivas materias"""
+    # obtener indice de fila y columna de la celda que contiene el texto "Fecha de generación"
+    fila_fecha, columna_fecha = _obtener_fila_columna_texto(df, 'fecha')
+    fecha_generacion = df.iloc[fila_fecha, columna_fecha]
+    print(f"Fecha de generación: {fecha_generacion}")
+    # Recortar el DataFrame a partir de la primera fila no nula en la columna "Nombre completo"
+    fila_Nombre_completo, columna_Nombre_completo = _obtener_fila_columna_texto(df, 'nombre completo')
+    mask = df.iloc[:, columna_Nombre_completo].notnull()
+    fila_No_aprobados, columna_No_aprobados = _obtener_fila_columna_texto(df, 'no aprobados')
+    fila_P1, columna_P1 = _obtener_fila_columna_texto(df, 'p1')
+    DF_recortado = df.iloc[np.sort(np.append(np.where(mask)[0], fila_P1)), :columna_No_aprobados+1]  # Recortar hasta la columna 32
+    # pasar la primera fila como encabezado y eliminarla
+    DF_recortado.columns = DF_recortado.iloc[0]
+    DF_recortado = DF_recortado.iloc[1:]
+    # eliminar columnas vacias
+    DF_recortado.dropna(axis=1, how='all', inplace=True)
+    # eliminar filas vacias
+    DF_recortado.dropna(axis=0, how='all', inplace=True)
+    # resetear el indice
+    DF_recortado.reset_index(drop=True, inplace=True)
+    #DF_recortado = DF_recortado[DF_recortado['Est'] != 'C']
+    DF_recortado.drop(columns=['Ord'],inplace=True)
+    DF_recortado.drop(columns=['No aprobados'],inplace=True)
+    DF_recortado.set_index([ 'Nombre completo',
+                            'Matrícula',
+                            'Est',
+                            'Total faltas'
+                            ], inplace=True)
+
+    return DF_recortado
+
+# Contar por fila cuantas celdas contienen '#' según el periodo
+def _contar_sharp_por_periodo(row, periodo):
+    superadas = 0
+    reprobadas = 0
+    for col in row.index:
+        if col[1] == periodo:
+            val = row[col]
+            if isinstance(val, str) and '#' in val or float(val) < 3.0:
+                reprobadas += 1
+            if isinstance(val, str) and '#' in val and float(val.lstrip('#')) == 3.0:
+                superadas += 1
+    return reprobadas, superadas
+
+def _mean_row_multiindex(
+        df: pd.DataFrame,
+        subniveles: list[str] | None=None
+        ) -> pd.DataFrame:
+    """Calcular el promedio por fila para cada sub nivel
+    y agrgarlo c en las respectivas columnas al df"""
+
+    # Calcular promedio por fila según el periodo inclullendo las celdas con '#', sin eliminar los '#' del promedio
+    for periodo in subniveles:
+        # Filtrar las columnas del periodo actual
+        cols_periodo = [col for col in df.columns if col[1] == periodo]
+
+        # Calcular el promedio ponderado considerando las celdas con '#'
+        promedio_ponderado = df[cols_periodo].apply(
+            lambda row: row.apply(
+                lambda x: float(x.lstrip('#')) 
+                if isinstance(x, str) and '#' in x 
+                else float(x) 
+                if pd.notnull(x) 
+                else 0
+                ).mean(), 
+                axis=1)
+
+        # Agregar la columna de promedio al DataFrame
+        df[f'PROMEDIO_{periodo}'] = promedio_ponderado.round(1)
+
+    # agregar columna de conteo de '#' por periodo
+    for periodo in subniveles:
+        df[f'REPROBADAS_{periodo}'] = df.apply(lambda row: _contar_sharp_por_periodo(row, periodo)[0], axis=1)
+        df[f'SUPERADAS_{periodo}'] = df.apply(lambda row: _contar_sharp_por_periodo(row, periodo)[1], axis=1)
+
+    return df
+#==========================================================================================================
+def pasar_a_multi_index(
+        df: pd.DataFrame,
+        subniveles: list[str] | None=None
+        ) -> pd.DataFrame:
+    """Pasa el dataframe un multi index"""
+    df = _procesar_consolidado_varios_periodos(df)
+
+    
+
+    colIndex = pd.MultiIndex.from_product(
+        [['CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL',
+          'EDUCACIÓN ARTISTICA Y CULTURAL',
+          'EDUCACION ETICA  Y  EN VALORES HUMANOS',
+          'EDUCACIÓN FÍSICA,'
+          'RECREACIÓN Y DEPORTES',
+          'EDUCACION RELIGIOSA',
+          'LENGUA CASTELLANA',
+          'MATEMÁTICAS',
+          'TECNOLOGIA E INFORMÁTICA',
+          'LENGUA EXTRANJERA INGLES',
+          'CIENCIAS SOCIALES'],
+          #["P1", "A","P","FN"]]
+          ["P1", "P2", "P3", "A","P","FN"],
+          #["P1", "P2", "P3", "P4", "A","P","FN"],
+          ]
+    )
+
+    df.columns = colIndex
+    df = df.iloc[1:,:]
+
+    # sub niveles a eliminar
+    eliminar = list(set(["P1", "P2", "P3", "A","P","FN"]) - set(subniveles))
+
+    df = eliminar_columnas(df, eliminar)
+
+    df = _mean_row_multiindex(df, subniveles)
+
+    # Agregar columnas de promedio, superación y reprobación al índice del DataFrame
+    df.set_index(['PROMEDIO_P1', 'PROMEDIO_P2', 'REPROBADAS_P1', 'SUPERADAS_P1', 'REPROBADAS_P2', 'SUPERADAS_P2'], append=True, inplace=True)
+
+    return df
+
+def derretir_VP(
+        df: pd.DataFrame,
+        subniveles: list[str] | None=None
+        ) -> pd.DataFrame:
+    columnas_interes = ['P1', 'P2']
+    #columnas_interes = ['P1']
+    df_largo = (
+        df.stack(level=0)  # Materias como variable
+        .loc[:, columnas_interes]  # Nos quedamos solo con esas columnas
+        .reset_index()
+        .rename(columns={"level_10": "Materia"})
+    )
+    # ordenar por la columna 'Nombre completo'
+    df_largo = df_largo.sort_values(by='Nombre completo')
+
+    return df_largo
+
+def asignar_desempeno_v2(nota):
+    # Verificar si la nota es un string y contiene '#'
+    if isinstance(nota, str) and '#' in nota:
+        # Asignar desempeño según la nota y si contiene '#'
+        if float(nota.lstrip('#')) <= 3.0:
+            return "Bj"
+        elif float(nota.lstrip('#')) < 4.0:
+            return "Ba"
+        elif float(nota.lstrip('#')) < 4.5:
+            return "Al"
+        else:
+            return "Su"
+    else:
+        # Asignar desempeño según la nota si es un número
+        if float(nota) < 3.0:
+            return "Bj"
+        elif float(nota) < 4.0:
+            return "Ba"
+        elif float(nota) < 4.5:
+            return "Al"
+        else:
+            return "Su"
+
+def estado_materia(df,subniveles):
+    for periodo in subniveles:
+        df[f'Superaciones_{periodo}'] = df[periodo].apply(lambda x: "S" if isinstance(x, str) and '#' in x and float(x.lstrip('#')) == 3.0 
+                                                            else("R" if isinstance(x, str) and '#' in x and float(x.lstrip('#')) < 3.0 
+                                                                 else ("R" if isinstance(x, str) and float(x) < 3.0 
+                                                                       else ("A" if isinstance(x, str) and float(x) >= 3.0 
+                                                                             else ("R" if float(x) < 3.0 else "A")))))
+
+def eliminar_sharp(df, subniveles):
+    for periodo in subniveles:
+        df[periodo] = df[periodo].apply(lambda x: float(x.lstrip('#')) if isinstance(x, str) and '#' in x else float(x) if pd.notnull(x) else 0)
+#######################################################------------------#############################################################
 
 def preparar_balance_varios_periodos(df: pd.DataFrame) -> pd.DataFrame:
     """
