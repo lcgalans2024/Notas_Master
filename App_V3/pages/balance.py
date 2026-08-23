@@ -3,10 +3,16 @@ from services.balance_service import (preparar_balance_notas,
                                       preparar_balance_varios_periodos,
                                       metricas_balance,
                                       metricas_balance_por_estudiante,
+                                      pasar_a_multi_index,
+                                      derretir_VP,
+                                      asignar_desempeno_v2,
+                                      estado_materia,
+                                      eliminar_sharp,
                                       mostrar_metricas_estudiante
                                       )
 from services.google_sheets_service import (cargar_consolidado,
                                             cargar_consolidado_año,
+                                            cargar_consolidado_año_2,
                                             cargar_notas)
 from utils.dataframe_utils import (eliminar_columnas_vacías,
                                    eliminar_filas_vacías,
@@ -72,11 +78,40 @@ def render_balance() -> None:
     with tab2:
         st.subheader("Balance por varios periodos")
 
+        df_consolidado_vp = cargar_consolidado_año_2(grupo, ano)
         df_consolidado_varios = cargar_consolidado_año(grupo, ano)
         df_balance_varios = preparar_balance_varios_periodos(
             df_consolidado_varios
         )
-
+        st.write('================================================================')
+        Df = pasar_a_multi_index(df_consolidado_vp,["P1", "P2"])
+        df_est = Df.index.to_frame(index=False)
+        # Completar columna Est con activos e Identificar cancelados
+        df_est.Est = df_est.Est.fillna("A")
+        Est_cancelados = df_est[df_est['Est'] == 'C'].shape[0]
+        df_est_materia = derretir_VP(Df,["P1", "P2"])
+        df_est_materia = df_est_materia[df_est_materia.Est != 'C'].copy()
+        df_est_materia = df_est_materia.drop(columns=['Est', 'Total faltas', 'PROMEDIO_P1',
+                                                      'PROMEDIO_P2', 'REPROBADAS_P1', 'SUPERADAS_P1',
+                                                      'REPROBADAS_P2', 'SUPERADAS_P2'
+                                                      ])
+        # Aplicar la función a la columna 'P1' y 'P2'
+        for periodo in ['P1', 'P2']:
+            df_est_materia[f'Desempeño_{periodo}'] = df_est_materia[periodo].apply(asignar_desempeno_v2)
+        # Crear columna de estado materia en periodo por periodo según las reglas especificadas
+        estado_materia(df_est_materia, ["P1", "P2"])
+        # Eliminar los "#" de las columnas de periodo para que solo queden los valores numéricos
+        eliminar_sharp(df_est_materia, ["P1", "P2"])
+        df_materias = df_est_materia[['Materia', 'P1', 'P2']].copy()
+        st.metric(
+                    label="Cancelados",
+                    value=f"{Est_cancelados:.2f}"
+                )
+        style_metric_cards(border_color="#3A74E7")
+        st.dataframe(df_est)
+        st.dataframe(df_est_materia)
+        st.dataframe(df_materias)
+        st.write('================================================================')
         st.write(
             f"Balance de notas para el grupo {grupo} y año {ano}:"
         )
