@@ -85,10 +85,16 @@ def render_balance() -> None:
         )
         st.write('================================================================')
         Df = pasar_a_multi_index(df_consolidado_vp,["P1", "P2"])
+        
         df_est = Df.index.to_frame(index=False)
+
+        df_est = preparar_balance_varios_periodos(df_est)
+
         # Completar columna Est con activos e Identificar cancelados
-        df_est.Est = df_est.Est.fillna("A")
-        Est_cancelados = df_est[df_est['Est'] == 'C'].shape[0]
+        df_est.est = df_est.est.fillna("A")
+
+        Est_cancelados = df_est[df_est['est'] == 'C'].shape[0]
+
         df_est_materia = derretir_VP(Df,["P1", "P2"])
         df_est_materia = df_est_materia[df_est_materia.Est != 'C'].copy()
         df_est_materia = df_est_materia.drop(columns=['Est', 'Total faltas', 'PROMEDIO_P1',
@@ -102,20 +108,27 @@ def render_balance() -> None:
         estado_materia(df_est_materia, ["P1", "P2"])
         # Eliminar los "#" de las columnas de periodo para que solo queden los valores numéricos
         eliminar_sharp(df_est_materia, ["P1", "P2"])
-        df_materias = df_est_materia[['Materia', 'P1', 'P2']].copy()
-        st.metric(
-                    label="Cancelados",
-                    value=f"{Est_cancelados:.2f}"
-                )
-        style_metric_cards(border_color="#3A74E7")
+
+        df_est_materia = preparar_balance_varios_periodos(df_est_materia)
+
+        df_materias = df_est_materia[['materia', 'p1', 'p2']].copy()
+
+        df_est["indice_superadas_p1"] = [
+                    1 if x == 0 else y / x
+                    for x, y in df_est[
+                        ["reprobadas_p1", "superadas_p1"]
+                    ].values
+                ]
+
+        metricas = metricas_balance(df_est)
+
         st.dataframe(df_est)
         st.dataframe(df_est_materia)
         st.dataframe(df_materias)
         st.write('================================================================')
-        st.write(
-            f"Balance de notas para el grupo {grupo} y año {ano}:"
-        )
-        st.dataframe(df_balance_varios)
+
+        #st.write(f"Balance de notas para el grupo {grupo} y año {ano}:")
+        #st.dataframe(df_balance_varios)
 
         df_balance_varios_unicos = (
             df_balance_varios
@@ -143,16 +156,17 @@ def render_balance() -> None:
         # redondear indice_superadas_p1 a 2 decimales
         df_balance_varios_unicos["indice_superadas_p1"] = df_balance_varios_unicos["indice_superadas_p1"].round(2)
 
-        st.dataframe(df_balance_varios_unicos)
+        #st.dataframe(df_balance_varios_unicos)
 
-        st.header("Métricas generales de grupo")
+        st.header("Métricas individuales")
 
-        metricas = metricas_balance(df_balance_varios_unicos)
+
+        #metricas = metricas_balance(df_est)
 
         # Esta sección se vuelve independiente
         mostrar_metricas_estudiante(
-            df_balance_varios_unicos,
-            df_balance_varios
+            df_est,
+            df_est_materia
         )
         
         

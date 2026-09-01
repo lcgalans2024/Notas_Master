@@ -298,12 +298,27 @@ def metricas_balance(df: pd.DataFrame) -> dict:
     """
     Calcula métricas básicas del balance de notas.
     """
+    Est_cancelados = df[df['est'] == 'C'].shape[0]
+    df = df[df.est != 'C'].copy()
     total_estudiantes = df.shape[0]
+
     promedio_p1 = df["promedio_p1"].mean()
     promedio_p1 = round(promedio_p1, 2) if not pd.isna(promedio_p1) else 0.0
+    maximo_p1 = df["promedio_p1"].max()
+    minimo_p1 = df["promedio_p1"].min()
+    total_reprobadas_p1 = df["reprobadas_p1"].sum()
+    total_superadas_p1 = df["superadas_p1"].sum()
+    promedio_no_aprobados_p1 = df[df["reprobadas_p1"] > 0]["reprobadas_p1"].mean()
+    promedio_no_aprobados_p1 = round(promedio_no_aprobados_p1, 2) if not pd.isna(promedio_no_aprobados_p1) else 0.0
+    indice_reprobacion_p1 = df[df["reprobadas_p1"] > 0].shape[0] / total_estudiantes if total_estudiantes > 0 else 0.0
     try:
         promedio_p2 = df["promedio_p2"].mean()
         promedio_p2 = round(promedio_p2, 2) if not pd.isna(promedio_p2) else 0.0
+        maximo_p2 = df["promedio_p2"].max()
+        minimo_p2 = df["promedio_p2"].min()
+        total_reprobadas_p2 = df["reprobadas_p2"].sum()
+        total_superadas_p2 = df["superadas_p2"].sum()
+        indice_reprobacion_p2 = df[df["reprobadas_p2"] > 0].shape[0] / total_estudiantes if total_estudiantes > 0 else 0.0
     except KeyError:
         promedio_p2 = 0.0
     #promedio_p3 = df["promedio_p3"].mean()
@@ -311,61 +326,94 @@ def metricas_balance(df: pd.DataFrame) -> dict:
     #promedio_p4 = df["promedio_p4"].mean()
     #promedio_p4 = round(promedio_p4, 2) if not pd.isna(promedio_p4) else 0.0
     #aprobados_p1 = df[df["estado_p1"] == "A"].shape[0]
-    total_reprobadas_p1 = df["reprobadas_p1"].sum()
-    total_superadas_p1 = df["superadas_p1"].sum()
-    promedio_no_aprobados_p1 = df[df["reprobadas_p1"] > 0]["reprobadas_p1"].mean()
-    promedio_no_aprobados_p1 = round(promedio_no_aprobados_p1, 2) if not pd.isna(promedio_no_aprobados_p1) else 0.0
-    indice_reprobacion_p1 = df[df["reprobadas_p1"] > 0].shape[0] / total_estudiantes if total_estudiantes > 0 else 0.0
 
     metricas = {
         "total_estudiantes": total_estudiantes,
+        "total_cancelados": Est_cancelados,
         "promedio_p1": promedio_p1,
         "promedio_p2": promedio_p2,
+        "Máximo P1": maximo_p1,
+        "Máximo P2": maximo_p2,
+        "Mínimo P1": minimo_p1,
+        "Mínimo P2": minimo_p2,
         #"promedio_p3": promedio_p3,
         #"promedio_p4": promedio_p4,
         "promedio_no_aprobados_p1": promedio_no_aprobados_p1,
         "indice_reprobacion_p1": indice_reprobacion_p1,
+        "indice_reprobacion_p2": indice_reprobacion_p2,
         "total_reprobadas_p1": total_reprobadas_p1,
         "total_superadas_p1": total_superadas_p1,
+        "total_reprobadas_p2": total_reprobadas_p2,
+        "total_superadas_p2": total_superadas_p2,
     }
 
-    col1, col2, col3, col4, col5 = st.columns(5)
+    col1, col2, col3, col4 = st.columns(4)
+                
+    with col2:    
+        st.metric(
+                label="Total de estudiantes",
+                value=f"{metricas['total_estudiantes']:.0f}"
+                )
+    
+    with col3:
+        st.metric(
+                label="Cancelados",
+                value=f"{metricas['total_cancelados']:.0f}"
+                )
+
+    col1, col2, col3, col4 = st.columns(4)
             
     with col1:
         st.metric(
-            label="Total de estudiantes",
-            value=f"{metricas['total_estudiantes']:.0f}"
-        )
+                label="Promedio de grupo P1",
+                value=f"{metricas['promedio_p1']:.1f}"
+                ) 
+
+        st.metric(
+                label="Promedio de grupo P2",
+                value=f"{metricas['promedio_p2']:.1f}"
+                )      
 
     with col2:
+        
         st.metric(
-            label="Promedio de grupo P1",
-            value=f"{metricas['promedio_p1']:.1f}"
-        )
+                label="Máximo P1",
+                value=f"{metricas['Máximo P1']:.2f}"
+                )
+
+        st.metric(
+                label="Máximo P2",
+                value=f"{metricas['Máximo P2']:.2f}"
+                )
+
 
     with col3:
         st.metric(
-            label="Indice de reprobación P1",
-            value=f"{metricas['indice_reprobacion_p1']:.2f}"
-        )
+                label="Mínimo P1",
+                value=f"{metricas['Mínimo P1']:.2f}"
+                )
+        
+        st.metric(
+                label="Mínimo P2",
+                value=f"{metricas['Mínimo P2']:.2f}"
+                )
 
     with col4:
         st.metric(
-            label="Total de reprobadas P1",
-            value=f"{metricas['total_reprobadas_p1']:.0f}"
-        )
-
-    with col5:
+            label="Indice de reprobación P1",
+            value=f"{metricas['indice_reprobacion_p1']:.2f}"
+            )
         st.metric(
-            label="Total de superadas P1",
-            value=f"{metricas['total_superadas_p1']:.0f}"
-        )
+            label="Indice de reprobación P2",
+            value=f"{metricas['indice_reprobacion_p2']:.2f}"
+            )
+        
 
     style_metric_cards(border_color="#3A74E7")
 
     # dataframe con los estudiantes que tienen reprobadas_p1 > 0, mostrando solo las columnas matricula, nombre, reprobadas_p1, superadas_p1, estado_p1, ordenado por reprobadas_p1 descendente 
-    df_reprobados_p1 = df[df["reprobadas_p1"] > 3][["matricula", "nombre", "reprobadas_p1", "superadas_p1", "indice_superadas_p1"]].copy()
-    df_reprobados_p1 = df_reprobados_p1.sort_values(by="reprobadas_p1", ascending=False)
+    df_reprobados_p1 = df[df["reprobadas_p2"] > 3][["matricula", "nombre", "reprobadas_p1", "superadas_p1", "indice_superadas_p1", "reprobadas_p2"]].copy()
+    df_reprobados_p1 = df_reprobados_p1.sort_values(by="reprobadas_p2", ascending=False)
     st.dataframe(df_reprobados_p1)
 
     return metricas
@@ -374,7 +422,7 @@ def metricas_balance_por_estudiante(df: pd.DataFrame, estudiante: str) -> pd.Dat
     # Calcula métricas básicas del balance de notas por estudiante.
 
     # Selector de estudiante
-    df_estudiante = df[df["nombre"] == estudiante][["materia", "p1", "p2", "estado_p1","estado_p2"]].copy()
+    df_estudiante = df[df["nombre"] == estudiante][["materia", "p1", "p2", "superaciones_p1","superaciones_p2"]].copy()
 
     return df_estudiante
 
