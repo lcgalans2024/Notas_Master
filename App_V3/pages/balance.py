@@ -12,7 +12,7 @@ from services.balance_service import (preparar_balance_notas,
                                       )
 from services.google_sheets_service import (cargar_consolidado,
                                             cargar_consolidado_año,
-                                            cargar_consolidado_año_2,
+                                            cargar_consolidado_año_vp,
                                             cargar_notas)
 from utils.dataframe_utils import (eliminar_columnas_vacías,
                                    eliminar_filas_vacías,
@@ -78,7 +78,7 @@ def render_balance() -> None:
     with tab2:
         st.subheader("Balance por varios periodos")
 
-        df_consolidado_vp = cargar_consolidado_año_2(grupo, ano)
+        df_consolidado_vp = cargar_consolidado_año_vp(grupo, ano)
         df_consolidado_varios = cargar_consolidado_año(grupo, ano)
         df_balance_varios = preparar_balance_varios_periodos(
             df_consolidado_varios

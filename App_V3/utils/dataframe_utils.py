@@ -15,6 +15,7 @@ Diseñado para evitar errores comunes al manipular datos con pandas."""
 from __future__ import annotations
 
 import pandas as pd
+import numpy as np
 
 
 def verificar_columnas_requeridas(
@@ -199,4 +200,13 @@ def eliminar_columnas_unnamed(df: pd.DataFrame) -> pd.DataFrame:
     """
     Elimina columnas cuyo nombre contiene "Unnamed", común en CSV exportados de Excel/Google Sheets.
     """
-    return df.loc[:, ~df.columns.str.contains("Unnamed", case=False, na=False)] 
+    return df.loc[:, ~df.columns.str.contains("Unnamed", case=False, na=False)]
+
+# función para eliminar columnas en multiindex que tengan un valor específico en el segundo nivel del índice de columnas
+def eliminar_columnas_multiindex(df: pd.DataFrame,list_cols=['FN', 'A', 'P']) -> pd.DataFrame:
+    return df.drop(columns=[col for col in df.columns if col[1] in list_cols], errors='ignore')
+
+def obtener_fila_columna_texto(df: pd.DataFrame, texto: str) -> tuple[int, int]:
+    mask = df.astype(str).apply(lambda x: x.str.lower().str.contains(texto, na=False))
+    fila, columna = np.where(mask)
+    return fila[0], columna[0]

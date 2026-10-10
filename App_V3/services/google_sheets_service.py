@@ -184,7 +184,7 @@ def cargar_consolidado_año(grupo: str, año: str) -> pd.DataFrame:
     url = construir_url_csv(sheet_id, gid)
     return leer_hoja_csv(url)
 
-def cargar_consolidado_año_2(grupo: str, año: str) -> pd.DataFrame:
+def cargar_consolidado_año_vp(grupo: str, año: str) -> pd.DataFrame:
     """
     Carga la hoja de consolidado para un grupo y año específicos.
     """

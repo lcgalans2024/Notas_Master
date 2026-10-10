@@ -1,7 +1,10 @@
 import streamlit as st
 
 from components.alerts import render_empty_state, render_error_box, render_info_box
-from services.informe_service import obtener_informe_usuario
+from services.informe_service import (
+    obtener_informe_usuario,
+    consolidar_balance_vp
+)
 
 
 def _mostrar_encabezado() -> None:
@@ -52,8 +55,9 @@ def render_informe() -> None:
     st.divider()
 
     usuario = st.session_state.get("usuario")
-    grupo = st.session_state.get("grupo")
+    grupo = st.session_state.get("grupo","801")
     periodo = st.session_state.get("periodo")
+    ano = st.session_state.get("anio_academico", "2026")
 
     if not usuario:
         render_info_box("No hay un usuario autenticado en la sesión.")
@@ -85,6 +89,4 @@ def render_informe() -> None:
                 "para este estudiante en el periodo seleccionado."
             ),
         )
-        return
-
-    _mostrar_informe(df_informe)
+    return st.dataframe(consolidar_balance_vp(grupo, ano), use_container_width=True, hide_index=True)
