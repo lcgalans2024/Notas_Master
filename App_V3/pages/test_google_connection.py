@@ -23,18 +23,18 @@ from services.google_sheets_service import (_obtener_sheet_id_principal,
 
 def render_test_google_connection() -> None:
     st.title("Prueba de conexión con Google Sheets")
-
     try:
+        
         scopes = [
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive",
         ]
-
+        
         creds = Credentials.from_service_account_info(
             st.secrets["gcp_service_account"],
             scopes=scopes,
         )
-
+        st.write("OK")
         client = gspread.authorize(creds)
 
         sheet = client.open_by_key("15ELuuOC2jO_bQzl9pDqhiMfE4EunZRw2f89p-0-dORE")
@@ -52,6 +52,9 @@ def render_test_google_connection() -> None:
         df_notas = _preparar_base_notas(df_notas)
         st.write(f"Notas para el grupo {grupo} y periodo {periodo}:")
         st.dataframe(df_notas)
+        # Mostrar info del DataFrame
+        st.write("Información del DataFrame de notas:")
+        st.write(df_notas.dtypes)
 
         # Datos usuario
         rol = st.session_state.get("rol", "estudiante")

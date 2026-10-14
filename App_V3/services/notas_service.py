@@ -144,8 +144,13 @@ def _filtrar_estudiante(df: pd.DataFrame, matricula: str) -> pd.DataFrame:
     df = df.fillna("")
     filtrado = df.loc[df["matricula"] == matricula].copy()
     # Eliminar columna 1.20 si valor menor a 5.0
-    if filtrado["1.20"].notnull().any() and (filtrado["1.20"] < 5.0).any():
-        filtrado.drop(columns=["1.20"], inplace=True)
+    try:
+        if filtrado["1.20"].notnull().any() and (filtrado["1.20"] < 5.0).any():
+            filtrado.drop(columns=["1.20"], inplace=True)
+
+    except KeyError:
+        # La columna "1.20" no existe, no hacer nada
+        pass
         
 
     return filtrado.reset_index(drop=True), dict_actividades
@@ -243,7 +248,7 @@ def calcular_nota_acumulada(df_usuario):
         else:
             promedio_ponderado = acumulado / ponderacion
 
-    return ponderacion, round(acumulado, 1), round(promedio_ponderado, 1)
+    return ponderacion, round(acumulado, 2), round(promedio_ponderado, 1)
 
 def melt_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFrame:
     """
