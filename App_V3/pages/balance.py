@@ -64,7 +64,7 @@ def render_balance() -> None:
     # mapear nombres de materias
     df_melted["materia"] = df_melted["materia"].map(MATERIAS)
     st.write("Balance de notas de " + ", ".join(estudiante_seleccionado) + ": ")
-    tabla_coloreada = df_melted[["materia", "nota"]].style.format({"nota": "{:.1f}"}).applymap(color_calificacion, subset=["nota"])
+    tabla_coloreada = df_melted[["materia", "nota"]].style.format({"nota": "{:.1f}"}).map(color_calificacion, subset=["nota"])
     st.dataframe(tabla_coloreada)
 
     # Crear tab para balance por periodo y varios periodos
