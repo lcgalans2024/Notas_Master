@@ -253,7 +253,8 @@ def mostrar_tabla_notas(df):
         df[["Proceso", "Actividad", "Calificación"]]
         .style
         .format({"Calificación": "{:.1f}"}, na_rep="")
-        .applymap(color_calificacion, subset=["Calificación"])
+        #.applymap(color_calificacion, subset=["Calificación"])
+        .map(color_calificacion, subset=["Calificación"])
         .set_table_styles([
             {'selector': 'th', 'props': [
                 ('text-align', 'center'),
