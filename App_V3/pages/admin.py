@@ -17,8 +17,11 @@ def render_admin() -> None:
 
     diag = st.session_state.get("diagnostics")
 
-    if diag is None:
-        st.info("Diagnóstico aún no disponible.")
+    if not diag:
+        st.info("Las métricas de diagnóstico aún no están disponibles.")
         return
 
-    render_diagnostics(diag)
+    render_diagnostics(
+        diag=diag,
+        execution_time=diag.get("execution_time")
+    )
