@@ -1,8 +1,20 @@
+import time
 import streamlit as st
 
 from config.settings import APP_CONFIG
 from core.session_state import inicializar_session_state
+from utils.diagnostics import (
+    track_session,
+    render_diagnostics
+)
 from core.navigation import render_app
+
+
+inicio_rerun = time.perf_counter()
+
+diag = track_session()
+
+st.session_state["diagnostics"] = diag
 
 
 def configurar_pagina() -> None:

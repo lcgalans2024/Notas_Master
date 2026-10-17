@@ -12,6 +12,7 @@ from pages.autoevaluacion import render_autoevaluacion
 from pages.admin import render_admin
 from pages.inasistencia import render_inasistencia
 from pages.balance import render_balance
+from utils.diagnostics import render_diagnostics
 #######################################################
 from pages.test_google_connection import render_test_google_connection
 ######################################################################
@@ -38,6 +39,7 @@ def _render_pagina_seleccionada(menu: str) -> None:
         "Administración": render_admin,
         "Inasistencia": render_inasistencia,
         "Balance": render_balance,
+        "Diagnósticos": render_diagnostics,
     }
 
     render_func = paginas.get(menu, render_inicio)

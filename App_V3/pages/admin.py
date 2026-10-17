@@ -1,5 +1,6 @@
 import streamlit as st
 from services.google_sheets_service import cargar_roles
+from utils.diagnostics import render_diagnostics
 
 def render_admin() -> None:
     if st.session_state.get("rol") != "admin":
@@ -13,3 +14,10 @@ def render_admin() -> None:
     st.subheader("Prueba de carga de roles")
     df_roles = cargar_roles()
     st.dataframe(df_roles, use_container_width=True)
+
+    diag = st.session_state.get("diagnostics")
+    
+    if diag:
+        render_diagnostics(diag)
+    else:
+        st.info("Las métricas de diagnóstico aún no están disponibles.")
