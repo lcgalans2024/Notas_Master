@@ -8,14 +8,6 @@ from utils.diagnostics import (
 )
 from core.navigation import render_app
 
-
-inicio_rerun = time.perf_counter()
-
-diag = track_session()
-
-st.session_state["diagnostics"] = diag
-
-
 def configurar_pagina() -> None:
     """Configura la página principal de Streamlit."""
     st.set_page_config(
