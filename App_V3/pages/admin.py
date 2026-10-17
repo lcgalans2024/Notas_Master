@@ -16,8 +16,9 @@ def render_admin() -> None:
     st.dataframe(df_roles, use_container_width=True)
 
     diag = st.session_state.get("diagnostics")
-    
-    if diag:
-        render_diagnostics(diag)
-    else:
-        st.info("Las métricas de diagnóstico aún no están disponibles.")
+
+    if diag is None:
+        st.info("Diagnóstico aún no disponible.")
+        return
+
+    render_diagnostics(diag)
