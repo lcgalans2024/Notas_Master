@@ -14,6 +14,8 @@ def _runtime_registry():
     return {
         "sessions": {},
         "peak_rss_mb": 0.0,
+        "peak_active_sessions": 0,
+        "rss_at_peak_sessions_mb": 0.0,
         "lock": threading.Lock(),
     }
 
@@ -99,9 +101,16 @@ def track_session(active_window_seconds=300):
 
     with registry["lock"]:
 
+        # Compatibilidad por si el registro ya estaba creado
+        # antes de agregar las nuevas métricas.
+        registry.setdefault("peak_rss_mb", 0.0)
+        registry.setdefault("peak_active_sessions", 0)
+        registry.setdefault("rss_at_peak_sessions_mb", 0.0)
+
+        # Registrar actividad de esta sesión
         registry["sessions"][session_id] = now
 
-        # Eliminar sesiones que no han tenido actividad recientemente
+        # Eliminar sesiones sin actividad reciente
         expired = [
             sid
             for sid, last_seen in registry["sessions"].items()
@@ -111,21 +120,50 @@ def track_session(active_window_seconds=300):
         for sid in expired:
             del registry["sessions"][sid]
 
+        active_sessions = len(registry["sessions"])
+
+        # -----------------------------------------------------
+        # Pico general de RAM
+        # -----------------------------------------------------
         registry["peak_rss_mb"] = max(
             registry["peak_rss_mb"],
             rss_mb
         )
 
-        active_sessions = len(registry["sessions"])
+        # -----------------------------------------------------
+        # Pico de sesiones
+        # -----------------------------------------------------
+        if active_sessions > registry["peak_active_sessions"]:
+
+            registry["peak_active_sessions"] = active_sessions
+
+            # RAM observada al alcanzar ese nuevo pico
+            registry["rss_at_peak_sessions_mb"] = rss_mb
+
+        elif active_sessions == registry["peak_active_sessions"]:
+
+            # Si seguimos en el mismo máximo de sesiones,
+            # conservar la mayor RAM observada con esa carga.
+            registry["rss_at_peak_sessions_mb"] = max(
+                registry["rss_at_peak_sessions_mb"],
+                rss_mb
+            )
+
         peak_rss_mb = registry["peak_rss_mb"]
+        peak_active_sessions = registry["peak_active_sessions"]
+        rss_at_peak_sessions_mb = registry[
+            "rss_at_peak_sessions_mb"
+        ]
 
     return {
-        "session_id": session_id,
-        "reruns": st.session_state["_diag_reruns"],
-        "active_sessions": active_sessions,
-        "rss_mb": rss_mb,
-        "peak_rss_mb": peak_rss_mb,
-    }
+    "session_id": session_id,
+    "reruns": st.session_state["_diag_reruns"],
+    "active_sessions": active_sessions,
+    "peak_active_sessions": peak_active_sessions,
+    "rss_mb": rss_mb,
+    "peak_rss_mb": peak_rss_mb,
+    "rss_at_peak_sessions_mb": rss_at_peak_sessions_mb,
+}
 
 
 def render_diagnostics(diag, execution_time=None):
@@ -209,14 +247,29 @@ def render_diagnostics(diag, execution_time=None):
         with col5:
             st.metric(
                 "Reruns",
-                diag["reruns"]
+                diag.get("reruns", 0)
             )
 
         with col6:
             st.metric(
                 "Sesiones recientes",
-                diag["active_sessions"]
+                diag.get("active_sessions", 0)
             )
+
+        col7, col8 = st.columns(2)
+
+        with col7:
+            st.metric(
+                "Pico sesiones",
+                diag.get("peak_active_sessions", 0)
+            )
+        
+        with col8:
+            st.metric(
+                "RAM en pico sesiones",
+                f"{diag.get('rss_at_peak_sessions_mb', 0):.0f} MB"
+            )
+
 
         if execution_time is not None:
             st.metric(
