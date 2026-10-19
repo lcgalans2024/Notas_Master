@@ -271,7 +271,6 @@ def mostrar_tabla_notas(df):
     st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
 
 # Create a horizontal bar plot representing score
-@st.cache_data
 def _barra_progreso(nota_max,nota,meta,titulo='Nota'):
     fig, ax = plt.subplots(figsize=(8, 2))
     # Create the bar

@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 
 from components.alerts import render_empty_state, render_error_box, render_info_box
 from components.visual_helpers import mostrar_tabla_notas, mostrar_barra_progreso
@@ -67,6 +68,7 @@ def _mostrar_resumen_usuario(matricula_consultada: str | None = None, nombre_con
     with col2:
         st.metric("Periodo", f"{periodo} · {anio}")
 
+#@st.fragment
 def _seleccionar_estudiante_admin() -> tuple[str | None, str | None]:
     """
     Permite al admin seleccionar un estudiante del grupo y año activos.
@@ -98,7 +100,7 @@ def _seleccionar_estudiante_admin() -> tuple[str | None, str | None]:
     )
 
     opciones = df_estudiantes["label"].tolist()
-
+    
     seleccion = st.selectbox(
         "Selecciona un estudiante",
         options=opciones,
@@ -116,7 +118,7 @@ def _mostrar_tabla_notas(df_notas) -> None:
     st.subheader("Detalle de calificaciones")
     st.dataframe(df_notas, use_container_width=True, hide_index=True)
 
-
+@st.fragment
 def render_consulta_notas() -> None:
     """
     Renderiza la página de consulta de notas del usuario autenticado.
@@ -191,8 +193,22 @@ def render_consulta_notas() -> None:
     ponderacion , nota_acumulada, promedio_ponderado = calcular_nota_acumulada(df_notas)
     #st.write(f"Nota acumulada: {nota_acumulada} (ponderación actual: {ponderacion*100:.0f}%)")
 
-    fig = mostrar_barra_progreso(nota_acumulada, titulo =f'Nota Acumulada al {ponderacion*100:.0f}% de los procesos evaluados')
-    st.pyplot(fig, use_container_width=True)
+    fig = mostrar_barra_progreso(nota_acumulada,
+                                 titulo=(
+                                     f'Nota Acumulada al {ponderacion*100:.0f}%'
+                                      'de los procesos evaluados'
+                                      ),
+                                )
+
+    try: 
+        st.pyplot(fig, use_container_width=True)
+    finally:
+        plt.close(fig)
+
+    #if st.session_state.get("rol") == "admin":
+    #    st.caption(
+    #        f"Figuras abiertas en el proceso: {len(plt.get_fignums())}"
+    #    )
 
     #########################################################################
     #with st.expander("Depuración de carga de notas"):
