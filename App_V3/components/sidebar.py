@@ -192,18 +192,17 @@ def _render_filtros_generales() -> None:
 
 
 def _render_acciones() -> None:
-    col1, col2 = st.columns(2)
+    rol = st.session_state.get("rol", "estudiante")
 
-    with col1:
+    if rol == "admin":
         if st.button("Actualizar", use_container_width=True):
             limpiar_cache_datos()
             st.success("La caché de datos fue limpiada correctamente.")
             st.rerun()
 
-    with col2:
-        if st.button("Salir", use_container_width=True):
-            cerrar_sesion()
-            st.rerun()
+    if st.button("Salir", use_container_width=True):
+        cerrar_sesion()
+        st.rerun()
 
 
 def render_sidebar() -> str:
