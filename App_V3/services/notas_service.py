@@ -196,7 +196,7 @@ def _formatear_nombres_columnas(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-@st.cache_data(ttl=60, show_spinner=False)
+#@st.cache_data(ttl=60, show_spinner=False)
 def obtener_notas_usuario(matricula: str, grupo: str, periodo: str) -> pd.DataFrame:
     """
     Obtiene las notas del estudiante autenticado para un grupo y periodo dados.
