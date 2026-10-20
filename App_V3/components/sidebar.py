@@ -14,13 +14,14 @@ PAGINAS_DESHABILITADAS = {
 
 def _obtener_opciones_menu() -> list[str]:
     rol = st.session_state.get("rol", "estudiante")
+    grupo = st.session_state.get("grupo")
 
     opciones_estudiante = [
         "Inicio",
         "Consulta de notas",
-        "Informe académico",
+        #"Informe académico",
         "Material del área",
-        "Recuperaciones",
+        #"Recuperaciones",
         "Autoevaluación",
         #"Test Google Connection",
     ]
@@ -28,9 +29,9 @@ def _obtener_opciones_menu() -> list[str]:
     opciones_monitor = [
         "Inicio",
         "Consulta de notas",
-        "Informe académico",
+        #"Informe académico",
         "Material del área",
-        "Recuperaciones",
+        #"Recuperaciones",
         "Autoevaluación",
         "Inasistencia",
     ]
@@ -48,7 +49,35 @@ def _obtener_opciones_menu() -> list[str]:
         "Balance",
     ]
 
-    if rol == "admin":
+    opciones_admin = [
+            "Inicio",
+            "Consulta de notas",
+            #"Informe académico",
+            "Material del área",
+            "Recuperaciones",
+            "Autoevaluación",
+            "Inasistencia",
+            "Administración",
+            "Test Google Connection",
+            #"Balance",
+        ]
+
+    opciones_admin_801 = [
+            "Inicio",
+            "Consulta de notas",
+            "Informe académico",
+            "Material del área",
+            "Recuperaciones",
+            "Autoevaluación",
+            "Inasistencia",
+            "Administración",
+            "Test Google Connection",
+            "Balance",
+        ]
+
+    if rol == "admin" and grupo == "801":
+        return opciones_admin_801
+    if rol == "admin" and grupo != "801":
         return opciones_admin
     if rol == "monitor":
         return opciones_monitor
@@ -187,7 +216,7 @@ def _render_filtros_generales() -> None:
         st.session_state["periodo"] = st.selectbox(
             "Periodo",
             options=periodos_disponibles,
-            index=index_periodo,
+            index=2,#index_periodo,
         )
 
 
