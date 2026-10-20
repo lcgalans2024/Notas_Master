@@ -3,7 +3,7 @@ import streamlit as st
 from config.sheets_config import SHEETS_CONFIG
 from services.auth_service import cerrar_sesion, refrescar_contexto_usuario_por_anio
 from services.google_sheets_service import (
-    limpiar_cache_datos,
+    limpiar_cache_notas,
     obtener_periodos_disponibles_por_grupo,
 )
 
@@ -193,12 +193,25 @@ def _render_filtros_generales() -> None:
 
 def _render_acciones() -> None:
     rol = st.session_state.get("rol", "estudiante")
+    menu = st.session_state.get("menu", "Inicio")
 
-    if rol == "admin":
-        if st.button("Actualizar", use_container_width=True):
-            limpiar_cache_datos()
-            st.success("La caché de datos fue limpiada correctamente.")
-            st.rerun()
+    if rol == "admin" and menu == "Consulta de notas":
+        if st.button("Actualizar notas", use_container_width=True):
+            grupo = st.session_state.get("grupo")
+            periodo = st.session_state.get("periodo")
+
+            if not grupo or not periodo:
+                st.warning("Selecciona un grupo y un periodo.")
+            else:
+                try:
+                    limpiar_cache_notas(
+                        grupo=grupo,
+                        periodo=periodo,
+                    )
+                except Exception as exc:
+                    st.error(f"No fue posible actualizar las notas: {exc}")
+                else:
+                    st.success("Se actualizaron las notas del grupo y periodo.")
 
     if st.button("Salir", use_container_width=True):
         cerrar_sesion()

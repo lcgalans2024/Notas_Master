@@ -104,6 +104,7 @@ def _seleccionar_estudiante_admin() -> tuple[str | None, str | None]:
     seleccion = st.selectbox(
         "Selecciona un estudiante",
         options=opciones,
+        key=f"estudiante_notas_{anio}_{grupo}",
     )
 
     fila = df_estudiantes.loc[df_estudiantes["label"] == seleccion].iloc[0]

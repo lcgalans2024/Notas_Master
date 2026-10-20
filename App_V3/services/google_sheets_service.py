@@ -290,3 +290,15 @@ def cargar_inasistencias() -> pd.DataFrame:
 
     url = construir_url_csv(sheet_id, gid)
     return leer_hoja_csv(url)
+
+def limpiar_cache_notas(grupo: str, periodo: str) -> None:
+    """Limpia la caché de origen de las notas del grupo y periodo."""
+    sheet_id = _obtener_sheet_id_principal()
+    gid = _obtener_gid_notas(grupo, periodo)
+    url = construir_url_csv(sheet_id, gid)
+
+    # Limpiar el CSV de esa hoja.
+    leer_hoja_csv.clear(url)
+
+    # Limpiar la carga de notas de ese grupo y periodo.
+    cargar_notas.clear(grupo=grupo, periodo=periodo)
