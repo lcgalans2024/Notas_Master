@@ -59,9 +59,14 @@ def render_materiales() -> None:
         render_error_box("No fue posible identificar el grupo asociado al usuario.")
         return
 
-    # crear pestañas para actividades y recursos
-    tab_actividades, tab_recursos = st.tabs(["Actividades", "Recursos"])
-    with tab_actividades:
+    seccion = st.radio(
+        "Selecciona el contenido",
+        options=["Actividades", "Recursos"],
+        horizontal=True,
+        key="material_area_seccion",
+    )
+
+    if seccion == "Actividades":
         mostrar_actividades()
-    with tab_recursos:
+    else:
         mostrar_recursos()

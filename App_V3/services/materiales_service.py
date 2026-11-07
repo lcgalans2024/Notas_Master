@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+from pathlib import Path
 import streamlit as st
 
 from services.google_sheets_service import cargar_materiales
@@ -17,6 +18,76 @@ COLUMNAS_MATERIALES_PRIORIZADAS = [
     "archivo",
     "fecha",
 ]
+
+ACTIVIDADES_POR_PERIODO = {
+    "P2": [
+        {
+            "id": "p2_expresiones_algebraicas",
+            "titulo": "Guía Expresiones Algebraicas",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "Guia_Unidad_1_Expresiones_Algebraicas_G8_carta.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        },
+        {
+            "id": "p2_medidas_tendencia_central",
+            "titulo": "Guía Medidas de Tendencia Central",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "Guia_Unidad_5_Medidas_Tendencia_Central.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        },
+        {
+            "id": "p2_tabla_distribucion_frecuencias",
+            "titulo": "Ficha Tabla de Distribución de Frecuencias",
+            "descripcion": "Ficha de trabajo autónomo.",
+            "archivo": "Actividad_Tabla_distribución_Frecuencias_ASF8_B1C21.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        }
+    ],
+    "P3": [
+        {
+            "id": "p3_angulos_paralelas_secante",
+            "titulo": "Guía ángulos entre paralelas y una secante",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "Ficha guia ángulos_entre_paralelas_y_secante V2.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        },
+        {
+            "id": "p3_congruencia_triangulos",
+            "titulo": "Guía congruencia de triángulos",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "Ficha congruencia de triangulos.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        },
+        {
+            "id": "p3_histograma_grado_8_intervalos",
+            "titulo": "Guía histograma",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "ficha_histograma_grado_8_intervalos.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        },
+        {
+            "id": "p3_medidas_tendencia_central_agrupados",
+            "titulo": "Guía medidas de tendencia central para datos agrupados",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "Ficha Medidas de tendencia central para datos agrupados oficio.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        },
+        {
+            "id": "p3_productos_notables",
+            "titulo": "Guía productos notables",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "Ficha productos notables oficio.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        },
+        {
+            "id": "p3_factorizacion",
+            "titulo": "Guía factorización",
+            "descripcion": "Guía de trabajo autónomo.",
+            "archivo": "Fichas_Factorización.pdf",
+            "grupos": {"801", "802", "803", "804"},
+        }
+    ],
+}
 
 
 def _preparar_base_materiales(df: pd.DataFrame) -> pd.DataFrame:
@@ -130,6 +201,50 @@ def mostrar_actividades() -> None:
     grupo = st.session_state.get("grupo")
     anio_academico = st.session_state.get("anio_academico")
     periodo = st.session_state.get("periodo")
+
+    if periodo in ACTIVIDADES_POR_PERIODO:
+        grupo_actual = str(grupo).strip()
+
+        actividades = [
+            actividad
+            for actividad in ACTIVIDADES_POR_PERIODO[periodo]
+            if grupo_actual in actividad["grupos"]
+        ]
+
+        if not actividades:
+            st.info("No hay actividades disponibles para tu grupo en este periodo.")
+            return
+
+        carpeta = (
+            Path(__file__).resolve().parent.parent
+            / "docs"
+            / "actividades"
+            / periodo
+        )
+
+        for actividad in actividades:
+            st.subheader(actividad["titulo"])
+
+            if actividad.get("descripcion"):
+                st.write(actividad["descripcion"])
+
+            ruta_pdf = carpeta / actividad["archivo"]
+
+            if ruta_pdf.is_file():
+                st.download_button(
+                    label="📥 Descargar guía",
+                    data=ruta_pdf.read_bytes(),
+                    file_name=ruta_pdf.name,
+                    mime="application/pdf",
+                    key=f"descargar_{actividad['id']}",
+                )
+            else:
+                st.warning(
+                    f"El archivo de «{actividad['titulo']}» "
+                    "aún no está disponible."
+                )
+
+        return
 
     
     if not grupo:
