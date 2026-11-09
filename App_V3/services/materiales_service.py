@@ -85,7 +85,19 @@ ACTIVIDADES_POR_PERIODO = {
             "descripcion": "Guía de trabajo autónomo.",
             "archivo": "Fichas_Factorización.pdf",
             "grupos": {"801", "802", "803", "804"},
-        }
+        },
+        {"id": "p3_lectura_critica",
+         "titulo": "Actividad lectura crítica",
+         "descripcion": "Guía de trabajo lectira crítica transversal.",
+         "archivo": "Actividad lectura critica P3.pdf",
+         "grupos": {"801", "802", "803", "804"},
+        },
+        {"id": "p3_perimetros_areas",
+         "titulo": "Guía perímetros y áreas",
+         "descripcion": "Actividad de profundización.",
+         "archivo": "Ficha perimetros y areas.pdf",
+         "grupos": {"801", "802", "803", "804"},
+        },
     ],
 }
 
