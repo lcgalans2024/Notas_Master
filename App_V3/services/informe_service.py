@@ -372,7 +372,7 @@ def informe_año(df, matricula):
     print(f"Desempeño del estudiante {nombre_estudiante} en las materias:")
     if (df_estudiante['Superaciones_P1'] == 'A').all():
         print("El estudiante no tiene superaciones en el periodo P1.")
-        df_informe = df_estudiante[['Materia', 'Desempeño_P1', 'Desempeño_P2', 'Desempeño_P3', 'Estado_año']]
+        df_informe = df_estudiante[['Materia', 'Desempeño_P1', 'Desempeño_P2', 'Desempeño_P3','Año']]
         df_informe.rename(columns={'Desempeño_P1': 'P1', 'Desempeño_P2': 'P2', 'Desempeño_P3': 'P3'}, inplace=True)
     else:
         print("El estudiante tiene superaciones en el periodo P1.")
@@ -382,7 +382,7 @@ def informe_año(df, matricula):
                                     'Desempeño_P2',
                                     'Desempeño_P3',
                                     #'FN',
-                                    'Estado_año'
+                                    'Año'
                                     ]]
         df_informe.rename(columns={'Desempeño_P1': 'P1', 'Desempeño_P2': 'P2', 'Desempeño_P3': 'P3'}, inplace=True)
 
@@ -425,7 +425,7 @@ def consolidar_balance_vp(grupo: str, ano: str) -> pd.DataFrame:
     # pasar a float la columna FN
     df_est_materia['FN'] = df_est_materia['FN'].replace(',', '.', regex=True).astype(float)
     Estado_año = df_est_materia['FN'].apply(lambda x: 'REPROBADA' if x > 0.0 else 'APROBADA')
-    df_est_materia.insert(3, 'Estado_año', Estado_año)
+    df_est_materia.insert(3, 'Año', Estado_año)
 
     df_materias = df_est_materia[['Materia', 'P1', 'P2', 'P3']].copy()
 

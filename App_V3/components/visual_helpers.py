@@ -171,7 +171,7 @@ def color_informe_desempeño3p(row):
         
 
     # Retornar estilos: una columna vacía + 2 celdas por cada periodo
-    return [''] + [color_map[row['P1']]]  + [color_map[row['P2']]] + [color_map[row['P3']]] + [color_map[row['Estado_año']]]
+    return [''] + [color_map[row['P1']]]  + [color_map[row['P2']]] + [color_map[row['P3']]] + [color_map[row['Año']]]
 
 def color_informe_desempeño_p4(row):
     color_map = {
@@ -233,7 +233,7 @@ def mostrar_tabla_informe_3p(df):
         df[["Materia",
             "P1", 
             "P2",
-            "P3", "Estado_año"
+            "P3", "Año"
             ]]
         .style
         #.format({"PERÍODO 1": "{:.1f}", "PERÍODO 2": "{:.1f}", "PERÍODO 3": "{:.1f}"})

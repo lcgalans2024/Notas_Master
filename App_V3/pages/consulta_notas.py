@@ -41,7 +41,7 @@ def _mostrar_encabezado() -> None:
     st.caption("Consulta las calificaciones registradas para el periodo seleccionado.")
 
 
-def _mostrar_resumen_usuario(matricula_consultada: str | None = None, nombre_consultado: str | None = None) -> None:
+def _mostrar_resumen_usuario_admin(matricula_consultada: str | None = None, nombre_consultado: str | None = None) -> None:
     """
     Muestra información básica del estudiante autenticado.
     """
@@ -59,18 +59,22 @@ def _mostrar_resumen_usuario(matricula_consultada: str | None = None, nombre_con
         nombre = st.session_state.get("nombre", "Usuario")
         matricula = st.session_state.get("matricula", "No definido")
 
-    st.metric("Estudiante", nombre)
+    #st.metric("Estudiante", nombre)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Grupo", grupo)
+        st.metric("Matrícula", matricula)
 
     with col2:
-        st.metric("Periodo", f"{periodo} · {anio}")
+        st.metric("Grupo", grupo)
 
     with col3:
-        st.metric("Matrícula", matricula)
+        st.metric("Periodo", f"{periodo} · {anio}")
+
+    #with col4:
+    #    st.metric("Matrícula", matricula)
+
 
 #@st.fragment
 def _seleccionar_estudiante_admin() -> tuple[str | None, str | None]:
@@ -171,7 +175,7 @@ def render_consulta_notas() -> None:
             render_info_box("No hay un usuario autenticado en la sesión.")
             return
 
-    _mostrar_resumen_usuario(
+    _mostrar_resumen_usuario_admin(
         matricula_consultada = matricula_consultada,
         nombre_consultado = nombre_consultado,
     )
