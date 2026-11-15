@@ -29,7 +29,7 @@ from streamlit_extras.metric_cards import style_metric_cards
 - preparar_balance_notas: Aplica una serie de transformaciones para limpiar y homogeneizar un DataFrame de notas, dejándolo listo para análisis o visualización. Esto incluye eliminar columnas y filas vacías, eliminar filas iniciales que puedan contener metadatos, y homologar las columnas para asegurar consistencia en los nombres.
 Estas funciones son genéricas y pueden ser usadas en cualquier parte del proyecto donde se necesite preparar un DataFrame de notas para su uso posterior.
 """
-
+@st.fragment
 def render_balance() -> None:
     st.title("Balance de notas")
     st.caption("Visualiza un balance limpio y preparado de las notas registradas para el periodo seleccionado.")
@@ -52,6 +52,7 @@ def render_balance() -> None:
     
     # Habilitar un multiselect para elegir el estudiante y mostrar solo sus notas
     estudiantes = df_balance["nombre"].unique()
+    
     estudiante_seleccionado = st.multiselect("Selecciona un estudiante:", estudiantes)
     if estudiante_seleccionado:
         df_balance = df_balance[df_balance["nombre"].isin(estudiante_seleccionado)]

@@ -54,9 +54,11 @@ def autenticar_usuario(documento: str) -> tuple[bool, str]:
         st.session_state["usuario"] = documento
         st.session_state["nombre"] = "Administrador"
         st.session_state["grupo"] = None
+        st.session_state["matricula"] = None
         st.session_state["rol"] = "admin"
         st.session_state["datos_usuario"] = {
             "documento": documento,
+            "matricula": None,
             "nombre": "Administrador",
             "grupo": None,
             "rol": "admin",
@@ -78,7 +80,7 @@ def autenticar_usuario(documento: str) -> tuple[bool, str]:
     st.session_state["usuario"] = usuario["documento"]
     st.session_state["nombre"] = usuario["nombre"]
     st.session_state["grupo"] = usuario.get("grupo")
-    st.session_state["matricula"] = usuario.get("matricula")
+    st.session_state["matricula"] = usuario["matricula"]
     st.session_state["rol"] = rol#usuario.get("rol", "estudiante")
     st.session_state["datos_usuario"] = usuario
     st.session_state["authenticated"] = True

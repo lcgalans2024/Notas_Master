@@ -15,11 +15,12 @@ PAGINAS_DESHABILITADAS = {
 def _obtener_opciones_menu() -> list[str]:
     rol = st.session_state.get("rol", "estudiante")
     grupo = st.session_state.get("grupo")
+    matricula = st.session_state.get("matricula")
 
     opciones_estudiante = [
         "Inicio",
         "Consulta de notas",
-        #"Informe académico",
+        "Informe académico",
         "Material del área",
         #"Recuperaciones",
         "Autoevaluación",
@@ -29,7 +30,7 @@ def _obtener_opciones_menu() -> list[str]:
     opciones_monitor = [
         "Inicio",
         "Consulta de notas",
-        #"Informe académico",
+        "Informe académico",
         "Material del área",
         #"Recuperaciones",
         "Autoevaluación",
@@ -90,7 +91,7 @@ def _render_datos_usuario() -> None:
     Muestra un resumen del usuario autenticado.
     """
     nombre = st.session_state.get("nombre", "Usuario")
-    matricula = st.session_state.get("matricula")
+    matricula = st.session_state["matricula_consultada"] if "matricula_consultada" in st.session_state else st.session_state.get("matricula")
     grupo = st.session_state.get("grupo")
     rol = st.session_state.get("rol", "estudiante")
 
@@ -99,12 +100,12 @@ def _render_datos_usuario() -> None:
 
     if grupo:
         if rol == "admin":
-            st.caption(f"Grupo seleccionado: {grupo}")
+            st.caption(f"Grupo seleccionado: {matricula} - {grupo}")
         else:
             st.caption(f"Grupo: {grupo}")
 
-    #if matricula:
-    #    st.caption(f"Matrícula: {matricula}")
+    if matricula:
+        st.caption(f"Matrícula: {matricula}")
 
 def _resolver_periodos_disponibles(grupo: str | None) -> list[str]:
     if not grupo:

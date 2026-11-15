@@ -3,8 +3,10 @@ import streamlit as st
 from components.alerts import render_empty_state, render_error_box, render_info_box
 from services.informe_service import (
     obtener_informe_usuario,
-    consolidar_balance_vp
+    consolidar_balance_vp,
+    informe_año
 )
+from components.visual_helpers import mostrar_tabla_informe_3p
 
 
 def _mostrar_encabezado() -> None:
@@ -56,6 +58,7 @@ def render_informe() -> None:
 
     usuario = st.session_state.get("usuario")
     grupo = st.session_state.get("grupo","801")
+    matricula = st.session_state.get("matricula_consultada") if "matricula_consultada" in st.session_state else st.session_state.get("matricula")
     periodo = st.session_state.get("periodo")
     ano = st.session_state.get("anio_academico", "2026")
 
@@ -81,12 +84,17 @@ def render_informe() -> None:
         render_error_box(f"Ocurrió un error al consultar el informe académico: {exc}")
         return
 
-    if df_informe is None or df_informe.empty:
-        render_empty_state(
-            title="No hay informe disponible",
-            message=(
-                "Aún no se encontró información de informe académico "
-                "para este estudiante en el periodo seleccionado."
-            ),
-        )
-    return st.dataframe(consolidar_balance_vp(grupo, ano), use_container_width=True, hide_index=True)
+    #if df_informe is None or df_informe.empty:
+    #    render_empty_state(
+    #        title="No hay informe disponible",
+    #        message=(
+    #            "Aún no se encontró información de informe académico "
+    #            "para este estudiante en el periodo seleccionado."
+    #        ),
+    #    )
+
+    df_est, df_est_materia, df_materias = consolidar_balance_vp(grupo, ano)
+
+    D = informe_año(df_est_materia, matricula)
+
+    return mostrar_tabla_informe_3p(D)#st.dataframe(D, use_container_width=True, hide_index=True)

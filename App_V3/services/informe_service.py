@@ -194,6 +194,39 @@ def _mean_row_multiindex(
 
     return df
 
+def _mean_row_multiindex_3p(
+        df: pd.DataFrame,
+        subniveles: list[str] | None=None
+        ) -> pd.DataFrame:
+    """Calcular el promedio por fila para cada sub nivel
+    y agrgarlo c en las respectivas columnas al df"""
+    periodos = ['P1', 'P2', 'P3']
+    # Calcular promedio por fila según el periodo inclullendo las celdas con '#', sin eliminar los '#' del promedio
+    for periodo in periodos:
+        # Filtrar las columnas del periodo actual
+        cols_periodo = [col for col in df.columns if col[1] == periodo]
+
+        # Calcular el promedio ponderado considerando las celdas con '#'
+        promedio_ponderado = df[cols_periodo].apply(
+            lambda row: row.apply(
+                lambda x: float(x.lstrip('#'))
+                if isinstance(x, str) and '#' in x
+                else float(x)
+                if pd.notnull(x)
+                else 0
+                ).mean(),
+                axis=1)
+
+        # Agregar la columna de promedio al DataFrame
+        df[f'PROMEDIO_{periodo}'] = promedio_ponderado.round(1)
+
+    # agregar columna de conteo de '#' por periodo
+    for periodo in periodos:
+        df[f'REPROBADAS_{periodo}'] = df.apply(lambda row: _contar_sharp_por_periodo(row, periodo)[0], axis=1)
+        df[f'SUPERADAS_{periodo}'] = df.apply(lambda row: _contar_sharp_por_periodo(row, periodo)[1], axis=1)
+
+    return df
+
 def _pasar_a_multi_index(
         df: pd.DataFrame,
         subniveles: list[str] | None=None
@@ -236,6 +269,126 @@ def _pasar_a_multi_index(
 
     return df
 
+def _pasar_a_multi_index_3p(
+        df: pd.DataFrame,
+        subniveles: list[str] | None=None
+        ) -> pd.DataFrame:
+    """Pasa el dataframe un multi index"""
+    df = _procesar_consolidado_varios_periodos(df)
+
+
+
+    colIndex = pd.MultiIndex.from_product(
+        [['CIENCIAS NATURALES Y EDUCACIÓN AMBIENTAL',
+          'EDUCACIÓN ARTISTICA Y CULTURAL',
+          'EDUCACION ETICA  Y  EN VALORES HUMANOS',
+          'EDUCACIÓN FÍSICA,'
+          'RECREACIÓN Y DEPORTES',
+          'EDUCACION RELIGIOSA',
+          'LENGUA CASTELLANA',
+          'MATEMÁTICAS',
+          'TECNOLOGIA E INFORMÁTICA',
+          'LENGUA EXTRANJERA INGLES',
+          'CIENCIAS SOCIALES'],
+          #["P1", "A","P","FN"]]
+          ["P1", "P2", "P3", "A","P","FN"],
+          #["P1", "P2", "P3", "P4", "A","P","FN"],
+          ]
+    )
+
+    df.columns = colIndex
+    df = df.iloc[1:,:]
+
+    # sub niveles a eliminar
+    eliminar = list(set(["P1", "P2", "P3", "A","P","FN"]) - set(subniveles))
+
+    df = eliminar_columnas_multiindex(df, eliminar)
+
+    df = _mean_row_multiindex_3p(df, subniveles)
+
+    # Agregar columnas de promedio, superación y reprobación al índice del DataFrame
+    
+    df.set_index(['PROMEDIO_P1', 'PROMEDIO_P2', 'PROMEDIO_P3','REPROBADAS_P1', 'SUPERADAS_P1', 'REPROBADAS_P2', 'SUPERADAS_P2',  'REPROBADAS_P3', 'SUPERADAS_P3'], append=True, inplace=True)
+
+    return df
+
+def derretir_VP(
+        df: pd.DataFrame,
+        subniveles: list[str] | None=None,
+        subniveles_eliminar: list[str] | None=None
+        ) -> pd.DataFrame:
+    columnas_interes = list(set(["P1", "P2", "P3", "A","P","FN"]) - set(subniveles_eliminar))
+    #columnas_interes = ['P1']
+    df_largo = (
+        df.stack(level=0)  # Materias como variable
+        .loc[:, columnas_interes]  # Nos quedamos solo con esas columnas
+        .reset_index()
+        .rename(columns={"level_13": "Materia"})
+    )
+    # ordenar por la columna 'Nombre completo'
+    df_largo = df_largo.sort_values(by='Nombre completo')
+
+    return df_largo
+
+def _asignar_desempeno_v2(nota):
+    # Verificar si la nota es un string y contiene '#'
+    if isinstance(nota, str) and '#' in nota:
+        # Asignar desempeño según la nota y si contiene '#'
+        if float(nota.lstrip('#')) < 3.0:
+            return "Bj"
+        elif float(nota.lstrip('#')) < 4.0:
+            return "Ba"
+        elif float(nota.lstrip('#')) < 4.5:
+            return "Al"
+        else:
+            return "Su"
+    else:
+        # Asignar desempeño según la nota si es un número
+        if float(nota) < 3.0:
+            return "Bj"
+        elif float(nota) < 4.0:
+            return "Ba"
+        elif float(nota) < 4.5:
+            return "Al"
+        else:
+            return "Su"
+
+def estado_materia(df,subniveles):
+    for periodo in subniveles:
+        df[f'Superaciones_{periodo}'] = df[periodo].apply(lambda x: "S" if isinstance(x, str) and '#' in x and float(x.lstrip('#')) == 3.0
+                                                            else("R" if isinstance(x, str) and '#' in x and float(x.lstrip('#')) < 3.0
+                                                                 else ("R" if isinstance(x, str) and float(x) < 3.0
+                                                                       else ("A" if isinstance(x, str) and float(x) >= 3.0
+                                                                             else ("R" if float(x) < 3.0 else "A")))))
+
+def eliminar_sharp(df, subniveles):
+    for periodo in subniveles:
+        df[periodo] = df[periodo].apply(lambda x: float(x.lstrip('#')) if isinstance(x, str) and '#' in x else float(x) if pd.notnull(x) else 0)
+
+def informe_año(df, matricula):
+    # Seleccionar estudiante para ver su desempeño en las materias
+    df_estudiante = df[df['Matrícula'] == matricula]
+    nombre_estudiante = df_estudiante['Nombre completo'].iloc[0]
+    print(f"Desempeño del estudiante {nombre_estudiante} en las materias:")
+    if (df_estudiante['Superaciones_P1'] == 'A').all():
+        print("El estudiante no tiene superaciones en el periodo P1.")
+        df_informe = df_estudiante[['Materia', 'Desempeño_P1', 'Desempeño_P2', 'Desempeño_P3', 'Estado_año']]
+        df_informe.rename(columns={'Desempeño_P1': 'P1', 'Desempeño_P2': 'P2', 'Desempeño_P3': 'P3'}, inplace=True)
+    else:
+        print("El estudiante tiene superaciones en el periodo P1.")
+        df_informe = df_estudiante[['Materia',
+                                    'Desempeño_P1',
+                                    #'Superaciones_P1',
+                                    'Desempeño_P2',
+                                    'Desempeño_P3',
+                                    #'FN',
+                                    'Estado_año'
+                                    ]]
+        df_informe.rename(columns={'Desempeño_P1': 'P1', 'Desempeño_P2': 'P2', 'Desempeño_P3': 'P3'}, inplace=True)
+
+    return df_informe
+
+
 # Función para consolidar promedios, reprobadas, superadas y resultados por materia para varios periodos de cada estudiante
 def consolidar_balance_vp(grupo: str, ano: str) -> pd.DataFrame:
     """
@@ -244,10 +397,36 @@ def consolidar_balance_vp(grupo: str, ano: str) -> pd.DataFrame:
     """
     df_consolidado_vp = cargar_consolidado_año_vp(grupo, ano)
 
-    Df = _pasar_a_multi_index(df_consolidado_vp,["P1", "P2"])
+    Df = _pasar_a_multi_index_3p(df_consolidado_vp,["P1", "P2", "P3", "A","P","FN"])
 
     df_est = Df.index.to_frame(index=False)
     # Completar columna Est con activos e Identificar cancelados
     df_est.Est = df_est.Est.fillna("A")
 
-    return df_est
+    df_est_materia = derretir_VP(Df,subniveles=["P1", "P2", "P3", "A","P","FN"], subniveles_eliminar=["A","P"])
+
+    df_est_materia = df_est_materia[df_est_materia.Est != 'C'].copy()
+
+    df_est_materia = df_est_materia.drop(columns=['Est', 'Total faltas', 'PROMEDIO_P1',
+           'PROMEDIO_P2', 'PROMEDIO_P3', 'REPROBADAS_P1', 'SUPERADAS_P1', 'REPROBADAS_P2',
+           'SUPERADAS_P2', 'REPROBADAS_P3', 'SUPERADAS_P3'])
+
+    # Aplicar la función a la columna 'P1' y 'P2'
+    for periodo in ['P1', 'P2', 'P3']:
+        df_est_materia[f'Desempeño_{periodo}'] = df_est_materia[periodo].apply(_asignar_desempeno_v2)
+
+    # Crear columna de estado materia en periodo por periodo según las reglas especificadas
+    estado_materia(df_est_materia, ["P1", "P2", "P3"])
+
+    # Eliminar los "#" de las columnas de periodo para que solo queden los valores numéricos
+    eliminar_sharp(df_est_materia, ["P1", "P2", "P3"])
+
+    # Crear columna "Estado_año", si "FN" es mayor que 0.0, entonces "REPROBADA" si es igual a 0.0, entonces "APROBADA". insertarla al lado de "Materia"
+    # pasar a float la columna FN
+    df_est_materia['FN'] = df_est_materia['FN'].replace(',', '.', regex=True).astype(float)
+    Estado_año = df_est_materia['FN'].apply(lambda x: 'REPROBADA' if x > 0.0 else 'APROBADA')
+    df_est_materia.insert(3, 'Estado_año', Estado_año)
+
+    df_materias = df_est_materia[['Materia', 'P1', 'P2', 'P3']].copy()
+
+    return df_est, df_est_materia, df_materias

@@ -47,6 +47,7 @@ def _mostrar_resumen_usuario(matricula_consultada: str | None = None, nombre_con
     """
     rol = st.session_state.get("rol", "estudiante")
     nombre = st.session_state.get("nombre", "Usuario")
+    matricula = st.session_state.get("matricula")
     grupo = st.session_state.get("grupo", "No definido")
     periodo = st.session_state.get("periodo", "No definido")
     anio = st.session_state.get("anio_academico", "No definido")
@@ -67,6 +68,9 @@ def _mostrar_resumen_usuario(matricula_consultada: str | None = None, nombre_con
 
     with col2:
         st.metric("Periodo", f"{periodo} · {anio}")
+
+    with col3:
+        st.metric("Matrícula", matricula)
 
 #@st.fragment
 def _seleccionar_estudiante_admin() -> tuple[str | None, str | None]:
@@ -108,6 +112,7 @@ def _seleccionar_estudiante_admin() -> tuple[str | None, str | None]:
     )
 
     fila = df_estudiantes.loc[df_estudiantes["label"] == seleccion].iloc[0]
+    st.session_state["matricula_consultada"] = str(fila["matricula"])
 
     return str(fila["matricula"]), str(fila["nombre"])
 
@@ -144,7 +149,11 @@ def render_consulta_notas() -> None:
     if not periodo:
         render_error_box("No fue posible identificar el periodo activo.")
         return
-    
+
+    #if not matricula:
+    #    render_error_box("No fue posible identificar la matrícula del usuario.")
+    #    return
+
     documento_consultado = None
     matricula_consultada = None
     nombre_consultado = None

@@ -159,6 +159,20 @@ def color_informe_desempeño3(row):
     # Retornar estilos: una columna vacía + 2 celdas por cada periodo
     return [''] + [color_map[cat_p1]] * 2 + [color_map[cat_p2]] * 2 + [color_map[cat_p3]] * 2# + ['']
 
+def color_informe_desempeño3p(row):
+    color_map = {
+        'Su': 'background-color: #00b050; color: black',  # Verde
+        'Al': 'background-color: #ffff00; color: black',  # Amarillo claro
+        'Ba': 'background-color: #ffc000; color: black',  # Naranja
+        'Bj': 'background-color: #ff0000; color: white',   # Rojo
+        'APROBADA' : 'background-color: #00b050; color: black',
+        'REPROBADA' : 'background-color: #ff0000; color: white'
+    }
+        
+
+    # Retornar estilos: una columna vacía + 2 celdas por cada periodo
+    return [''] + [color_map[row['P1']]]  + [color_map[row['P2']]] + [color_map[row['P3']]] + [color_map[row['Estado_año']]]
+
 def color_informe_desempeño_p4(row):
     color_map = {
         'Sup': 'background-color: #00b050; color: black',  # Verde
@@ -198,6 +212,32 @@ def mostrar_tabla_informe(df):
         .style
         .format({"PERÍODO 1": "{:.1f}", "PERÍODO 2": "{:.1f}", "PERÍODO 3": "{:.1f}"})
         .apply(color_informe_desempeño3, axis=1)
+        .set_table_styles([
+            {'selector': 'th', 'props': [
+                ('text-align', 'center'),
+                ('background-color', '#cce5ff')  # azul claro
+            ]},
+            {'selector': 'td', 'props': [('text-align', 'center')]}
+        ]
+        ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
+    )
+
+    st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)
+
+# Mostrar tabla desempeños 3 periodos
+def mostrar_tabla_informe_3p(df):
+    """
+    Muestra el DataFrame de informe con colores según su estado.
+    """
+    styled_df = (
+        df[["Materia",
+            "P1", 
+            "P2",
+            "P3", "Estado_año"
+            ]]
+        .style
+        #.format({"PERÍODO 1": "{:.1f}", "PERÍODO 2": "{:.1f}", "PERÍODO 3": "{:.1f}"})
+        .apply(color_informe_desempeño3p, axis=1)
         .set_table_styles([
             {'selector': 'th', 'props': [
                 ('text-align', 'center'),
