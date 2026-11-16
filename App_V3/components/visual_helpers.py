@@ -163,7 +163,7 @@ def color_informe_desempeño3p(row):
     color_map = {
         'Su': 'background-color: #00b050; color: black',  # Verde
         'Al': 'background-color: #ffff00; color: black',  # Amarillo claro
-        'Ba': 'background-color: #ffc000; color: black',  # Naranja
+        'Ba': 'background-color: #FF9800; color: black',  # Naranja
         'Bj': 'background-color: #ff0000; color: white',   # Rojo
         'APROBADA' : 'background-color: #00b050; color: black',
         'REPROBADA' : 'background-color: #ff0000; color: white'
@@ -171,7 +171,7 @@ def color_informe_desempeño3p(row):
         
 
     # Retornar estilos: una columna vacía + 2 celdas por cada periodo
-    return [''] + [color_map[row['P1']]]  + [color_map[row['P2']]] + [color_map[row['P3']]] + [color_map[row['Año']]]
+    return [''] + [color_map[row['P1']]]  + [color_map[row['P2']]] + [color_map[row['P3']]] + [color_map[row['DA']]]*2#+ [color_map[row['Año']]]
 
 def color_informe_desempeño_p4(row):
     color_map = {
@@ -233,7 +233,9 @@ def mostrar_tabla_informe_3p(df):
         df[["Materia",
             "P1", 
             "P2",
-            "P3", "Año"
+            "P3",
+            "DA",
+            "Año"
             ]]
         .style
         #.format({"PERÍODO 1": "{:.1f}", "PERÍODO 2": "{:.1f}", "PERÍODO 3": "{:.1f}"})
@@ -245,7 +247,8 @@ def mostrar_tabla_informe_3p(df):
             ]},
             {'selector': 'td', 'props': [('text-align', 'center')]}
         ]
-        ).hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
+        ).hide(subset=["DA"], axis="columns")  # Ocultar DA
+        .hide(axis="index")  # ✅ Esto quita el índice en pandas 1.4+
     )
 
     st.markdown(styled_df.to_html(escape=False), unsafe_allow_html=True)

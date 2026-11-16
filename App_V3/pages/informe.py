@@ -88,10 +88,10 @@ def render_informe() -> None:
         st.markdown("""
         **Leyenda de colores para desempeño**
 
-        🟩 **Verde**: Desempeño superior          
-        🟨 **Amarillo**: Desempeño alto         
-        🟧 **Naranja**: Desempeño basico         
-        🟥 **Rojo**: Desempeño baj
+        🟩 **Verde**: Desempeño superior (Su)         
+        🟨 **Amarillo**: Desempeño alto  (Al)       
+        🟧 **Naranja**: Desempeño basico (Ba)      
+        🟥 **Rojo**: Desempeño bajo (Bj)
         """)
     with col2:
         # Leyenda de colores con emoji para estado
@@ -146,5 +146,7 @@ def render_informe() -> None:
     df_est, df_est_materia, df_materias = consolidar_balance_vp(grupo, ano)
 
     D = informe_año(df_est_materia, matricula_consultada)
+
+    st.dataframe(df_est_materia)
 
     return mostrar_tabla_informe_3p(D)#st.dataframe(D, use_container_width=True, hide_index=True)

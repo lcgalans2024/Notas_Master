@@ -372,7 +372,7 @@ def informe_año(df, matricula):
     print(f"Desempeño del estudiante {nombre_estudiante} en las materias:")
     if (df_estudiante['Superaciones_P1'] == 'A').all():
         print("El estudiante no tiene superaciones en el periodo P1.")
-        df_informe = df_estudiante[['Materia', 'Desempeño_P1', 'Desempeño_P2', 'Desempeño_P3','Año']]
+        df_informe = df_estudiante[['Materia', 'Desempeño_P1', 'Desempeño_P2', 'Desempeño_P3','DA','Año']]
         df_informe.rename(columns={'Desempeño_P1': 'P1', 'Desempeño_P2': 'P2', 'Desempeño_P3': 'P3'}, inplace=True)
     else:
         print("El estudiante tiene superaciones en el periodo P1.")
@@ -381,7 +381,7 @@ def informe_año(df, matricula):
                                     #'Superaciones_P1',
                                     'Desempeño_P2',
                                     'Desempeño_P3',
-                                    #'FN',
+                                    'DA',
                                     'Año'
                                     ]]
         df_informe.rename(columns={'Desempeño_P1': 'P1', 'Desempeño_P2': 'P2', 'Desempeño_P3': 'P3'}, inplace=True)
@@ -403,7 +403,17 @@ def consolidar_balance_vp(grupo: str, ano: str) -> pd.DataFrame:
     # Completar columna Est con activos e Identificar cancelados
     df_est.Est = df_est.Est.fillna("A")
 
-    df_est_materia = derretir_VP(Df,subniveles=["P1", "P2", "P3", "A","P","FN"], subniveles_eliminar=["A","P"])
+    df_est_materia = derretir_VP(Df
+                                 ,subniveles=["P1"
+                                              ,"P2"
+                                              ,"P3"
+                                              ,"A"
+                                              ,"P"
+                                              ,"FN"]
+                                 ,subniveles_eliminar=["P"
+                                                       #,"A"
+                                                       ]
+                                 )
 
     df_est_materia = df_est_materia[df_est_materia.Est != 'C'].copy()
 
@@ -427,6 +437,10 @@ def consolidar_balance_vp(grupo: str, ano: str) -> pd.DataFrame:
     Estado_año = df_est_materia['FN'].apply(lambda x: 'REPROBADA' if x > 0.0 else 'APROBADA')
     df_est_materia.insert(3, 'Año', Estado_año)
 
-    df_materias = df_est_materia[['Materia', 'P1', 'P2', 'P3']].copy()
+    # crear columna de dese,peño año "DA" que asigna el desempeño segun el acumulado
+    DA = df_est_materia['A'].apply(_asignar_desempeno_v2)
+    df_est_materia.insert(4, 'DA', DA)
+
+    df_materias = df_est_materia[['Materia', 'P1', 'P2', 'P3','A']].copy()
 
     return df_est, df_est_materia, df_materias
