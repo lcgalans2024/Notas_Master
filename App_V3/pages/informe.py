@@ -147,6 +147,6 @@ def render_informe() -> None:
 
     D = informe_año(df_est_materia, matricula_consultada)
 
-    st.dataframe(df_est_materia)
+    #st.dataframe(df_est_materia)
 
     return mostrar_tabla_informe_3p(D)#st.dataframe(D, use_container_width=True, hide_index=True)
